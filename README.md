@@ -5,8 +5,6 @@ You can also find this package on pub as [rest_api_client](https://pub.dev/packa
 ## Usage
 ```
 Future main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
   IRestApiClient restApiClient = RestApiClient(
     exceptionOptions: RestApiClientExceptionOptions(
       showInternalServerErrors: true,
