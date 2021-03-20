@@ -10,7 +10,8 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   @override
   late RestApiClientExceptionOptions exceptionOptions;
   @override
-  StreamController<RestApiClientException> exceptions = StreamController<RestApiClientException>.broadcast();
+  StreamController<RestApiClientException> exceptions =
+      StreamController<RestApiClientException>.broadcast();
   late IStorageRepository storageRepository = SecureStorageRepository();
   late RestApiClientOptions restApiClientOptions;
 
@@ -31,7 +32,8 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   Future<IRestApiClient> init() async {
     final jwt = await storageRepository.get(RestApiClientKeys.jwt);
     if (jwt != null) {
-      _addOrUpdateHeader(key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
+      _addOrUpdateHeader(
+          key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
     }
 
     return this;
@@ -44,21 +46,28 @@ class RestApiClient extends DioMixin implements IRestApiClient {
 
   @override
   void setAcceptLanguageHeader(String languageCode) {
-    _addOrUpdateHeader(key: RestApiClientKeys.acceptLanguage, value: languageCode);
+    _addOrUpdateHeader(
+        key: RestApiClientKeys.acceptLanguage, value: languageCode);
   }
 
   @override
-  Future<bool> addAuthorization({required String jwt, required String refreshToken}) async {
+  Future<bool> addAuthorization(
+      {required String jwt, required String refreshToken}) async {
     final result = await storageRepository.set(RestApiClientKeys.jwt, jwt);
-    _addOrUpdateHeader(key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
+    _addOrUpdateHeader(
+        key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
 
-    return result && await storageRepository.set(RestApiClientKeys.refreshToken, refreshToken);
+    return result &&
+        await storageRepository.set(
+            RestApiClientKeys.refreshToken, refreshToken);
   }
 
   @override
   Future<bool> removeAuthorization() async {
-    final deleteJwtResult = await storageRepository.delete(RestApiClientKeys.jwt);
-    final deleteRefreshTokenResult = await storageRepository.delete(RestApiClientKeys.jwt);
+    final deleteJwtResult =
+        await storageRepository.delete(RestApiClientKeys.jwt);
+    final deleteRefreshTokenResult =
+        await storageRepository.delete(RestApiClientKeys.jwt);
 
     options.headers.remove(RestApiClientKeys.authorization);
 
@@ -67,11 +76,16 @@ class RestApiClient extends DioMixin implements IRestApiClient {
 
   @override
   Future<bool> isAuthorized() async {
-    final containsAuthorizationHeader = options.headers.containsKey(RestApiClientKeys.jwt);
-    final containsJwtInStorage = await storageRepository.get(RestApiClientKeys.jwt);
-    final containsRefreshTokenInStorage = await storageRepository.get(RestApiClientKeys.refreshToken);
+    final containsAuthorizationHeader =
+        options.headers.containsKey(RestApiClientKeys.jwt);
+    final containsJwtInStorage =
+        await storageRepository.get(RestApiClientKeys.jwt);
+    final containsRefreshTokenInStorage =
+        await storageRepository.get(RestApiClientKeys.refreshToken);
 
-    return containsAuthorizationHeader && containsJwtInStorage && containsRefreshTokenInStorage;
+    return containsAuthorizationHeader &&
+        containsJwtInStorage &&
+        containsRefreshTokenInStorage;
   }
 
   Future<String> _getRefreshToken() async {
@@ -85,9 +99,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     if (options.headers.containsKey(key)) {
       options.headers.update(key, (v) => value);
     } else {
-      options.headers.addAll({
-        key: value
-      });
+      options.headers.addAll({key: value});
     }
   }
 
@@ -103,7 +115,8 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     );
   }
 
-  bool get _usesAutorization => options.headers.containsKey(RestApiClientKeys.jwt);
+  bool get _usesAutorization =>
+      options.headers.containsKey(RestApiClientKeys.jwt);
 
   Future refreshTokenCallback(DioError error) async {
     interceptors.requestLock.lock();
@@ -128,11 +141,10 @@ class RestApiClient extends DioMixin implements IRestApiClient {
 
     //Set for current request
     if (options.headers.containsKey(RestApiClientKeys.authorization)) {
-      options.headers.update(RestApiClientKeys.authorization, (v) => 'Bearer $jwt');
+      options.headers
+          .update(RestApiClientKeys.authorization, (v) => 'Bearer $jwt');
     } else {
-      options.headers.addAll({
-        RestApiClientKeys.authorization: 'Bearer $jwt'
-      });
+      options.headers.addAll({RestApiClientKeys.authorization: 'Bearer $jwt'});
     }
 
     interceptors.requestLock.unlock();
@@ -195,9 +207,11 @@ class RestApiClient extends DioMixin implements IRestApiClient {
         var errorsMap = {};
 
         if (restApiClientOptions.resolveValidationErrorsMap != null) {
-          errorsMap = restApiClientOptions.resolveValidationErrorsMap!(error.response.data);
+          errorsMap = restApiClientOptions
+              .resolveValidationErrorsMap!(error.response.data);
         } else if (error.response.data is String) {
-          errorsMap = json.decode(error.response.data)['validationErrors'] ?? {};
+          errorsMap =
+              json.decode(error.response.data)['validationErrors'] ?? {};
         } else {
           errorsMap = error.response.data['validationErrors'] ?? {};
         }
@@ -217,11 +231,14 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   }
 
   void _handleException(RestApiClientException exception) {
-    if (exception is NetworkErrorException && exceptionOptions.showNetworkErrors) {
+    if (exception is NetworkErrorException &&
+        exceptionOptions.showNetworkErrors) {
       exceptions.add(exception);
-    } else if (exception is ServerErrorException && exceptionOptions.showInternalServerErrors) {
+    } else if (exception is ServerErrorException &&
+        exceptionOptions.showInternalServerErrors) {
       exceptions.add(exception);
-    } else if (exception is ValidationException && exceptionOptions.showValidationErrors) {
+    } else if (exception is ValidationException &&
+        exceptionOptions.showValidationErrors) {
       exceptions.add(exception);
     } else {
       exceptions.add(exception);

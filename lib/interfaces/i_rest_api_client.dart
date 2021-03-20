@@ -9,7 +9,8 @@ abstract class IRestApiClient extends DioMixin {
   Future<IRestApiClient> init();
   Future dispose();
   void setAcceptLanguageHeader(String languageCode);
-  Future<bool> addAuthorization({required String jwt, required String refreshToken});
+  Future<bool> addAuthorization(
+      {required String jwt, required String refreshToken});
   Future<bool> removeAuthorization();
   Future<bool> isAuthorized();
 }

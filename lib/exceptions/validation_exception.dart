@@ -16,7 +16,11 @@ class ValidationException extends RestApiClientException {
     this.validationMessages = const {},
   }) : super(
           silent: silent,
-          messages: validationMessages.entries.map<List<String>>((mapEntry) => mapEntry.value).toList().expand<String>((list) => list).toList(),
+          messages: validationMessages.entries
+              .map<List<String>>((mapEntry) => mapEntry.value)
+              .toList()
+              .expand<String>((list) => list)
+              .toList(),
         );
 
   @override
