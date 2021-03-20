@@ -1,13 +1,11 @@
-import 'package:dio/dio.dart';
-
 class RestApiClientOptions {
   final String baseUrl;
   final bool logNetworkTraffic;
   final String refreshTokenEndpoint;
   final String refreshTokenParameterName;
-  final String Function(Response<dynamic> response)? resolveJwt;
-  final String Function(Response<dynamic> response)? resolveRefreshToken;
-  final Map<String, List<String>> Function(DioError error)? resolveValidationErrorsMap;
+  final String Function(dynamic response)? resolveJwt;
+  final String Function(dynamic response)? resolveRefreshToken;
+  final Map<String, List<String>> Function(dynamic response)? resolveValidationErrorsMap;
 
   RestApiClientOptions({
     this.baseUrl = '',

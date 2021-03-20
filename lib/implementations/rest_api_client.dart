@@ -11,11 +11,10 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   late RestApiClientExceptionOptions exceptionOptions;
   @override
   StreamController<RestApiClientException> exceptions = StreamController<RestApiClientException>.broadcast();
-  late IStorageRepository storageRepository;
+  late IStorageRepository storageRepository = SecureStorageRepository();
   late RestApiClientOptions restApiClientOptions;
 
   RestApiClient({
-    required this.storageRepository,
     required this.exceptionOptions,
     required this.restApiClientOptions,
   }) {
@@ -56,14 +55,23 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     return result && await storageRepository.set(RestApiClientKeys.refreshToken, refreshToken);
   }
 
+  @override
   Future<bool> removeAuthorization() async {
     final deleteJwtResult = await storageRepository.delete(RestApiClientKeys.jwt);
     final deleteRefreshTokenResult = await storageRepository.delete(RestApiClientKeys.jwt);
 
-    options.headers.remove(RestApiClientKeys.jwt);
-    options.headers.remove(RestApiClientKeys.refreshToken);
+    options.headers.remove(RestApiClientKeys.authorization);
 
     return deleteJwtResult && deleteRefreshTokenResult;
+  }
+
+  @override
+  Future<bool> isAuthorized() async {
+    final containsAuthorizationHeader = options.headers.containsKey(RestApiClientKeys.jwt);
+    final containsJwtInStorage = await storageRepository.get(RestApiClientKeys.jwt);
+    final containsRefreshTokenInStorage = await storageRepository.get(RestApiClientKeys.refreshToken);
+
+    return containsAuthorizationHeader && containsJwtInStorage && containsRefreshTokenInStorage;
   }
 
   Future<String> _getRefreshToken() async {
@@ -187,11 +195,11 @@ class RestApiClient extends DioMixin implements IRestApiClient {
         var errorsMap = {};
 
         if (restApiClientOptions.resolveValidationErrorsMap != null) {
-          errorsMap = restApiClientOptions.resolveValidationErrorsMap!(error);
+          errorsMap = restApiClientOptions.resolveValidationErrorsMap!(error.response.data);
         } else if (error.response.data is String) {
-          errorsMap = json.decode(error.response.data)['validationErrors'];
+          errorsMap = json.decode(error.response.data)['validationErrors'] ?? {};
         } else {
-          errorsMap = error.response.data['validationErrors'];
+          errorsMap = error.response.data['validationErrors'] ?? {};
         }
 
         final Map<String, List<String>> result = {};

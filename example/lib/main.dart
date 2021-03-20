@@ -1,9 +1,6 @@
-# Storage repository
-Abstraction for persisting and reading data to platform specific storage.
-You can also find this package on pub as [rest_api_client](https://pub.dev/packages/rest_api_client)
+import 'package:flutter/material.dart';
+import 'package:rest_api_client/rest_api_client.dart';
 
-## Usage
-```
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -77,4 +74,3 @@ Future main() async {
 
   restApiClient.delete('/Products/Reviews/234');
 }
-```
