@@ -7,7 +7,7 @@ class RestApiClientOptions {
   final String refreshTokenParameterName;
   final String Function(Response<dynamic> response)? resolveJwt;
   final String Function(Response<dynamic> response)? resolveRefreshToken;
-  final Map<dynamic, dynamic> Function(DioError error)? resolveValidationErrorsMap;
+  final Map<String, List<String>> Function(DioError error)? resolveValidationErrorsMap;
 
   RestApiClientOptions({
     this.baseUrl = '',

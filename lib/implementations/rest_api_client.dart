@@ -8,11 +8,10 @@ import 'package:storage_repository/storage_repository.dart';
 
 class RestApiClient extends DioMixin implements IRestApiClient {
   @override
-  late IStorageRepository storageRepository;
-  @override
   late RestApiClientExceptionOptions exceptionOptions;
   @override
   StreamController<RestApiClientException> exceptions = StreamController<RestApiClientException>.broadcast();
+  late IStorageRepository storageRepository;
   late RestApiClientOptions restApiClientOptions;
 
   RestApiClient({

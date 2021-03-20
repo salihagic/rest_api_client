@@ -1,5 +1,5 @@
 name: rest_api_client
-description: Abstraction for reading and persisting data to platform specific storage.
+description: Abstraction for communicating with REST API in flutter projects. Incorporates exception handling and jwt with refresh token authorization.
 version: 0.0.1
 repository: https://github.com/salihagic/rest_api_client
 
