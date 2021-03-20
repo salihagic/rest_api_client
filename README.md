@@ -46,15 +46,15 @@ If you are using authentication in your app probably it would look something lik
     },
   );
 
-  var jwt = response.data['jwt'];
-  var refreshToken = response.data['refreshToken'];
+  final jwt = response.data['jwt'];
+  final refreshToken = response.data['refreshToken'];
 ```
 
 Let's asume that somehow we got jwt and refresh token,
 you probably pinged our api Authentication endpoint to get these two values.
 ```
-  jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZmx1dHRlciI6IkZsdXR0ZXIgaXMgYXdlc29tZSIsImNoYWxsZW5nZSI6IllvdSBtYWRlIGl0LCB5b3UgY3JhY2tlZCB0aGUgY29kZS4gWW91J3JlIGF3ZXNvbWUgdG9vLiIsImlhdCI6MTUxNjIzOTAyMn0.5QJz8hhxYsHxShS4hWKdHzcFH_IsQQZAnWSEcHJkspE';
-  refreshToken = 'c91c03ea6c46a86cbc019be3d71d0a1a';
+  final jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZmx1dHRlciI6IkZsdXR0ZXIgaXMgYXdlc29tZSIsImNoYWxsZW5nZSI6IllvdSBtYWRlIGl0LCB5b3UgY3JhY2tlZCB0aGUgY29kZS4gWW91J3JlIGF3ZXNvbWUgdG9vLiIsImlhdCI6MTUxNjIzOTAyMn0.5QJz8hhxYsHxShS4hWKdHzcFH_IsQQZAnWSEcHJkspE';
+  final refreshToken = 'c91c03ea6c46a86cbc019be3d71d0a1a';
 
   //set the authorization
   restApiClient.addAuthorization(jwt: jwt, refreshToken: refreshToken);
