@@ -9,7 +9,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  storage_repository:
   rest_api_client:
     path: ../
 
