@@ -76,7 +76,7 @@ Add parameters to your requests
     '/Products/Reviews/234',
     data: {
       'grade': 5,
-      'comment': 'Throwing dart is not safe but upgrading to Dart 2.12.1 is. #nullsafety'
+      'comment': 'Throwing darts is not safe as upgrading to dart ^2.12.1 is. #nullsafety'
     },
   );
 
