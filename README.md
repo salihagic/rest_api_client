@@ -1,4 +1,4 @@
-# Storage repository
+# Rest api client
 Abstraction for communicating with REST API in flutter projects. Incorporates exception handling and jwt with refresh token authorization.
 You can also find this package on pub as [rest_api_client](https://pub.dev/packages/rest_api_client)
 
