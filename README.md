@@ -80,7 +80,7 @@ Add parameters to your requests
     },
   );
 
-  restApiClient.post(
+  restApiClient.put(
     '/Products/Reviews/234',
     data: {
       'grade': 5,

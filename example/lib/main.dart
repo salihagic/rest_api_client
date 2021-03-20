@@ -76,7 +76,7 @@ Future main() async {
     },
   );
 
-  restApiClient.post(
+  restApiClient.put(
     '/Products/Reviews/234',
     data: {
       'grade': 5,
