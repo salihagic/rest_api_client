@@ -15,7 +15,7 @@ Future main() async {
       baseUrl: 'https://mybestrestapi.com',
       //Default is true
       logNetworkTraffic: true,
-      //If you api returns validation errors different from
+      //If your api returns validation errors different from
       //default format that is response.data['validationErrors']
       //you can override it by providing this callback
       resolveValidationErrorsMap: (response) => response['errors']['validation'],
@@ -38,10 +38,13 @@ Future main() async {
 
   //If you are using authentication in you app
   //probably it would look like this
-  final response = await restApiClient.post('/Authentication/Authenticate', data: {
-    'username': 'john',
-    'password': 'Flutter_is_awesome1!'
-  });
+  final response = await restApiClient.post(
+    '/Authentication/Authenticate',
+    data: {
+      'username': 'john',
+      'password': 'Flutter_is_awesome1!'
+    },
+  );
 
   //Extract the values from response
   var jwt = response.data['jwt'];
@@ -58,19 +61,28 @@ Future main() async {
   //Create authorized requests safely
   restApiClient.get('/Products');
 
-  restApiClient.get('/Products', queryParameters: {
-    'name': 'Darts'
-  });
+  restApiClient.get(
+    '/Products',
+    queryParameters: {
+      'name': 'darts'
+    },
+  );
 
-  restApiClient.post('/Products/Reviews/234', data: {
-    'grade': 5,
-    'comment': 'Throwing dart is not safe but upgrading to Dart 2.12.1 is. #nullsafety'
-  });
+  restApiClient.post(
+    '/Products/Reviews/234',
+    data: {
+      'grade': 5,
+      'comment': 'Throwing dart is not safe but upgrading to Dart 2.12.1 is. #nullsafety'
+    },
+  );
 
-  restApiClient.post('/Products/Reviews/234', data: {
-    'grade': 5,
-    'comment': 'On the other hand throwing dartz is fun',
-  });
+  restApiClient.post(
+    '/Products/Reviews/234',
+    data: {
+      'grade': 5,
+      'comment': 'On the other hand throwing dartz is fun',
+    },
+  );
 
   restApiClient.delete('/Products/Reviews/234');
 }
