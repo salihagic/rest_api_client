@@ -1,3 +1,4 @@
+///Constant values used by RestApiClient
 class RestApiClientKeys {
   static const String jwt = 'JWT';
   static const String refreshToken = 'REFRESH_TOKEN';

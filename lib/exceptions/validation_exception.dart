@@ -1,5 +1,7 @@
 import 'rest_api_client_exception.dart';
 
+///Derived exception class that represents
+///any validation error
 class ValidationException extends RestApiClientException {
   late Map<String, List<String>> validationMessages;
 
@@ -11,6 +13,8 @@ class ValidationException extends RestApiClientException {
           messages: messages,
         );
 
+  ///Constructon for creating validation
+  ///messages list separated by property
   ValidationException.multipleFields({
     bool silent = false,
     this.validationMessages = const {},
@@ -23,6 +27,8 @@ class ValidationException extends RestApiClientException {
               .toList(),
         );
 
+  ///Method to be called in debugging mode to
+  ///check the contents of the exception
   @override
   String toString() => 'VALIDATION EXCEPTION: $messages';
 }

@@ -1,3 +1,7 @@
+## [0.0.13] 
+* Error handling documentation
+## [0.0.12] 
+* Documented code
 ## [0.0.11] 
 * Updated README.md
 ## [0.0.10] 

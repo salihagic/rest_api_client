@@ -1,5 +1,7 @@
 import 'rest_api_client_exception.dart';
 
+///Derived exception class that represents
+///any network related error
 class NetworkErrorException extends RestApiClientException {
   NetworkErrorException({
     bool silent = false,
@@ -9,6 +11,8 @@ class NetworkErrorException extends RestApiClientException {
           messages: messages,
         );
 
+  ///Method to be called in debugging mode to
+  ///check the contents of the exception
   @override
   String toString() => 'NETWORK ERROR EXCEPTION: $messages';
 }

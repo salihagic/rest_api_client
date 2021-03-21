@@ -5,22 +5,18 @@ You can also find this package on pub as [rest_api_client](https://pub.dev/packa
 ## Usage
 ```
   IRestApiClient restApiClient = RestApiClient(
-    exceptionOptions: RestApiClientExceptionOptions(
-      showInternalServerErrors: true,
-      showNetworkErrors: true,
-      showValidationErrors: true,
-    ),
     restApiClientOptions: RestApiClientOptions(
-      //Base api url that will be prepended on every subsequent request
+      //Defines your base API url eg. https://mybestrestapi.com
       baseUrl: 'https://mybestrestapi.com',
-      //Default is true
+      //Toggle logging of your requests and responses
+      //to the console while debugging
       logNetworkTraffic: true,
-      //If you api returns validation errors different from
-      //default format that is response.data['validationErrors']
-      //you can override it by providing this callback
-      resolveValidationErrorsMap: (response) => response['errors']['validation'],
+      //Define refresh token endpoint for RestApiClient
+      //instance to use the first time response status code is 401
       refreshTokenEndpoint: '/Authentication/RefreshToken',
-      refreshTokenParameterName: '<name_of_api_endpoint_parameter_for_refresh_token>',
+      //Define the name of your api parameter name
+      //on RefreshToken endpoint eg. 'refreshToken' or 'value' ...
+      refreshTokenParameterName: 'refreshToken',
       //This method is called on successfull call to refreshTokenEndpoint
       //Provides a way to get a jwt from response, much like
       //resolveValidationErrorsMap callback
@@ -28,6 +24,10 @@ You can also find this package on pub as [rest_api_client](https://pub.dev/packa
       //Much like resolveJwt, this method is used to resolve
       //refresh token from response
       resolveRefreshToken: (response) => response['refreshToken'],
+      //If your api returns validation errors different from
+      //default format that is response.data['validationErrors']
+      //you can override it by providing this callback
+      resolveValidationErrorsMap: (response) => response['errors']['validation'],
     ),
   );
 
@@ -71,7 +71,29 @@ Add parameters to your requests
       'name': 'darts'
     },
   );
+```
 
+Ignore server errors that might happen in the next request
+```
+  restApiClient.exceptionOptions.showInternalServerErrors = false;
+
+  try {
+    restApiClient.get(
+      '/Products',
+      queryParameters: {
+        'name': 'darts'
+      },
+    );
+  } catch (e) {
+    print(e);
+  }
+```
+
+Ignore all exceptions that might happen in the next request
+```
+  restApiClient.exceptionOptions.disable();
+
+  //Possible errors are ignored for this request
   restApiClient.post(
     '/Products/Reviews/234',
     data: {
@@ -80,6 +102,7 @@ Add parameters to your requests
     },
   );
 
+  //Possible errors are handled for this request
   restApiClient.put(
     '/Products/Reviews/234',
     data: {

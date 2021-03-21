@@ -6,17 +6,34 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:rest_api_client/rest_api_client.dart';
 import 'package:storage_repository/storage_repository.dart';
 
+///Basic implementation of IRestApiClient interface
+///Provides a way to communicate with rest api,
+///manages exceptions that may occure and also
+///manages the authorization logic with jwt and refresh token
 class RestApiClient extends DioMixin implements IRestApiClient {
+  ///Defines options for handling exceptions per request
+  ///Any direct changes to this instances properties
+  ///are discarded after the response is handled
   @override
-  late RestApiClientExceptionOptions exceptionOptions;
+  RestApiClientExceptionOptions exceptionOptions =
+      RestApiClientExceptionOptions();
+
+  ///Provides a way for the user to listen to any
+  ///RestApiClient exceptions that might happen during
+  ///the execution of requests
   @override
   StreamController<RestApiClientException> exceptions =
       StreamController<RestApiClientException>.broadcast();
+
+  ///Provides an interface for storing tokens to a
+  ///secure storage so they are available on app restart
   late IStorageRepository storageRepository = SecureStorageRepository();
+
+  ///Use this class to provide configuration
+  ///for your RestApiClient instance
   late RestApiClientOptions restApiClientOptions;
 
   RestApiClient({
-    required this.exceptionOptions,
     required this.restApiClientOptions,
   }) {
     options ??= BaseOptions();
@@ -28,6 +45,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     _configureRefreshTokenInterceptor();
   }
 
+  ///Method that initializes RestApiClient instance
   @override
   Future<IRestApiClient> init() async {
     final jwt = await storageRepository.get(RestApiClientKeys.jwt);
@@ -39,17 +57,24 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     return this;
   }
 
+  ///Best to call this method to set free allocated
+  ///resources that the RestApiClient instacte might
+  ///have allocated
   @override
   Future dispose() async {
     exceptions.close();
   }
 
+  ///Method that sets appropriate Accept language header
   @override
   void setAcceptLanguageHeader(String languageCode) {
     _addOrUpdateHeader(
         key: RestApiClientKeys.acceptLanguage, value: languageCode);
   }
 
+  ///Method that adds Authorization header
+  ///and initializes mechanism for managing
+  ///refresh token logic
   @override
   Future<bool> addAuthorization(
       {required String jwt, required String refreshToken}) async {
@@ -62,6 +87,8 @@ class RestApiClient extends DioMixin implements IRestApiClient {
             RestApiClientKeys.refreshToken, refreshToken);
   }
 
+  ///Removes authorization header along with jwt
+  ///and refreshToken from the secure storage
   @override
   Future<bool> removeAuthorization() async {
     final deleteJwtResult =
@@ -74,6 +101,8 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     return deleteJwtResult && deleteRefreshTokenResult;
   }
 
+  ///Provides information if the current instance
+  ///of RestApiClient contains Authorization header
   @override
   Future<bool> isAuthorized() async {
     final containsAuthorizationHeader =
@@ -88,10 +117,12 @@ class RestApiClient extends DioMixin implements IRestApiClient {
         containsRefreshTokenInStorage;
   }
 
+  ///Loads the refresh token from secure storage
   Future<String> _getRefreshToken() async {
     return await storageRepository.get(RestApiClientKeys.refreshToken);
   }
 
+  ///Adds or updates the header under a given key
   void _addOrUpdateHeader({
     required String key,
     required String value,
@@ -103,6 +134,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     }
   }
 
+  ///Configures the logging for requests/reponses
   void _configureDebugLogger() {
     interceptors.add(
       PrettyDioLogger(
@@ -115,9 +147,13 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     );
   }
 
+  ///Checks if the Authorization header is present
   bool get _usesAutorization =>
       options.headers.containsKey(RestApiClientKeys.jwt);
 
+  ///Provides a default implementation for
+  ///managing the refreshing of the jwt by
+  ///calling the appropriate api endpoint
   Future refreshTokenCallback(DioError error) async {
     interceptors.requestLock.lock();
     interceptors.responseLock.lock();
@@ -153,6 +189,8 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     return request(options.path, options: options);
   }
 
+  ///Handles HttpStatus code 401 and checks
+  ///if the token needs to be refreshed
   void _configureRefreshTokenInterceptor() {
     interceptors.add(
       InterceptorsWrapper(
@@ -181,6 +219,8 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     );
   }
 
+  ///Resolves the instance of appropriate
+  ///RestApiClient exception from DioError
   RestApiClientException _getExceptionFromDioError(DioError error) {
     if (error.type == DioErrorType.RESPONSE) {
       switch (error.response?.statusCode) {
@@ -201,6 +241,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     }
   }
 
+  ///Resolves validation errors from DioError response
   Map<String, List<String>> getValidationMessages(DioError error) {
     try {
       if (error.response?.data != null) {
@@ -230,6 +271,8 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     return {};
   }
 
+  ///Checks if the exception should be inserted
+  ///into the exceptions stream
   void _handleException(RestApiClientException exception) {
     if (exception is NetworkErrorException &&
         exceptionOptions.showNetworkErrors) {
