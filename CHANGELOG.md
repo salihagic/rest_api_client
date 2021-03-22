@@ -1,3 +1,5 @@
+## [0.0.18] 
+* Reverted null safety until dio upgrades
 ## [0.0.17] 
 * isAuthorized method fixed
 ## [0.0.16] 

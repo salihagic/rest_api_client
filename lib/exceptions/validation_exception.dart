@@ -3,7 +3,7 @@ import 'rest_api_client_exception.dart';
 ///Derived exception class that represents
 ///any validation error
 class ValidationException extends RestApiClientException {
-  late Map<String, List<String>> validationMessages;
+  Map<String, List<String>> validationMessages;
 
   ValidationException({
     bool silent = false,

@@ -19,16 +19,16 @@ class RestApiClientOptions {
   ///This method is called on successfull call to refreshTokenEndpoint
   ///Provides a way to get a jwt from response, much like
   ///resolveValidationErrorsMap callback
-  final String Function(dynamic response)? resolveJwt;
+  final String Function(dynamic response) resolveJwt;
 
   ///Much like resolveJwt, this method is used to resolve
   ///refresh token from response
-  final String Function(dynamic response)? resolveRefreshToken;
+  final String Function(dynamic response) resolveRefreshToken;
 
   ///If your api returns validation errors different from
   ///default format that is response.data['validationErrors']
   ///you can override it by providing this callback
-  final Map<String, List<String>> Function(dynamic response)?
+  final Map<String, List<String>> Function(dynamic response)
       resolveValidationErrorsMap;
 
   RestApiClientOptions({

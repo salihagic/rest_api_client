@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:rest_api_client/rest_api_client.dart';
 import 'package:storage_repository/storage_repository.dart';
@@ -28,14 +29,14 @@ class RestApiClient extends DioMixin implements IRestApiClient {
 
   ///Provides an interface for storing tokens to a
   ///secure storage so they are available on app restart
-  late IStorageRepository storageRepository = SecureStorageRepository();
+  IStorageRepository storageRepository = SecureStorageRepository();
 
   ///Use this class to provide configuration
   ///for your RestApiClient instance
-  late RestApiClientOptions restApiClientOptions;
+  RestApiClientOptions restApiClientOptions;
 
   RestApiClient({
-    required this.restApiClientOptions,
+    @required this.restApiClientOptions,
   }) {
     options ??= BaseOptions();
     httpClientAdapter = DefaultHttpClientAdapter();
@@ -83,7 +84,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   ///refresh token logic
   @override
   Future<bool> addAuthorization(
-      {required String jwt, required String refreshToken}) async {
+      {@required String jwt, @required String refreshToken}) async {
     final result = await storageRepository.set(RestApiClientKeys.jwt, jwt);
     _addOrUpdateHeader(
         key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
@@ -130,8 +131,8 @@ class RestApiClient extends DioMixin implements IRestApiClient {
 
   ///Adds or updates the header under a given key
   void _addOrUpdateHeader({
-    required String key,
-    required String value,
+    @required String key,
+    @required String value,
   }) {
     if (options.headers.containsKey(key)) {
       options.headers.update(key, (v) => value);
@@ -176,8 +177,8 @@ class RestApiClient extends DioMixin implements IRestApiClient {
       },
     );
 
-    final jwt = restApiClientOptions.resolveRefreshToken!(response);
-    final refreshToken = restApiClientOptions.resolveJwt!(response);
+    final jwt = restApiClientOptions.resolveRefreshToken(response);
+    final refreshToken = restApiClientOptions.resolveJwt(response);
 
     addAuthorization(jwt: jwt, refreshToken: refreshToken);
 
@@ -255,7 +256,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
 
         if (restApiClientOptions.resolveValidationErrorsMap != null) {
           errorsMap = restApiClientOptions
-              .resolveValidationErrorsMap!(error.response.data);
+              .resolveValidationErrorsMap(error.response.data);
         } else if (error.response.data is String) {
           errorsMap =
               json.decode(error.response.data)['validationErrors'] ?? {};

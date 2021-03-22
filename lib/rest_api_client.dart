@@ -7,3 +7,4 @@ export 'implementations/rest_api_client.dart';
 export 'interfaces/i_rest_api_client.dart';
 export 'options/rest_api_client_exception_options.dart';
 export 'options/rest_api_client_options.dart';
+export 'package:dio/dio.dart';
