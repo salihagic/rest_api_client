@@ -112,11 +112,11 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   @override
   Future<bool> isAuthorized() async {
     final containsAuthorizationHeader =
-        options.headers.containsKey(RestApiClientKeys.jwt);
+        options.headers.containsKey(RestApiClientKeys.authorization);
     final containsJwtInStorage =
-        await storageRepository.get(RestApiClientKeys.jwt);
+        await storageRepository.contains(RestApiClientKeys.jwt);
     final containsRefreshTokenInStorage =
-        await storageRepository.get(RestApiClientKeys.refreshToken);
+        await storageRepository.contains(RestApiClientKeys.refreshToken);
 
     return containsAuthorizationHeader &&
         containsJwtInStorage &&

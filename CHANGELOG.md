@@ -1,3 +1,5 @@
+## [0.0.17] 
+* isAuthorized method fixed
 ## [0.0.16] 
 * Bugfix
 ## [0.0.15] 
