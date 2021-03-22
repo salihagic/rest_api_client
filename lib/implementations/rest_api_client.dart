@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:rest_api_client/rest_api_client.dart';
@@ -37,6 +38,9 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     required this.restApiClientOptions,
   }) {
     options ??= BaseOptions();
+    httpClientAdapter = DefaultHttpClientAdapter();
+
+    options.baseUrl = restApiClientOptions.baseUrl;
 
     if (restApiClientOptions.logNetworkTraffic) {
       _configureDebugLogger();
@@ -48,6 +52,8 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   ///Method that initializes RestApiClient instance
   @override
   Future<IRestApiClient> init() async {
+    await storageRepository.init();
+
     final jwt = await storageRepository.get(RestApiClientKeys.jwt);
     if (jwt != null) {
       _addOrUpdateHeader(

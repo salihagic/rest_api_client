@@ -27,7 +27,8 @@ Future main() async {
       //If your api returns validation errors different from
       //default format that is response.data['validationErrors']
       //you can override it by providing this callback
-      resolveValidationErrorsMap: (response) => response['errors']['validation'],
+      resolveValidationErrorsMap: (response) =>
+          response['errors']['validation'],
     ),
   );
 
@@ -40,10 +41,7 @@ Future main() async {
   //probably it would look like this
   final response = await restApiClient.post(
     '/Authentication/Authenticate',
-    data: {
-      'username': 'john',
-      'password': 'Flutter_is_awesome1!'
-    },
+    data: {'username': 'john', 'password': 'Flutter_is_awesome1!'},
   );
 
   //Extract the values from response
@@ -52,7 +50,8 @@ Future main() async {
 
   //Let's asume that somehow we got jwt and refresh token
   //Probably pinged our api Authentication endpoint to get these two values
-  jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZmx1dHRlciI6IkZsdXR0ZXIgaXMgYXdlc29tZSIsImNoYWxsZW5nZSI6IllvdSBtYWRlIGl0LCB5b3UgY3JhY2tlZCB0aGUgY29kZS4gWW91J3JlIGF3ZXNvbWUgdG9vLiIsImlhdCI6MTUxNjIzOTAyMn0.5QJz8hhxYsHxShS4hWKdHzcFH_IsQQZAnWSEcHJkspE';
+  jwt =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZmx1dHRlciI6IkZsdXR0ZXIgaXMgYXdlc29tZSIsImNoYWxsZW5nZSI6IllvdSBtYWRlIGl0LCB5b3UgY3JhY2tlZCB0aGUgY29kZS4gWW91J3JlIGF3ZXNvbWUgdG9vLiIsImlhdCI6MTUxNjIzOTAyMn0.5QJz8hhxYsHxShS4hWKdHzcFH_IsQQZAnWSEcHJkspE';
   refreshToken = 'c91c03ea6c46a86cbc019be3d71d0a1a';
 
   //set the authorization
@@ -67,9 +66,7 @@ Future main() async {
   try {
     restApiClient.get(
       '/Products',
-      queryParameters: {
-        'name': 'darts'
-      },
+      queryParameters: {'name': 'darts'},
     );
   } catch (e) {
     print(e);
@@ -82,7 +79,8 @@ Future main() async {
     '/Products/Reviews/234',
     data: {
       'grade': 5,
-      'comment': 'Throwing dart is not safe but upgrading to Dart 2.12.1 is. #nullsafety'
+      'comment':
+          'Throwing dart is not safe but upgrading to Dart 2.12.1 is. #nullsafety'
     },
   );
 

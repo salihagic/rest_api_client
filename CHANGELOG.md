@@ -1,3 +1,9 @@
+## [0.0.16] 
+* Bugfix
+## [0.0.15] 
+* Base url set in constructor
+## [0.0.14] 
+* Init called for secure storage
 ## [0.0.13] 
 * Error handling documentation
 ## [0.0.12] 
