@@ -126,7 +126,9 @@ class RestApiClient extends DioMixin implements IRestApiClient {
 
   ///Loads the refresh token from secure storage
   Future<String> _getRefreshToken() async {
-    return await storageRepository.get(RestApiClientKeys.refreshToken);
+    final refreshToken =
+        await storageRepository.get(RestApiClientKeys.refreshToken);
+    return refreshToken;
   }
 
   ///Adds or updates the header under a given key
@@ -156,7 +158,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
 
   ///Checks if the Authorization header is present
   bool get _usesAutorization =>
-      options.headers.containsKey(RestApiClientKeys.jwt);
+      options.headers.containsKey(RestApiClientKeys.authorization);
 
   ///Provides a default implementation for
   ///managing the refreshing of the jwt by
@@ -173,14 +175,14 @@ class RestApiClient extends DioMixin implements IRestApiClient {
         .post(
       restApiClientOptions.refreshTokenEndpoint,
       data: {
-        restApiClientOptions.refreshTokenParameterName: _getRefreshToken()
+        restApiClientOptions.refreshTokenParameterName: await _getRefreshToken()
       },
     );
 
-    final jwt = restApiClientOptions.resolveRefreshToken(response);
-    final refreshToken = restApiClientOptions.resolveJwt(response);
+    final jwt = restApiClientOptions.resolveJwt(response);
+    final refreshToken = restApiClientOptions.resolveRefreshToken(response);
 
-    addAuthorization(jwt: jwt, refreshToken: refreshToken);
+    await addAuthorization(jwt: jwt, refreshToken: refreshToken);
 
     //Set for current request
     if (options.headers.containsKey(RestApiClientKeys.authorization)) {
@@ -215,11 +217,10 @@ class RestApiClient extends DioMixin implements IRestApiClient {
                 print(e);
               }
             }
-
-            _handleException(_getExceptionFromDioError(error));
-            exceptionOptions.reset();
           }
 
+          _handleException(_getExceptionFromDioError(error));
+          exceptionOptions.reset();
           return error;
         },
       ),
@@ -255,8 +256,8 @@ class RestApiClient extends DioMixin implements IRestApiClient {
         var errorsMap = {};
 
         if (restApiClientOptions.resolveValidationErrorsMap != null) {
-          errorsMap = restApiClientOptions
-              .resolveValidationErrorsMap(error.response.data);
+          errorsMap =
+              restApiClientOptions.resolveValidationErrorsMap(error.response);
         } else if (error.response.data is String) {
           errorsMap =
               json.decode(error.response.data)['validationErrors'] ?? {};

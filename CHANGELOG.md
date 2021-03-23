@@ -1,3 +1,5 @@
+## [0.0.19] 
+* Refresh token fixes
 ## [0.0.18] 
 * Reverted null safety until dio upgrades
 ## [0.0.17] 

@@ -20,14 +20,14 @@ You can also find this package on pub as [rest_api_client](https://pub.dev/packa
       //This method is called on successfull call to refreshTokenEndpoint
       //Provides a way to get a jwt from response, much like
       //resolveValidationErrorsMap callback
-      resolveJwt: (response) => response['jwt'],
+      resolveJwt: (response) => response.data['jwt'],
       //Much like resolveJwt, this method is used to resolve
       //refresh token from response
-      resolveRefreshToken: (response) => response['refreshToken'],
+      resolveRefreshToken: (response) => response.data['refreshToken'],
       //If your api returns validation errors different from
       //default format that is response.data['validationErrors']
       //you can override it by providing this callback
-      resolveValidationErrorsMap: (response) => response['errors']['validation'],
+      resolveValidationErrorsMap: (response) => response.data['errors']['validation'],
     ),
   );
 
