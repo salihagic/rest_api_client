@@ -28,7 +28,7 @@ packages:
       name: dio
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.10"
+    version: "4.0.0"
   ffi:
     dependency: transitive
     description:
@@ -66,7 +66,7 @@ packages:
       name: http_parser
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.1.4"
+    version: "4.0.0"
   js:
     dependency: transitive
     description:
@@ -129,7 +129,7 @@ packages:
       name: pretty_dio_logger
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.1"
+    version: "1.2.0-beta-1"
   process:
     dependency: transitive
     description:
