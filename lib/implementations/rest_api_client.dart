@@ -253,25 +253,27 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   Map<String, List<String>> getValidationMessages(DioError error) {
     try {
       if (error.response?.data != null) {
-        var errorsMap = {};
+        Map<String, List<String>> errorsMap = {};
 
         if (restApiClientOptions.resolveValidationErrorsMap != null) {
           errorsMap =
               restApiClientOptions.resolveValidationErrorsMap(error.response);
-        } else if (error.response.data is String) {
-          errorsMap =
-              json.decode(error.response.data)['validationErrors'] ?? {};
         } else {
-          errorsMap = error.response.data['validationErrors'] ?? {};
+          error.response.data['validationErrors']?.forEach((key, value) =>
+              errorsMap[key] =
+                  value?.map<String>((x) => x as String)?.toList());
+          if (error.response.data['errors'] != null) {
+            final errors = MapEntry<String, List<String>>(
+                '',
+                error.response.data['errors']
+                        ?.map<String>((error) => error as String)
+                        ?.toList() ??
+                    ['']);
+            errorsMap.addAll(Map.fromEntries([errors]));
+          }
         }
 
-        final Map<String, List<String>> result = {};
-
-        errorsMap.forEach((key, value) {
-          result[key] = value?.map<String>((x) => x as String)?.toList();
-        });
-
-        return result;
+        return errorsMap;
       }
     } catch (e) {
       print(e);

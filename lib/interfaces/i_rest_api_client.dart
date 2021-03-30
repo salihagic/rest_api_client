@@ -16,6 +16,7 @@ abstract class IRestApiClient extends DioMixin {
   ///Provides a way for the user to listen to any
   ///RestApiClient exceptions that might happen during
   ///the execution of requests
+  // ignore: close_sinks
   StreamController<RestApiClientException> exceptions;
 
   ///Method that initializes RestApiClient instance
