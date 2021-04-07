@@ -1,3 +1,5 @@
+## [1.0.2] 
+* Refresh token fixes
 ## [1.0.1] 
 * Upgraded to dio 4.0.0 
 ## [1.0.0] 

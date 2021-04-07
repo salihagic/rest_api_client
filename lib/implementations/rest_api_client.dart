@@ -167,7 +167,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     interceptors.requestLock.lock();
     interceptors.responseLock.lock();
 
-    final options = error.requestOptions;
+    final requestOptions = error.requestOptions;
 
     final response = await Dio(BaseOptions()
           ..baseUrl = restApiClientOptions.baseUrl
@@ -185,17 +185,43 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     await addAuthorization(jwt: jwt, refreshToken: refreshToken);
 
     //Set for current request
-    if (options.headers.containsKey(RestApiClientKeys.authorization)) {
-      options.headers
+    if (requestOptions.headers.containsKey(RestApiClientKeys.authorization)) {
+      requestOptions.headers
           .update(RestApiClientKeys.authorization, (v) => 'Bearer $jwt');
     } else {
-      options.headers.addAll({RestApiClientKeys.authorization: 'Bearer $jwt'});
+      requestOptions.headers
+          .addAll({RestApiClientKeys.authorization: 'Bearer $jwt'});
     }
 
     interceptors.requestLock.unlock();
     interceptors.responseLock.unlock();
 
-    return request(options.path);
+    exceptionOptions.reset();
+
+    return await request(
+      requestOptions.path,
+      options: Options(
+        method: requestOptions.method,
+        headers: requestOptions.headers,
+        contentType: requestOptions.contentType,
+        extra: requestOptions.extra,
+        receiveTimeout: requestOptions.receiveTimeout,
+        followRedirects: requestOptions.followRedirects,
+        listFormat: requestOptions.listFormat,
+        maxRedirects: requestOptions.maxRedirects,
+        receiveDataWhenStatusError: requestOptions.receiveDataWhenStatusError,
+        requestEncoder: requestOptions.requestEncoder,
+        responseDecoder: requestOptions.responseDecoder,
+        responseType: requestOptions.responseType,
+        sendTimeout: requestOptions.sendTimeout,
+        validateStatus: requestOptions.validateStatus,
+      ),
+      data: requestOptions.data,
+      queryParameters: requestOptions.queryParameters,
+      cancelToken: requestOptions.cancelToken,
+      onReceiveProgress: requestOptions.onReceiveProgress,
+      onSendProgress: requestOptions.onSendProgress,
+    );
   }
 
   ///Handles HttpStatus code 401 and checks
@@ -212,7 +238,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
           if (_usesAutorization) {
             if (error.response?.statusCode == HttpStatus.unauthorized) {
               try {
-                return refreshTokenCallback(error);
+                return handler.resolve(await refreshTokenCallback(error));
               } catch (e) {
                 print(e);
               }
