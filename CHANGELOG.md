@@ -1,3 +1,5 @@
+## [1.0.3] 
+* Exception option fixes
 ## [1.0.2] 
 * Refresh token fixes
 ## [1.0.1] 

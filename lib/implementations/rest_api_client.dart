@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
@@ -229,6 +228,18 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   void _configureRefreshTokenInterceptor() {
     interceptors.add(
       InterceptorsWrapper(
+        onRequest: (RequestOptions options, handler) {
+          options.extra.addAll({
+            'showInternalServerErrors':
+                exceptionOptions.showInternalServerErrors
+          });
+          options.extra.addAll(
+              {'showNetworkErrors': exceptionOptions.showNetworkErrors});
+          options.extra.addAll(
+              {'showValidationErrors': exceptionOptions.showValidationErrors});
+
+          return handler.next(options);
+        },
         onResponse: (Response response, handler) {
           exceptionOptions.reset();
 
@@ -245,7 +256,8 @@ class RestApiClient extends DioMixin implements IRestApiClient {
             }
           }
 
-          _handleException(_getExceptionFromDioError(error));
+          _handleException(
+              _getExceptionFromDioError(error), error.requestOptions.extra);
           exceptionOptions.reset();
 
           return handler.next(error);
@@ -310,16 +322,14 @@ class RestApiClient extends DioMixin implements IRestApiClient {
 
   ///Checks if the exception should be inserted
   ///into the exceptions stream
-  void _handleException(RestApiClientException exception) {
-    if (exception is NetworkErrorException &&
-        exceptionOptions.showNetworkErrors) {
-      exceptions.add(exception);
-    } else if (exception is ServerErrorException &&
-        exceptionOptions.showInternalServerErrors) {
-      exceptions.add(exception);
-    } else if (exception is ValidationException &&
-        exceptionOptions.showValidationErrors) {
-      exceptions.add(exception);
+  void _handleException(
+      RestApiClientException exception, Map<String, dynamic> extra) {
+    if (exception is NetworkErrorException) {
+      if (extra['showNetworkErrors'] ?? false) exceptions.add(exception);
+    } else if (exception is ServerErrorException) {
+      if (extra['showInternalServerErrors'] ?? false) exceptions.add(exception);
+    } else if (exception is ValidationException) {
+      if (extra['showValidationErrors'] ?? false) exceptions.add(exception);
     } else {
       exceptions.add(exception);
     }
