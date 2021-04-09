@@ -1,3 +1,5 @@
+## [1.0.4] 
+* Null safety
 ## [1.0.3] 
 * Exception option fixes
 ## [1.0.2] 

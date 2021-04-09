@@ -35,7 +35,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   RestApiClientOptions restApiClientOptions;
 
   RestApiClient({
-    @required this.restApiClientOptions,
+    required this.restApiClientOptions,
   }) {
     options = BaseOptions();
     httpClientAdapter = DefaultHttpClientAdapter();
@@ -83,7 +83,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   ///refresh token logic
   @override
   Future<bool> addAuthorization(
-      {@required String jwt, @required String refreshToken}) async {
+      {required String jwt, required String refreshToken}) async {
     final result = await storageRepository.set(RestApiClientKeys.jwt, jwt);
     _addOrUpdateHeader(
         key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
@@ -132,8 +132,8 @@ class RestApiClient extends DioMixin implements IRestApiClient {
 
   ///Adds or updates the header under a given key
   void _addOrUpdateHeader({
-    @required String key,
-    @required String value,
+    required String key,
+    required String value,
   }) {
     if (options.headers.containsKey(key)) {
       options.headers.update(key, (v) => value);
@@ -163,64 +163,68 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   ///managing the refreshing of the jwt by
   ///calling the appropriate api endpoint
   Future refreshTokenCallback(DioError error) async {
-    interceptors.requestLock.lock();
-    interceptors.responseLock.lock();
+    if (restApiClientOptions.resolveJwt != null &&
+        restApiClientOptions.resolveRefreshToken != null) {
+      interceptors.requestLock.lock();
+      interceptors.responseLock.lock();
 
-    final requestOptions = error.requestOptions;
+      final requestOptions = error.requestOptions;
 
-    final response = await Dio(BaseOptions()
-          ..baseUrl = restApiClientOptions.baseUrl
-          ..contentType = Headers.jsonContentType)
-        .post(
-      restApiClientOptions.refreshTokenEndpoint,
-      data: {
-        restApiClientOptions.refreshTokenParameterName: await _getRefreshToken()
-      },
-    );
+      final response = await Dio(BaseOptions()
+            ..baseUrl = restApiClientOptions.baseUrl
+            ..contentType = Headers.jsonContentType)
+          .post(
+        restApiClientOptions.refreshTokenEndpoint,
+        data: {
+          restApiClientOptions.refreshTokenParameterName:
+              await _getRefreshToken()
+        },
+      );
 
-    final jwt = restApiClientOptions.resolveJwt(response);
-    final refreshToken = restApiClientOptions.resolveRefreshToken(response);
+      final jwt = restApiClientOptions.resolveJwt!(response);
+      final refreshToken = restApiClientOptions.resolveRefreshToken!(response);
 
-    await addAuthorization(jwt: jwt, refreshToken: refreshToken);
+      await addAuthorization(jwt: jwt, refreshToken: refreshToken);
 
-    //Set for current request
-    if (requestOptions.headers.containsKey(RestApiClientKeys.authorization)) {
-      requestOptions.headers
-          .update(RestApiClientKeys.authorization, (v) => 'Bearer $jwt');
-    } else {
-      requestOptions.headers
-          .addAll({RestApiClientKeys.authorization: 'Bearer $jwt'});
+      //Set for current request
+      if (requestOptions.headers.containsKey(RestApiClientKeys.authorization)) {
+        requestOptions.headers
+            .update(RestApiClientKeys.authorization, (v) => 'Bearer $jwt');
+      } else {
+        requestOptions.headers
+            .addAll({RestApiClientKeys.authorization: 'Bearer $jwt'});
+      }
+
+      interceptors.requestLock.unlock();
+      interceptors.responseLock.unlock();
+
+      exceptionOptions.reset();
+
+      return await request(
+        requestOptions.path,
+        options: Options(
+          method: requestOptions.method,
+          headers: requestOptions.headers,
+          contentType: requestOptions.contentType,
+          extra: requestOptions.extra,
+          receiveTimeout: requestOptions.receiveTimeout,
+          followRedirects: requestOptions.followRedirects,
+          listFormat: requestOptions.listFormat,
+          maxRedirects: requestOptions.maxRedirects,
+          receiveDataWhenStatusError: requestOptions.receiveDataWhenStatusError,
+          requestEncoder: requestOptions.requestEncoder,
+          responseDecoder: requestOptions.responseDecoder,
+          responseType: requestOptions.responseType,
+          sendTimeout: requestOptions.sendTimeout,
+          validateStatus: requestOptions.validateStatus,
+        ),
+        data: requestOptions.data,
+        queryParameters: requestOptions.queryParameters,
+        cancelToken: requestOptions.cancelToken,
+        onReceiveProgress: requestOptions.onReceiveProgress,
+        onSendProgress: requestOptions.onSendProgress,
+      );
     }
-
-    interceptors.requestLock.unlock();
-    interceptors.responseLock.unlock();
-
-    exceptionOptions.reset();
-
-    return await request(
-      requestOptions.path,
-      options: Options(
-        method: requestOptions.method,
-        headers: requestOptions.headers,
-        contentType: requestOptions.contentType,
-        extra: requestOptions.extra,
-        receiveTimeout: requestOptions.receiveTimeout,
-        followRedirects: requestOptions.followRedirects,
-        listFormat: requestOptions.listFormat,
-        maxRedirects: requestOptions.maxRedirects,
-        receiveDataWhenStatusError: requestOptions.receiveDataWhenStatusError,
-        requestEncoder: requestOptions.requestEncoder,
-        responseDecoder: requestOptions.responseDecoder,
-        responseType: requestOptions.responseType,
-        sendTimeout: requestOptions.sendTimeout,
-        validateStatus: requestOptions.validateStatus,
-      ),
-      data: requestOptions.data,
-      queryParameters: requestOptions.queryParameters,
-      cancelToken: requestOptions.cancelToken,
-      onReceiveProgress: requestOptions.onReceiveProgress,
-      onSendProgress: requestOptions.onSendProgress,
-    );
   }
 
   ///Handles HttpStatus code 401 and checks
@@ -296,15 +300,15 @@ class RestApiClient extends DioMixin implements IRestApiClient {
 
         if (restApiClientOptions.resolveValidationErrorsMap != null) {
           errorsMap =
-              restApiClientOptions.resolveValidationErrorsMap(error.response);
+              restApiClientOptions.resolveValidationErrorsMap!(error.response);
         } else {
-          error.response.data['validationErrors']?.forEach((key, value) =>
+          error.response!.data['validationErrors']?.forEach((key, value) =>
               errorsMap[key] =
                   value?.map<String>((x) => x as String)?.toList());
-          if (error.response.data['errors'] != null) {
+          if (error.response!.data['errors'] != null) {
             final errors = MapEntry<String, List<String>>(
                 '',
-                error.response.data['errors']
+                error.response!.data['errors']
                         ?.map<String>((error) => error as String)
                         ?.toList() ??
                     ['']);

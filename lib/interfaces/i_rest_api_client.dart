@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:rest_api_client/rest_api_client.dart';
 
 ///Abstract class to be used as an interface
@@ -11,13 +10,13 @@ abstract class IRestApiClient extends DioMixin {
   ///Defines options for handling exceptions per request
   ///Any direct changes to this instances properties
   ///are discarded after the response is handled
-  RestApiClientExceptionOptions exceptionOptions;
+  late RestApiClientExceptionOptions exceptionOptions;
 
   ///Provides a way for the user to listen to any
   ///RestApiClient exceptions that might happen during
   ///the execution of requests
   // ignore: close_sinks
-  StreamController<RestApiClientException> exceptions;
+  late StreamController<RestApiClientException> exceptions;
 
   ///Method that initializes RestApiClient instance
   Future<IRestApiClient> init();
@@ -34,7 +33,7 @@ abstract class IRestApiClient extends DioMixin {
   ///and initializes mechanism for managing
   ///refresh token logic
   Future<bool> addAuthorization(
-      {@required String jwt, @required String refreshToken});
+      {required String jwt, required String refreshToken});
 
   ///Removes authorization header along with jwt
   ///and refreshToken from the secure storage

@@ -3,7 +3,7 @@ import 'rest_api_client_exception.dart';
 ///Derived exception class that represents
 ///any validation error
 class ValidationException extends RestApiClientException {
-  Map<String, List<String>> validationMessages;
+  Map<String, List<String>>? validationMessages;
 
   ValidationException({
     bool silent = false,
@@ -20,11 +20,15 @@ class ValidationException extends RestApiClientException {
     this.validationMessages = const {},
   }) : super(
           silent: silent,
-          messages: validationMessages.entries
-              .map<List<String>>((mapEntry) => mapEntry.value)
-              .toList()
-              .expand<String>((list) => list)
-              .toList(),
+          messages: validationMessages != null
+              ? validationMessages.entries
+                  .map<List<String>>(
+                    (mapEntry) => mapEntry.value,
+                  )
+                  .toList()
+                  .expand<String>((list) => list)
+                  .toList()
+              : [],
         );
 
   ///Method to be called in debugging mode to
