@@ -1,3 +1,7 @@
+## [1.0.6] 
+* Forbidden and unauthorized exception
+## [1.0.5] 
+* Updated storage_repository
 ## [1.0.4] 
 * Null safety
 ## [1.0.3] 

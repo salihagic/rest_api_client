@@ -4,6 +4,8 @@ import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:rest_api_client/exceptions/forbidden_exception.dart';
+import 'package:rest_api_client/exceptions/unauthorized_exception.dart';
 import 'package:rest_api_client/rest_api_client.dart';
 import 'package:storage_repository/storage_repository.dart';
 
@@ -284,6 +286,10 @@ class RestApiClient extends DioMixin implements IRestApiClient {
           return ValidationException.multipleFields(
             validationMessages: getValidationMessages(error),
           );
+        case HttpStatus.unauthorized:
+          return UnauthorizedException();
+        case HttpStatus.forbidden:
+          return ForbiddenException();
         default:
           return RestApiClientException();
       }
