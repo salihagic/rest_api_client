@@ -1,7 +1,9 @@
 export 'constants/keys.dart';
+export 'exceptions/forbidden_exception.dart';
 export 'exceptions/network_error_exception.dart';
 export 'exceptions/rest_api_client_exception.dart';
 export 'exceptions/server_error_exception.dart';
+export 'exceptions/unauthorized_exception.dart';
 export 'exceptions/validation_exception.dart';
 export 'implementations/rest_api_client.dart';
 export 'interfaces/i_rest_api_client.dart';

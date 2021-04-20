@@ -1,3 +1,5 @@
+## [1.0.7] 
+* Forbidden and unauthorized exception
 ## [1.0.6] 
 * Forbidden and unauthorized exception
 ## [1.0.5] 
