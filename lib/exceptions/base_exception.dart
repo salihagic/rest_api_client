@@ -1,7 +1,7 @@
 ///Base class for any RestApiClient
 ///exception that might happen during
 ///http requests/responses
-class RestApiClientException implements Exception {
+class BaseException implements Exception {
   ///Flag that represent if the exception should
   ///be silent
   bool silent;
@@ -9,7 +9,7 @@ class RestApiClientException implements Exception {
   ///List of error messages
   List<String> messages = [];
 
-  RestApiClientException({
+  BaseException({
     this.silent = false,
     this.messages = const [],
   });
@@ -17,5 +17,5 @@ class RestApiClientException implements Exception {
   ///Method to be called in debugging mode to
   ///check the contents of the exception
   @override
-  String toString() => 'REST API CLIENT EXCEPTION: ${this.messages}';
+  String toString() => 'BASE EXCEPTION: ${this.messages}';
 }

@@ -1,8 +1,8 @@
-import 'rest_api_client_exception.dart';
+import 'base_exception.dart';
 
 ///Derived exception class that represents
 ///any server error
-class ServerErrorException extends RestApiClientException {
+class ServerErrorException extends BaseException {
   ServerErrorException({
     bool silent = false,
     List<String> messages = const [],

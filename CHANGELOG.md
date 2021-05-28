@@ -1,3 +1,5 @@
+## [1.0.8] 
+* RestApiClientException renamed to BaseException
 ## [1.0.7] 
 * Forbidden and unauthorized exception
 ## [1.0.6] 

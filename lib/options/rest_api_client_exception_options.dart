@@ -1,6 +1,6 @@
 ///This class is part of exception handling
 ///mechanism implemented in RestApiClient
-class RestApiClientExceptionOptions {
+class BaseExceptionOptions {
   ///Toggle the value if you don't want to
   ///insert a new exception in exceptions stream
   ///from RestApiClient instance i the case of
@@ -19,7 +19,7 @@ class RestApiClientExceptionOptions {
   ///HttpStatus 400 in the response
   bool showValidationErrors;
 
-  RestApiClientExceptionOptions({
+  BaseExceptionOptions({
     this.showInternalServerErrors = true,
     this.showNetworkErrors = true,
     this.showValidationErrors = true,

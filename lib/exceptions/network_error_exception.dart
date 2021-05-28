@@ -1,8 +1,8 @@
-import 'rest_api_client_exception.dart';
+import 'base_exception.dart';
 
 ///Derived exception class that represents
 ///any network related error
-class NetworkErrorException extends RestApiClientException {
+class NetworkErrorException extends BaseException {
   NetworkErrorException({
     bool silent = false,
     List<String> messages = const [],

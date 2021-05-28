@@ -1,8 +1,8 @@
-import 'rest_api_client_exception.dart';
+import 'base_exception.dart';
 
 ///Derived exception class that represents
 ///any server error
-class UnauthorizedException extends RestApiClientException {
+class UnauthorizedException extends BaseException {
   UnauthorizedException({
     bool silent = false,
     List<String> messages = const [],

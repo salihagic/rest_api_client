@@ -1,8 +1,8 @@
-import 'rest_api_client_exception.dart';
+import 'base_exception.dart';
 
 ///Derived exception class that represents
 ///any validation error
-class ValidationException extends RestApiClientException {
+class ValidationException extends BaseException {
   Map<String, List<String>>? validationMessages;
 
   ValidationException({
