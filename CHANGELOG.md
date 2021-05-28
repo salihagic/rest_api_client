@@ -1,3 +1,5 @@
+## [1.0.9] 
+* Barrel files
 ## [1.0.8] 
 * RestApiClientException renamed to BaseException
 ## [1.0.7] 
