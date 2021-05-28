@@ -32,7 +32,8 @@ abstract class IRestApiClient extends DioMixin {
   ///Method that adds Authorization header
   ///and initializes mechanism for managing
   ///refresh token logic
-  Future<bool> addAuthorization({required String jwt, required String refreshToken});
+  Future<bool> addAuthorization(
+      {required String jwt, required String refreshToken});
 
   ///Removes authorization header along with jwt
   ///and refreshToken from the secure storage
