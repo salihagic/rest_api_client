@@ -1,3 +1,5 @@
+## [1.0.10] 
+* Added Multipart Form Data contant key
 ## [1.0.9] 
 * Barrel files
 ## [1.0.8] 
