@@ -8,6 +8,10 @@ class RestApiClientOptions {
   ///to the console while debugging
   final bool logNetworkTraffic;
 
+  ///Toggle logging of your requests and responses
+  ///to the console while debugging
+  final bool keepRetryingOnNetworkError;
+
   ///Define refresh token endpoint for RestApiClient
   ///instance to use the first time response status code is 401
   final String refreshTokenEndpoint;
@@ -28,12 +32,12 @@ class RestApiClientOptions {
   ///If your api returns validation errors different from
   ///default format that is response.data['validationErrors']
   ///you can override it by providing this callback
-  final Map<String, List<String>> Function(dynamic response)?
-      resolveValidationErrorsMap;
+  final Map<String, List<String>> Function(dynamic response)? resolveValidationErrorsMap;
 
   RestApiClientOptions({
     this.baseUrl = '',
     this.logNetworkTraffic = true,
+    this.keepRetryingOnNetworkError = true,
     this.refreshTokenEndpoint = '',
     this.refreshTokenParameterName = '',
     this.resolveJwt,
