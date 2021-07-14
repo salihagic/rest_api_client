@@ -1,4 +1,4 @@
-## [1.0.12] 
+## [1.0.13] 
 * Added connectivity and request retrier on lost connection
 ## [1.0.10] 
 * Added Multipart Form Data constant key
