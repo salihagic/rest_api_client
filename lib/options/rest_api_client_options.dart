@@ -8,8 +8,8 @@ class RestApiClientOptions {
   ///to the console while debugging
   final bool logNetworkTraffic;
 
-  ///Toggle logging of your requests and responses
-  ///to the console while debugging
+  ///Sets the flag deciding if the instance of restApiClient should retry to
+  ///submit the request after the device reconnects to the network
   final bool keepRetryingOnNetworkError;
 
   ///Define refresh token endpoint for RestApiClient

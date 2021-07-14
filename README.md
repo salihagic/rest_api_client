@@ -8,26 +8,36 @@ You can also find this package on pub as [rest_api_client](https://pub.dev/packa
     restApiClientOptions: RestApiClientOptions(
       //Defines your base API url eg. https://mybestrestapi.com
       baseUrl: 'https://mybestrestapi.com',
+
       //Toggle logging of your requests and responses
       //to the console while debugging
       logNetworkTraffic: true,
+
+      //Sets the flag deciding if the instance of restApiClient should retry to
+      //submit the request after the device reconnects to the network
+      keepRetryingOnNetworkError: true,
+
       //Define refresh token endpoint for RestApiClient
       //instance to use the first time response status code is 401
       refreshTokenEndpoint: '/Authentication/RefreshToken',
+
       //Define the name of your api parameter name
       //on RefreshToken endpoint eg. 'refreshToken' or 'value' ...
       refreshTokenParameterName: 'refreshToken',
+
       //This method is called on successfull call to refreshTokenEndpoint
       //Provides a way to get a jwt from response, much like
       //resolveValidationErrorsMap callback
-      resolveJwt: (response) => response.data['jwt'],
+      resolveJwt: (response) => response['jwt'],
+
       //Much like resolveJwt, this method is used to resolve
       //refresh token from response
-      resolveRefreshToken: (response) => response.data['refreshToken'],
+      resolveRefreshToken: (response) => response['refreshToken'],
+
       //If your api returns validation errors different from
       //default format that is response.data['validationErrors']
       //you can override it by providing this callback
-      resolveValidationErrorsMap: (response) => response.data['errors']['validation'],
+      resolveValidationErrorsMap: (response) => response['errors']['validation'],
     ),
   );
 
