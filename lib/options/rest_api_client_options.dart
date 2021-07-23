@@ -20,6 +20,10 @@ class RestApiClientOptions {
   ///on RefreshToken endpoint eg. 'refreshToken' or 'value' ...
   final String refreshTokenParameterName;
 
+  ///Set the [useCache] flag if you want save every response from GET requests
+  ///and afterwards be able to use [getCached] method to retrieve local item quickly
+  final bool useCache;
+
   ///This method is called on successfull call to refreshTokenEndpoint
   ///Provides a way to get a jwt from response, much like
   ///resolveValidationErrorsMap callback
@@ -32,7 +36,8 @@ class RestApiClientOptions {
   ///If your api returns validation errors different from
   ///default format that is response.data['validationErrors']
   ///you can override it by providing this callback
-  final Map<String, List<String>> Function(dynamic response)? resolveValidationErrorsMap;
+  final Map<String, List<String>> Function(dynamic response)?
+      resolveValidationErrorsMap;
 
   RestApiClientOptions({
     this.baseUrl = '',
@@ -40,6 +45,7 @@ class RestApiClientOptions {
     this.keepRetryingOnNetworkError = true,
     this.refreshTokenEndpoint = '',
     this.refreshTokenParameterName = '',
+    this.useCache = false,
     this.resolveJwt,
     this.resolveRefreshToken,
     this.resolveValidationErrorsMap,

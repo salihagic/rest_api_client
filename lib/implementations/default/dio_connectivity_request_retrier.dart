@@ -41,7 +41,8 @@ class DioConnectivityRequestRetrier {
                 responseType: requestOptions.responseType,
                 contentType: requestOptions.contentType,
                 validateStatus: requestOptions.validateStatus,
-                receiveDataWhenStatusError: requestOptions.receiveDataWhenStatusError,
+                receiveDataWhenStatusError:
+                    requestOptions.receiveDataWhenStatusError,
                 followRedirects: requestOptions.followRedirects,
                 maxRedirects: requestOptions.maxRedirects,
                 requestEncoder: requestOptions.requestEncoder,

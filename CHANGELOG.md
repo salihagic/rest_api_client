@@ -1,3 +1,5 @@
+## [1.0.16] 
+* Added caching option for GET requests
 ## [1.0.15] 
 * Added connectivity and request retrier on lost connection
 ## [1.0.10] 
