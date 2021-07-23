@@ -38,6 +38,10 @@ You can also find this package on pub as [rest_api_client](https://pub.dev/packa
       //default format that is response.data['validationErrors']
       //you can override it by providing this callback
       resolveValidationErrorsMap: (response) => response['errors']['validation'],
+
+      ///Set the [useCache] flag if you want save every response from GET requests
+      ///and afterwards be able to use [getCached] method to retrieve local item quickly
+      useCache: true,
     ),
   );
 

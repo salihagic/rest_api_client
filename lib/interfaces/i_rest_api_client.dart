@@ -42,4 +42,13 @@ abstract class IRestApiClient extends DioMixin {
   ///Provides information if the current instance
   ///of RestApiClient contains Authorization header
   Future<bool> isAuthorized();
+
+  ///Gets locally saved last response from the path
+  Future<Response> getCached<T>(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+  });
 }
