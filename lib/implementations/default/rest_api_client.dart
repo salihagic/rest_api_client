@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:rest_api_client/rest_api_client.dart';
 import 'dart:async';
 import 'dart:io';
@@ -322,13 +321,14 @@ class RestApiClient extends DioMixin implements IRestApiClient {
       switch (error.response?.statusCode) {
         case HttpStatus.internalServerError:
           return ServerErrorException();
-        case HttpStatus.notFound:
         case HttpStatus.badGateway:
           return ServerErrorException();
+        case HttpStatus.notFound:
+          return ValidationException.multipleFields(
+              validationMessages: getValidationMessages(error));
         case HttpStatus.badRequest:
           return ValidationException.multipleFields(
-            validationMessages: getValidationMessages(error),
-          );
+              validationMessages: getValidationMessages(error));
         case HttpStatus.unauthorized:
           return UnauthorizedException();
         case HttpStatus.forbidden:

@@ -1,3 +1,5 @@
+## [1.0.17] 
+* Status code 404 added
 ## [1.0.16] 
 * Added caching option for GET requests
 ## [1.0.15] 
