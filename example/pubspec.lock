@@ -248,7 +248,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "1.0.18"
+    version: "1.0.19"
   shared_preferences:
     dependency: transitive
     description:
@@ -309,7 +309,7 @@ packages:
       name: storage_repository
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.6"
+    version: "1.0.7"
   string_scanner:
     dependency: transitive
     description:

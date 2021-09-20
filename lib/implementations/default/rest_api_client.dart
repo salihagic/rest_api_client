@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:rest_api_client/rest_api_client.dart';
 import 'dart:async';
 import 'dart:io';
@@ -63,7 +62,6 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   @override
   Future<IRestApiClient> init() async {
     await storageRepository.init();
-    log('INITIALIZING REST API CLIENT IN rest_api_client PACKAGE');
     final jwt = await storageRepository.get(RestApiClientKeys.jwt);
     if (jwt != null) {
       _addOrUpdateHeader(

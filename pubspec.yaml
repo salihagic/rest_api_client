@@ -1,6 +1,6 @@
 name: rest_api_client
 description: Abstraction for communicating with REST API in flutter projects. Incorporates exception handling and jwt with refresh token authorization.
-version: 1.0.18
+version: 1.0.19
 repository: https://github.com/salihagic/rest_api_client
 
 environment:
@@ -13,7 +13,7 @@ dependencies:
   dio: ^4.0.0
   pretty_dio_logger: ^1.1.1
   connectivity_plus: ^1.0.5
-  storage_repository: ^1.0.6
+  storage_repository: ^1.0.7
   
 dev_dependencies:
   flutter_test:

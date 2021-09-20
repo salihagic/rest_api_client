@@ -1,3 +1,6 @@
+## [1.0.19] 
+* Removed unused logging
+
 ## [1.0.18] 
 * Updated dependencies
 
