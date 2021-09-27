@@ -23,12 +23,14 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   ///RestApiClient exceptions that might happen during
   ///the execution of requests
   @override
-  StreamController<BaseException> exceptions =
-      StreamController<BaseException>.broadcast();
+  StreamController<BaseException> exceptions = StreamController<BaseException>.broadcast();
 
   ///Provides an interface for storing tokens to a
   ///secure storage so they are available on app restart
   IStorageRepository storageRepository = SecureStorageRepository();
+
+  ///Provides an interface for storing cached data
+  IStorageRepository cachedStorageRepository = StorageRepository(key: 'REST_API_CLIENT_CACHED_STORAGE_REPOSITORY');
 
   ///Use this class to provide configuration
   ///for your RestApiClient instance
@@ -62,10 +64,10 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   @override
   Future<IRestApiClient> init() async {
     await storageRepository.init();
+    await cachedStorageRepository.init();
     final jwt = await storageRepository.get(RestApiClientKeys.jwt);
     if (jwt != null) {
-      _addOrUpdateHeader(
-          key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
+      _addOrUpdateHeader(key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
     }
 
     return this;
@@ -82,33 +84,26 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   ///Method that sets appropriate Accept language header
   @override
   void setAcceptLanguageHeader(String languageCode) {
-    _addOrUpdateHeader(
-        key: RestApiClientKeys.acceptLanguage, value: languageCode);
+    _addOrUpdateHeader(key: RestApiClientKeys.acceptLanguage, value: languageCode);
   }
 
   ///Method that adds Authorization header
   ///and initializes mechanism for managing
   ///refresh token logic
   @override
-  Future<bool> addAuthorization(
-      {required String jwt, required String refreshToken}) async {
+  Future<bool> addAuthorization({required String jwt, required String refreshToken}) async {
     final result = await storageRepository.set(RestApiClientKeys.jwt, jwt);
-    _addOrUpdateHeader(
-        key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
+    _addOrUpdateHeader(key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
 
-    return result &&
-        await storageRepository.set(
-            RestApiClientKeys.refreshToken, refreshToken);
+    return result && await storageRepository.set(RestApiClientKeys.refreshToken, refreshToken);
   }
 
   ///Removes authorization header along with jwt
   ///and refreshToken from the secure storage
   @override
   Future<bool> removeAuthorization() async {
-    final deleteJwtResult =
-        await storageRepository.delete(RestApiClientKeys.jwt);
-    final deleteRefreshTokenResult =
-        await storageRepository.delete(RestApiClientKeys.jwt);
+    final deleteJwtResult = await storageRepository.delete(RestApiClientKeys.jwt);
+    final deleteRefreshTokenResult = await storageRepository.delete(RestApiClientKeys.jwt);
 
     options.headers.remove(RestApiClientKeys.authorization);
 
@@ -119,22 +114,16 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   ///of RestApiClient contains Authorization header
   @override
   Future<bool> isAuthorized() async {
-    final containsAuthorizationHeader =
-        options.headers.containsKey(RestApiClientKeys.authorization);
-    final containsJwtInStorage =
-        await storageRepository.contains(RestApiClientKeys.jwt);
-    final containsRefreshTokenInStorage =
-        await storageRepository.contains(RestApiClientKeys.refreshToken);
+    final containsAuthorizationHeader = options.headers.containsKey(RestApiClientKeys.authorization);
+    final containsJwtInStorage = await storageRepository.contains(RestApiClientKeys.jwt);
+    final containsRefreshTokenInStorage = await storageRepository.contains(RestApiClientKeys.refreshToken);
 
-    return containsAuthorizationHeader &&
-        containsJwtInStorage &&
-        containsRefreshTokenInStorage;
+    return containsAuthorizationHeader && containsJwtInStorage && containsRefreshTokenInStorage;
   }
 
   ///Loads the refresh token from secure storage
   Future<String> _getRefreshToken() async {
-    final refreshToken =
-        await storageRepository.get(RestApiClientKeys.refreshToken);
+    final refreshToken = await storageRepository.get(RestApiClientKeys.refreshToken);
     return refreshToken;
   }
 
@@ -164,15 +153,13 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   }
 
   ///Checks if the Authorization header is present
-  bool get _usesAutorization =>
-      options.headers.containsKey(RestApiClientKeys.authorization);
+  bool get _usesAutorization => options.headers.containsKey(RestApiClientKeys.authorization);
 
   ///Provides a default implementation for
   ///managing the refreshing of the jwt by
   ///calling the appropriate api endpoint
   Future refreshTokenCallback(DioError error) async {
-    if (restApiClientOptions.resolveJwt != null &&
-        restApiClientOptions.resolveRefreshToken != null) {
+    if (restApiClientOptions.resolveJwt != null && restApiClientOptions.resolveRefreshToken != null) {
       interceptors.requestLock.lock();
       interceptors.responseLock.lock();
 
@@ -183,10 +170,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
             ..contentType = Headers.jsonContentType)
           .post(
         restApiClientOptions.refreshTokenEndpoint,
-        data: {
-          restApiClientOptions.refreshTokenParameterName:
-              await _getRefreshToken()
-        },
+        data: {restApiClientOptions.refreshTokenParameterName: await _getRefreshToken()},
       );
 
       final jwt = restApiClientOptions.resolveJwt!(response);
@@ -196,11 +180,9 @@ class RestApiClient extends DioMixin implements IRestApiClient {
 
       //Set for current request
       if (requestOptions.headers.containsKey(RestApiClientKeys.authorization)) {
-        requestOptions.headers
-            .update(RestApiClientKeys.authorization, (v) => 'Bearer $jwt');
+        requestOptions.headers.update(RestApiClientKeys.authorization, (v) => 'Bearer $jwt');
       } else {
-        requestOptions.headers
-            .addAll({RestApiClientKeys.authorization: 'Bearer $jwt'});
+        requestOptions.headers.addAll({RestApiClientKeys.authorization: 'Bearer $jwt'});
       }
 
       interceptors.requestLock.unlock();
@@ -241,14 +223,9 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     interceptors.add(
       InterceptorsWrapper(
         onRequest: (RequestOptions options, handler) {
-          options.extra.addAll({
-            'showInternalServerErrors':
-                exceptionOptions.showInternalServerErrors
-          });
-          options.extra.addAll(
-              {'showNetworkErrors': exceptionOptions.showNetworkErrors});
-          options.extra.addAll(
-              {'showValidationErrors': exceptionOptions.showValidationErrors});
+          options.extra.addAll({'showInternalServerErrors': exceptionOptions.showInternalServerErrors});
+          options.extra.addAll({'showNetworkErrors': exceptionOptions.showNetworkErrors});
+          options.extra.addAll({'showValidationErrors': exceptionOptions.showValidationErrors});
 
           return handler.next(options);
         },
@@ -268,8 +245,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
             }
           }
 
-          _handleException(
-              _getExceptionFromDioError(error), error.requestOptions.extra);
+          _handleException(_getExceptionFromDioError(error), error.requestOptions.extra);
           exceptionOptions.reset();
 
           return handler.next(error);
@@ -283,19 +259,14 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     interceptors.add(
       InterceptorsWrapper(
         onRequest: (RequestOptions options, handler) {
-          options.extra.addAll({
-            'keepRetryingOnNetworkError':
-                restApiClientOptions.keepRetryingOnNetworkError
-          });
+          options.extra.addAll({'keepRetryingOnNetworkError': restApiClientOptions.keepRetryingOnNetworkError});
 
           return handler.next(options);
         },
         onError: (DioError error, handler) async {
-          if (_shouldRetryOnConnectionChange(error) &&
-              error.requestOptions.extra['keepRetryingOnNetworkError']) {
+          if (_shouldRetryOnConnectionChange(error) && error.requestOptions.extra['keepRetryingOnNetworkError']) {
             try {
-              return handler.resolve(await dioConnectivityRequestRetrier
-                  .scheduleRequestRetry(error.requestOptions));
+              return handler.resolve(await dioConnectivityRequestRetrier.scheduleRequestRetry(error.requestOptions));
             } catch (e) {
               print(e);
             }
@@ -308,10 +279,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     );
   }
 
-  bool _shouldRetryOnConnectionChange(DioError error) =>
-      error.type == DioErrorType.other &&
-      error.error != null &&
-      error.error is SocketException;
+  bool _shouldRetryOnConnectionChange(DioError error) => error.type == DioErrorType.other && error.error != null && error.error is SocketException;
 
   ///Resolves the instance of appropriate
   ///RestApiClient exception from DioError
@@ -323,11 +291,9 @@ class RestApiClient extends DioMixin implements IRestApiClient {
         case HttpStatus.badGateway:
           return ServerErrorException();
         case HttpStatus.notFound:
-          return ValidationException.multipleFields(
-              validationMessages: getValidationMessages(error));
+          return ValidationException.multipleFields(validationMessages: getValidationMessages(error));
         case HttpStatus.badRequest:
-          return ValidationException.multipleFields(
-              validationMessages: getValidationMessages(error));
+          return ValidationException.multipleFields(validationMessages: getValidationMessages(error));
         case HttpStatus.unauthorized:
           return UnauthorizedException();
         case HttpStatus.forbidden:
@@ -347,19 +313,11 @@ class RestApiClient extends DioMixin implements IRestApiClient {
         Map<String, List<String>> errorsMap = {};
 
         if (restApiClientOptions.resolveValidationErrorsMap != null) {
-          errorsMap =
-              restApiClientOptions.resolveValidationErrorsMap!(error.response);
+          errorsMap = restApiClientOptions.resolveValidationErrorsMap!(error.response);
         } else {
-          error.response!.data['validationErrors']?.forEach((key, value) =>
-              errorsMap[key] =
-                  value?.map<String>((x) => x as String)?.toList());
+          error.response!.data['validationErrors']?.forEach((key, value) => errorsMap[key] = value?.map<String>((x) => x as String)?.toList());
           if (error.response!.data['errors'] != null) {
-            final errors = MapEntry<String, List<String>>(
-                '',
-                error.response!.data['errors']
-                        ?.map<String>((error) => error as String)
-                        ?.toList() ??
-                    ['']);
+            final errors = MapEntry<String, List<String>>('', error.response!.data['errors']?.map<String>((error) => error as String)?.toList() ?? ['']);
             errorsMap.addAll(Map.fromEntries([errors]));
           }
         }
@@ -386,9 +344,9 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     }
   }
 
-  /// Handy method to make http GET request, which is a alias of  [BaseDio.requestOptions].
+  /// Handy method to make http GET request and cache reponse data
   @override
-  Future<Response<T>> get<T>(
+  Future<Response<T>> getAndCache<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
     Options? options,
@@ -403,69 +361,111 @@ class RestApiClient extends DioMixin implements IRestApiClient {
       cancelToken: cancelToken,
     );
 
-    if (restApiClientOptions.useCache) {
-      await _setCached(response);
-    }
+    await _setCached(response);
 
     return response;
   }
 
-  Future _setCached(Response response) async {
-    final cacheKey = _generateCacheKey(
-        response.requestOptions.path, response.requestOptions.queryParameters);
+  /// Handy method to make http POST request and cached response data
+  @override
+  Future<Response<T>> postAndCache<T>(
+    String path, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final response = await request<T>(
+      path,
+      data: data,
+      options: DioMixin.checkOptions('POST', options),
+      queryParameters: queryParameters,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
 
-    await storageRepository.set(cacheKey, response.data);
+    await _setCached(response);
+
+    return response;
   }
 
-  Future<Response> getCached<T>(
+  Future<Response<T>> getCached<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final response = Response(
+    return Response(
       requestOptions: RequestOptions(
         path: path,
         queryParameters: queryParameters,
-        cancelToken: cancelToken,
-        onReceiveProgress: onReceiveProgress,
-        method: options?.method,
-        sendTimeout: options?.sendTimeout,
-        receiveTimeout: options?.receiveTimeout,
-        extra: options?.extra,
-        headers: options?.headers,
-        responseType: options?.responseType,
-        contentType: options?.contentType,
-        validateStatus: options?.validateStatus,
-        receiveDataWhenStatusError: options?.receiveDataWhenStatusError,
-        followRedirects: options?.followRedirects,
-        maxRedirects: options?.maxRedirects,
-        requestEncoder: options?.requestEncoder,
-        responseDecoder: options?.responseDecoder,
-        listFormat: options?.listFormat,
       ),
-      isRedirect: false,
-      extra: options?.extra,
+      data: await _getDataFromCache(
+        path,
+        queryParameters,
+      ),
     );
-
-    try {
-      final cacheKey = _generateCacheKey(path, queryParameters);
-
-      final cachedResponseData = await storageRepository.get(cacheKey);
-
-      response.data = cachedResponseData;
-      response.statusCode = HttpStatus.ok;
-    } catch (e) {
-      print(e);
-
-      response.statusCode = HttpStatus.badRequest;
-    }
-
-    return response;
   }
 
-  String _generateCacheKey(String path, Map<String, dynamic>? queryParameters) {
-    return '$path${queryParameters != null ? json.encode(queryParameters) : ''}';
+  Future<Response<T>> postCached<T>(
+    String path, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    return Response(
+      requestOptions: RequestOptions(
+        path: path,
+        queryParameters: queryParameters,
+        data: data,
+      ),
+      data: await _getDataFromCache(
+        path,
+        queryParameters,
+        data,
+      ),
+    );
+  }
+
+  Future _setCached(Response response) async {
+    final cacheKey = _generateCacheKey(
+      response.requestOptions.path,
+      response.requestOptions.queryParameters,
+      response.requestOptions.data,
+    );
+
+    await cachedStorageRepository.set(cacheKey, response.data);
+  }
+
+  Future<dynamic> _getDataFromCache(
+    String path, [
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? data,
+  ]) async {
+    final cacheKey = _generateCacheKey(
+      path,
+      queryParameters,
+      data,
+    );
+
+    return await cachedStorageRepository.get(cacheKey);
+  }
+
+  String _generateCacheKey(
+    String path, [
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? data,
+  ]) {
+    final queryParametersSerialized = (queryParameters != null && queryParameters.isNotEmpty) ? json.encode(queryParameters) : '';
+    final dataSerialized = (data != null && data.isNotEmpty) ? json.encode(data) : '';
+
+    return '$path _ $queryParametersSerialized _ $dataSerialized';
   }
 }

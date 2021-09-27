@@ -1,3 +1,6 @@
+## [1.0.20] 
+* Removed global caching
+
 ## [1.0.19] 
 * Removed unused logging
 

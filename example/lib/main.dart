@@ -39,10 +39,6 @@ Future main() async {
       //you can override it by providing this callback
       resolveValidationErrorsMap: (response) =>
           response['errors']['validation'],
-
-      ///Set the [useCache] flag if you want save every response from GET requests
-      ///and afterwards be able to use [getCached] method to retrieve local item quickly
-      useCache: true,
     ),
   );
 

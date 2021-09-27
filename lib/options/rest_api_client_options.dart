@@ -20,10 +20,6 @@ class RestApiClientOptions {
   ///on RefreshToken endpoint eg. 'refreshToken' or 'value' ...
   final String refreshTokenParameterName;
 
-  ///Set the [useCache] flag if you want save every response from GET requests
-  ///and afterwards be able to use [getCached] method to retrieve local item quickly
-  final bool useCache;
-
   ///This method is called on successfull call to refreshTokenEndpoint
   ///Provides a way to get a jwt from response, much like
   ///resolveValidationErrorsMap callback
@@ -45,7 +41,6 @@ class RestApiClientOptions {
     this.keepRetryingOnNetworkError = true,
     this.refreshTokenEndpoint = '',
     this.refreshTokenParameterName = '',
-    this.useCache = false,
     this.resolveJwt,
     this.resolveRefreshToken,
     this.resolveValidationErrorsMap,

@@ -43,12 +43,43 @@ abstract class IRestApiClient extends DioMixin {
   ///of RestApiClient contains Authorization header
   Future<bool> isAuthorized();
 
-  ///Gets locally saved last response from the path
-  Future<Response> getCached<T>(
+  /// Handy method to make http GET request and cache reponse data
+  Future<Response<T>> getAndCache<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+  });
+
+  /// Handy method to make http POST request and cache response data
+  Future<Response<T>> postAndCache<T>(
+    String path, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  });
+
+  ///Gets locally saved last response from the path
+  Future<Response<T>> getCached<T>(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+  });
+
+  ///Gets locally saved last response from the path
+  Future<Response<T>> postCached<T>(
+    String path, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   });
 }

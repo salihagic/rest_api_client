@@ -248,7 +248,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "1.0.19"
+    version: "1.0.20"
   shared_preferences:
     dependency: transitive
     description:
