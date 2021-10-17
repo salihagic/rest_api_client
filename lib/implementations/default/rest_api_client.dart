@@ -28,11 +28,11 @@ class RestApiClient extends DioMixin implements IRestApiClient {
 
   ///Provides an interface for storing tokens to a
   ///secure storage so they are available on app restart
-  IStorageRepository storageRepository = SecureStorageRepository();
+  IStorageRepository _storageRepository = SecureStorageRepository();
 
   ///Provides an interface for storing cached data
-  IStorageRepository cachedStorageRepository =
-      StorageRepository(key: 'REST_API_CLIENT_CACHED_STORAGE_REPOSITORY');
+  IStorageRepository _cachedStorageRepository =
+      StorageRepository(key: RestApiClientKeys.cachedStorageKey);
 
   ///Use this class to provide configuration
   ///for your RestApiClient instance
@@ -72,9 +72,12 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   ///Method that initializes RestApiClient instance
   @override
   Future<IRestApiClient> init() async {
-    await storageRepository.init();
-    await cachedStorageRepository.init();
-    final jwt = await storageRepository.get(RestApiClientKeys.jwt);
+    await _storageRepository.init();
+    await _cachedStorageRepository.init();
+
+    await _copyDataFromLegacyStorage();
+
+    final jwt = await _storageRepository.get(RestApiClientKeys.jwt);
     if (jwt != null) {
       _addOrUpdateHeader(
           key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
@@ -104,12 +107,12 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   @override
   Future<bool> addAuthorization(
       {required String jwt, required String refreshToken}) async {
-    final result = await storageRepository.set(RestApiClientKeys.jwt, jwt);
+    final result = await _storageRepository.set(RestApiClientKeys.jwt, jwt);
     _addOrUpdateHeader(
         key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
 
     return result &&
-        await storageRepository.set(
+        await _storageRepository.set(
             RestApiClientKeys.refreshToken, refreshToken);
   }
 
@@ -118,9 +121,9 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   @override
   Future<bool> removeAuthorization() async {
     final deleteJwtResult =
-        await storageRepository.delete(RestApiClientKeys.jwt);
+        await _storageRepository.delete(RestApiClientKeys.jwt);
     final deleteRefreshTokenResult =
-        await storageRepository.delete(RestApiClientKeys.jwt);
+        await _storageRepository.delete(RestApiClientKeys.jwt);
 
     options.headers.remove(RestApiClientKeys.authorization);
 
@@ -134,9 +137,9 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     final containsAuthorizationHeader =
         options.headers.containsKey(RestApiClientKeys.authorization);
     final containsJwtInStorage =
-        await storageRepository.contains(RestApiClientKeys.jwt);
+        await _storageRepository.contains(RestApiClientKeys.jwt);
     final containsRefreshTokenInStorage =
-        await storageRepository.contains(RestApiClientKeys.refreshToken);
+        await _storageRepository.contains(RestApiClientKeys.refreshToken);
 
     return containsAuthorizationHeader &&
         containsJwtInStorage &&
@@ -146,7 +149,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   ///Loads the refresh token from secure storage
   Future<String> _getRefreshToken() async {
     final refreshToken =
-        await storageRepository.get(RestApiClientKeys.refreshToken);
+        await _storageRepository.get(RestApiClientKeys.refreshToken);
     return refreshToken;
   }
 
@@ -495,7 +498,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
       response.requestOptions.data,
     );
 
-    await cachedStorageRepository.set(cacheKey, response.data);
+    await _cachedStorageRepository.set(cacheKey, response.data);
   }
 
   Future<dynamic> _getDataFromCache(
@@ -509,7 +512,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
       data,
     );
 
-    return await cachedStorageRepository.get(cacheKey);
+    return await _cachedStorageRepository.get(cacheKey);
   }
 
   String _generateCacheKey(
@@ -525,5 +528,26 @@ class RestApiClient extends DioMixin implements IRestApiClient {
         (data != null && data.isNotEmpty) ? json.encode(data) : '';
 
     return '$path _ $queryParametersSerialized _ $dataSerialized';
+  }
+
+  Future _copyDataFromLegacyStorage() async {
+    final legacyStorageRepository = StorageRepository();
+    await legacyStorageRepository.init();
+
+    final containsJwt =
+        await _storageRepository.contains(RestApiClientKeys.jwt);
+    if (!containsJwt) {
+      final jwt = await legacyStorageRepository.get(RestApiClientKeys.jwt);
+      await _storageRepository.set(RestApiClientKeys.jwt, jwt);
+    }
+
+    final containsRefreshToken =
+        await _storageRepository.contains(RestApiClientKeys.refreshToken);
+    if (!containsRefreshToken) {
+      final refreshToken =
+          await legacyStorageRepository.get(RestApiClientKeys.refreshToken);
+      await _storageRepository.set(
+          RestApiClientKeys.refreshToken, refreshToken);
+    }
   }
 }

@@ -1,3 +1,6 @@
+## [1.0.22] 
+* Updated dependencies
+
 ## [1.0.21] 
 * Ignore bad SSL certificate
 
