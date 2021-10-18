@@ -78,7 +78,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     await _copyDataFromLegacyStorage();
 
     final jwt = await _storageRepository.get(RestApiClientKeys.jwt);
-    if (jwt != null) {
+    if (jwt != null && jwt is String && jwt.isNotEmpty) {
       _addOrUpdateHeader(
           key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
     }

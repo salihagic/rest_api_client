@@ -1,5 +1,8 @@
+## [1.0.23] 
+* JWT fix
+
 ## [1.0.22] 
-* Updated dependencies
+* Updated dependencies and moved to secure storage
 
 ## [1.0.21] 
 * Ignore bad SSL certificate
