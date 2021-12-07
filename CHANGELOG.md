@@ -1,3 +1,6 @@
+## [1.0.24] 
+* Upgraded dependencies
+
 ## [1.0.23] 
 * JWT fix
 
