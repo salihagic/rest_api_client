@@ -4,6 +4,9 @@ You can also find this package on pub as [rest_api_client](https://pub.dev/packa
 
 ## Usage
 ```
+  //This must be called once per application lifetime
+  await RestApiClient.initFlutter();
+
   IRestApiClient restApiClient = RestApiClient(
     restApiClientOptions: RestApiClientOptions(
       //Defines your base API url eg. https://mybestrestapi.com

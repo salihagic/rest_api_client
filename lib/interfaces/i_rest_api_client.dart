@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:dio/dio.dart';
 import 'package:rest_api_client/rest_api_client.dart';
 
 ///Abstract class to be used as an interface
@@ -32,8 +31,7 @@ abstract class IRestApiClient extends DioMixin {
   ///Method that adds Authorization header
   ///and initializes mechanism for managing
   ///refresh token logic
-  Future<bool> addAuthorization(
-      {required String jwt, required String refreshToken});
+  Future<bool> addAuthorization({required String jwt, required String refreshToken});
 
   ///Removes authorization header along with jwt
   ///and refreshToken from the secure storage

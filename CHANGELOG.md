@@ -1,3 +1,6 @@
+## [1.0.25] 
+* Upgraded dependencies
+
 ## [1.0.24] 
 * Upgraded dependencies
 
