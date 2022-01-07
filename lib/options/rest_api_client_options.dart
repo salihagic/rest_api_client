@@ -35,6 +35,9 @@ class RestApiClientOptions {
   final Map<String, List<String>> Function(dynamic response)?
       resolveValidationErrorsMap;
 
+  ///Represents unique strong encryption key for encrypting tokens and sensitive data
+  late List<int>? encryptionKey;
+
   RestApiClientOptions({
     this.baseUrl = '',
     this.logNetworkTraffic = true,
@@ -44,5 +47,6 @@ class RestApiClientOptions {
     this.resolveJwt,
     this.resolveRefreshToken,
     this.resolveValidationErrorsMap,
+    this.encryptionKey,
   });
 }

@@ -26,7 +26,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
 
   ///Provides an interface for storing tokens to a
   ///secure storage so they are available on app restart
-  IStorageRepository _storageRepository = SecureStorageRepository();
+  late IStorageRepository _storageRepository;
 
   ///Provides an interface for storing cached data
   IStorageRepository _cachedStorageRepository =
@@ -41,6 +41,16 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   RestApiClient({
     required this.restApiClientOptions,
   }) {
+    if (restApiClientOptions.encryptionKey != null &&
+        restApiClientOptions.encryptionKey!.length > 0) {
+      assert(restApiClientOptions.encryptionKey!.length == 32,
+          'encryptionKey must be 32 bytes (256 bit) long');
+      _storageRepository = SecureStorageRepository(
+          encryptionKey: restApiClientOptions.encryptionKey!);
+    } else {
+      _storageRepository = StorageRepository();
+    }
+
     options = BaseOptions();
     httpClientAdapter = DefaultHttpClientAdapter();
 
@@ -67,9 +77,14 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     };
   }
 
+  ///Method that should be called as soon as possible
   static Future<void> initFlutter() async {
     await StorageRepository.initFlutter();
   }
+
+  /// Generates strong 32 byte (256 bit) encryption key for secure storage
+  static List<int> generateSecureKey() =>
+      SecureStorageRepository.generateSecureKey();
 
   ///Method that initializes RestApiClient instance
   @override
