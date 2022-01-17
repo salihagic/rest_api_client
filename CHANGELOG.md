@@ -1,3 +1,6 @@
+## [1.1.3] 
+* Added logging options
+
 ## [1.1.2] 
 * Upgraded dependencies
 

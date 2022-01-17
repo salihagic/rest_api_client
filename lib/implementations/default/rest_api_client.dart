@@ -36,10 +36,14 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   ///for your RestApiClient instance
   final RestApiClientOptions restApiClientOptions;
 
-  late DioConnectivityRequestRetrier dioConnectivityRequestRetrier;
+  late DioConnectivityRequestRetrier _dioConnectivityRequestRetrier;
+
+  ///Customize logging options for requests/responses
+  final LoggingOptions loggingOptions;
 
   RestApiClient({
     required this.restApiClientOptions,
+    this.loggingOptions = const LoggingOptions(),
   }) {
     if (restApiClientOptions.encryptionKey != null &&
         restApiClientOptions.encryptionKey!.length > 0) {
@@ -55,12 +59,12 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     httpClientAdapter = DefaultHttpClientAdapter();
 
     if (restApiClientOptions.keepRetryingOnNetworkError) {
-      dioConnectivityRequestRetrier = DioConnectivityRequestRetrier(dio: this);
+      _dioConnectivityRequestRetrier = DioConnectivityRequestRetrier(dio: this);
     }
 
     options.baseUrl = restApiClientOptions.baseUrl;
 
-    if (restApiClientOptions.logNetworkTraffic) {
+    if (loggingOptions.logNetworkTraffic) {
       _configureDebugLogger();
     }
 
@@ -184,11 +188,13 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   void _configureDebugLogger() {
     interceptors.add(
       PrettyDioLogger(
-        responseBody: true,
-        requestBody: true,
-        requestHeader: true,
-        request: true,
-        responseHeader: true,
+        responseBody: loggingOptions.responseBody,
+        requestBody: loggingOptions.requestBody,
+        requestHeader: loggingOptions.requestHeader,
+        request: loggingOptions.request,
+        responseHeader: loggingOptions.responseHeader,
+        compact: loggingOptions.compact,
+        error: loggingOptions.error,
       ),
     );
   }
@@ -328,7 +334,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
           if (_shouldRetryOnConnectionChange(error) &&
               error.requestOptions.extra['keepRetryingOnNetworkError']) {
             try {
-              return handler.resolve(await dioConnectivityRequestRetrier
+              return handler.resolve(await _dioConnectivityRequestRetrier
                   .scheduleRequestRetry(error.requestOptions));
             } catch (e) {
               print(e);

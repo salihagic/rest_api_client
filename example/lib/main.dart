@@ -11,10 +11,6 @@ Future main() async {
       //Defines your base API url eg. https://mybestrestapi.com
       baseUrl: 'https://mybestrestapi.com',
 
-      //Toggle logging of your requests and responses
-      //to the console while debugging
-      logNetworkTraffic: true,
-
       ///Toggle logging of your requests and responses
       ///to the console while debugging
       keepRetryingOnNetworkError: true,
@@ -41,6 +37,11 @@ Future main() async {
       //you can override it by providing this callback
       resolveValidationErrorsMap: (response) =>
           response['errors']['validation'],
+    ),
+    loggingOptions: LoggingOptions(
+      //Toggle logging of your requests and responses
+      //to the console while debugging
+      logNetworkTraffic: true,
     ),
   );
 
