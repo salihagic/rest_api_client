@@ -1,3 +1,6 @@
+## [1.1.4] 
+* Encryption key logic fix
+
 ## [1.1.3] 
 * Added logging options
 

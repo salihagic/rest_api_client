@@ -45,15 +45,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     required this.restApiClientOptions,
     this.loggingOptions = const LoggingOptions(),
   }) {
-    if (restApiClientOptions.encryptionKey != null &&
-        restApiClientOptions.encryptionKey!.length > 0) {
-      assert(restApiClientOptions.encryptionKey!.length == 32,
-          'encryptionKey must be 32 bytes (256 bit) long');
-      _storageRepository = SecureStorageRepository(
-          encryptionKey: restApiClientOptions.encryptionKey!);
-    } else {
-      _storageRepository = StorageRepository();
-    }
+    _storageRepository = SecureStorageRepository();
 
     options = BaseOptions();
     httpClientAdapter = DefaultHttpClientAdapter();
