@@ -29,8 +29,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   late IStorageRepository _storageRepository;
 
   ///Provides an interface for storing cached data
-  IStorageRepository _cachedStorageRepository =
-      StorageRepository(key: RestApiClientKeys.cachedStorageKey);
+  late IStorageRepository _cachedStorageRepository;
 
   ///Use this class to provide configuration
   ///for your RestApiClient instance
@@ -45,7 +44,14 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     required this.restApiClientOptions,
     this.loggingOptions = const LoggingOptions(),
   }) {
-    _storageRepository = SecureStorageRepository();
+    _cachedStorageRepository = StorageRepository(
+      key: RestApiClientKeys.cachedStorageKey,
+      logPrefix: RestApiClientKeys.cachedStorageLogPrefix,
+    );
+    _storageRepository = SecureStorageRepository(
+      key: RestApiClientKeys.storageKey,
+      logPrefix: RestApiClientKeys.storageLogPrefix,
+    );
 
     options = BaseOptions();
     httpClientAdapter = DefaultHttpClientAdapter();

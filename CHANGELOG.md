@@ -1,3 +1,6 @@
+## [1.1.7] 
+* Upgraded dependencies and added default keys
+
 ## [1.1.6] 
 * Upgraded dependencies
 
