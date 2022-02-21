@@ -40,6 +40,14 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   ///Customize logging options for requests/responses
   final LoggingOptions loggingOptions;
 
+  ///Get jwt from storage
+  Future<String> get jwt async =>
+      await _storageRepository.get(RestApiClientKeys.jwt);
+
+  ///Get refresh token from storage
+  Future<String> get refreshToken async =>
+      await _storageRepository.get(RestApiClientKeys.refreshToken);
+
   RestApiClient({
     required this.restApiClientOptions,
     this.loggingOptions = const LoggingOptions(),

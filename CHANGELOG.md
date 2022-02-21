@@ -1,3 +1,6 @@
+## [1.1.9] 
+* JWT and refresh token getters exposed
+
 ## [1.1.8] 
 * Cache key additional parameters
 
