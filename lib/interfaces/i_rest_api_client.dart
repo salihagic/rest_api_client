@@ -17,6 +17,12 @@ abstract class IRestApiClient extends DioMixin {
   // ignore: close_sinks
   late StreamController<BaseException> exceptions;
 
+  ///Get jwt from storage
+  Future<String> get jwt;
+
+  ///Get refresh token from storage
+  Future<String> get refreshToken;
+
   ///Method that initializes RestApiClient instance
   Future<IRestApiClient> init();
 
