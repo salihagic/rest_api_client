@@ -1,3 +1,6 @@
+## [1.1.8] 
+* Cache key additional parameters
+
 ## [1.1.7] 
 * Upgraded dependencies and added default keys
 

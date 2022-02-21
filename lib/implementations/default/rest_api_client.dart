@@ -84,15 +84,13 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     await StorageRepository.initFlutter();
   }
 
-  /// Generates strong 32 byte (256 bit) encryption key for secure storage
-  static List<int> generateSecureKey() =>
-      SecureStorageRepository.generateSecureKey();
-
   ///Method that initializes RestApiClient instance
   @override
   Future<IRestApiClient> init() async {
     await _storageRepository.init();
+    await _storageRepository.log();
     await _cachedStorageRepository.init();
+    await _cachedStorageRepository.log();
 
     final jwt = await _storageRepository.get(RestApiClientKeys.jwt);
     if (jwt != null && jwt is String && jwt.isNotEmpty) {
@@ -479,15 +477,15 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     CancelToken? cancelToken,
     ProgressCallback? onReceiveProgress,
   }) async {
+    final requestOptions = RequestOptions(
+      path: path,
+      queryParameters: queryParameters,
+      headers: options?.headers,
+    );
+
     return Response(
-      requestOptions: RequestOptions(
-        path: path,
-        queryParameters: queryParameters,
-      ),
-      data: await _getDataFromCache(
-        path,
-        queryParameters,
-      ),
+      requestOptions: requestOptions,
+      data: await _getDataFromCache(requestOptions),
     );
   }
 
@@ -500,56 +498,43 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
+    final requestOptions = RequestOptions(
+      path: path,
+      queryParameters: queryParameters,
+      data: data,
+      headers: options?.headers,
+    );
+
     return Response(
-      requestOptions: RequestOptions(
-        path: path,
-        queryParameters: queryParameters,
-        data: data,
-      ),
-      data: await _getDataFromCache(
-        path,
-        queryParameters,
-        data,
-      ),
+      requestOptions: requestOptions,
+      data: await _getDataFromCache(requestOptions),
     );
   }
 
   Future _setCached(Response response) async {
-    final cacheKey = _generateCacheKey(
-      response.requestOptions.path,
-      response.requestOptions.queryParameters,
-      response.requestOptions.data,
-    );
+    final cacheKey = _generateCacheKey(response.requestOptions);
 
     await _cachedStorageRepository.set(cacheKey, response.data);
   }
 
-  Future<dynamic> _getDataFromCache(
-    String path, [
-    Map<String, dynamic>? queryParameters,
-    Map<String, dynamic>? data,
-  ]) async {
-    final cacheKey = _generateCacheKey(
-      path,
-      queryParameters,
-      data,
-    );
+  Future<dynamic> _getDataFromCache(RequestOptions options) async {
+    final cacheKey = _generateCacheKey(options);
 
     return await _cachedStorageRepository.get(cacheKey);
   }
 
-  String _generateCacheKey(
-    String path, [
-    Map<String, dynamic>? queryParameters,
-    Map<String, dynamic>? data,
-  ]) {
-    final queryParametersSerialized =
-        (queryParameters != null && queryParameters.isNotEmpty)
-            ? json.encode(queryParameters)
+  String _generateCacheKey(RequestOptions options) {
+    final String authorization =
+        options.headers.containsKey(RestApiClientKeys.authorization)
+            ? options.headers[RestApiClientKeys.authorization]
             : '';
-    final dataSerialized =
-        (data != null && data.isNotEmpty) ? json.encode(data) : '';
+    final queryParametersSerialized = options.queryParameters.isNotEmpty
+        ? json.encode(options.queryParameters)
+        : '';
+    final dataSerialized = (options.data != null && options.data.isNotEmpty)
+        ? json.encode(options.data)
+        : '';
 
-    return '$path _ $queryParametersSerialized _ $dataSerialized';
+    return '${options.path} _ $queryParametersSerialized _ $dataSerialized _ $authorization';
   }
 }
