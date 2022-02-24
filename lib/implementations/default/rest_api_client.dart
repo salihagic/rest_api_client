@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:rest_api_client/rest_api_client.dart';
 import 'dart:async';
 import 'dart:io';
@@ -543,6 +544,8 @@ class RestApiClient extends DioMixin implements IRestApiClient {
         ? json.encode(options.data)
         : '';
 
-    return '${options.path} _ $queryParametersSerialized _ $dataSerialized _ $authorization';
+    final key = '$queryParametersSerialized$dataSerialized$authorization';
+
+    return '${options.path} - ${md5.convert(utf8.encode(key)).toString()}';
   }
 }
