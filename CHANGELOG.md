@@ -1,3 +1,6 @@
+## [1.1.11] 
+* Cache key hash added
+
 ## [1.1.10] 
 * JWT and refresh token getters exposed
 
