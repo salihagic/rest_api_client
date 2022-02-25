@@ -489,7 +489,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     final requestOptions = RequestOptions(
       path: path,
       queryParameters: queryParameters,
-      headers: options?.headers,
+      headers: super.options.headers,
     );
 
     return Response(
@@ -511,7 +511,7 @@ class RestApiClient extends DioMixin implements IRestApiClient {
       path: path,
       queryParameters: queryParameters,
       data: data,
-      headers: options?.headers,
+      headers: super.options.headers,
     );
 
     return Response(

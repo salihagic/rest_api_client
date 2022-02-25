@@ -1,3 +1,6 @@
+## [1.1.12] 
+* Cache key fix
+
 ## [1.1.11] 
 * Cache key hash added
 
