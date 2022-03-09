@@ -25,6 +25,12 @@ class LoggingOptions {
   /// Print compact json response
   final bool compact;
 
+  /// Print storage content
+  final bool logStorage;
+
+  /// Print cache storage content
+  final bool logCacheStorage;
+
   const LoggingOptions({
     this.logNetworkTraffic = true,
     this.request = true,
@@ -34,5 +40,7 @@ class LoggingOptions {
     this.responseHeader = true,
     this.error = true,
     this.compact = true,
+    this.logStorage = true,
+    this.logCacheStorage = true,
   });
 }

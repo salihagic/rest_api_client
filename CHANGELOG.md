@@ -1,3 +1,6 @@
+## [1.1.13] 
+* Added logging options for storage and cache storage
+
 ## [1.1.12] 
 * Cache key fix
 
