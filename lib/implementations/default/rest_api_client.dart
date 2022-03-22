@@ -80,12 +80,14 @@ class RestApiClient extends DioMixin implements IRestApiClient {
       _configureRetryOnConnectionChangeInterceptor();
     }
 
-    (httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-        (HttpClient client) {
-      client.badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-      return client;
-    };
+    if (restApiClientOptions.overrideBadCertificate) {
+      (httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+          (HttpClient client) {
+        client.badCertificateCallback =
+            (X509Certificate cert, String host, int port) => true;
+        return client;
+      };
+    }
   }
 
   ///Method that should be called as soon as possible
@@ -212,71 +214,78 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   ///managing the refreshing of the jwt by
   ///calling the appropriate api endpoint
   Future refreshTokenCallback(DioError error) async {
-    if (restApiClientOptions.resolveJwt != null &&
-        restApiClientOptions.resolveRefreshToken != null) {
-      // ignore: deprecated_member_use
-      interceptors.requestLock.lock();
-      // ignore: deprecated_member_use
-      interceptors.responseLock.lock();
+    try {
+      if (restApiClientOptions.resolveJwt != null &&
+          restApiClientOptions.resolveRefreshToken != null) {
+        // ignore: deprecated_member_use
+        interceptors.requestLock.lock();
+        // ignore: deprecated_member_use
+        interceptors.responseLock.lock();
 
-      final requestOptions = error.requestOptions;
+        final requestOptions = error.requestOptions;
 
-      final response = await Dio(BaseOptions()
-            ..baseUrl = restApiClientOptions.baseUrl
-            ..contentType = Headers.jsonContentType)
-          .post(
-        restApiClientOptions.refreshTokenEndpoint,
-        data: {
-          restApiClientOptions.refreshTokenParameterName:
-              await _getRefreshToken()
-        },
-      );
+        final response = await Dio(BaseOptions()
+              ..baseUrl = restApiClientOptions.baseUrl
+              ..contentType = Headers.jsonContentType)
+            .post(
+          restApiClientOptions.refreshTokenEndpoint,
+          data: {
+            restApiClientOptions.refreshTokenParameterName:
+                await _getRefreshToken()
+          },
+        );
 
-      final jwt = restApiClientOptions.resolveJwt!(response);
-      final refreshToken = restApiClientOptions.resolveRefreshToken!(response);
+        final jwt = restApiClientOptions.resolveJwt!(response);
+        final refreshToken =
+            restApiClientOptions.resolveRefreshToken!(response);
 
-      await addAuthorization(jwt: jwt, refreshToken: refreshToken);
+        await addAuthorization(jwt: jwt, refreshToken: refreshToken);
 
-      //Set for current request
-      if (requestOptions.headers.containsKey(RestApiClientKeys.authorization)) {
-        requestOptions.headers
-            .update(RestApiClientKeys.authorization, (v) => 'Bearer $jwt');
-      } else {
-        requestOptions.headers
-            .addAll({RestApiClientKeys.authorization: 'Bearer $jwt'});
+        //Set for current request
+        if (requestOptions.headers
+            .containsKey(RestApiClientKeys.authorization)) {
+          requestOptions.headers
+              .update(RestApiClientKeys.authorization, (v) => 'Bearer $jwt');
+        } else {
+          requestOptions.headers
+              .addAll({RestApiClientKeys.authorization: 'Bearer $jwt'});
+        }
+
+        // ignore: deprecated_member_use
+        interceptors.requestLock.unlock();
+        // ignore: deprecated_member_use
+        interceptors.responseLock.unlock();
+
+        exceptionOptions.reset();
+
+        return await request(
+          requestOptions.path,
+          cancelToken: requestOptions.cancelToken,
+          data: requestOptions.data,
+          onReceiveProgress: requestOptions.onReceiveProgress,
+          onSendProgress: requestOptions.onSendProgress,
+          queryParameters: requestOptions.queryParameters,
+          options: Options(
+            method: requestOptions.method,
+            sendTimeout: requestOptions.sendTimeout,
+            receiveTimeout: requestOptions.receiveTimeout,
+            extra: requestOptions.extra,
+            headers: requestOptions.headers,
+            responseType: requestOptions.responseType,
+            contentType: requestOptions.contentType,
+            validateStatus: requestOptions.validateStatus,
+            receiveDataWhenStatusError:
+                requestOptions.receiveDataWhenStatusError,
+            followRedirects: requestOptions.followRedirects,
+            maxRedirects: requestOptions.maxRedirects,
+            requestEncoder: requestOptions.requestEncoder,
+            responseDecoder: requestOptions.responseDecoder,
+            listFormat: requestOptions.listFormat,
+          ),
+        );
       }
-
-      // ignore: deprecated_member_use
-      interceptors.requestLock.unlock();
-      // ignore: deprecated_member_use
-      interceptors.responseLock.unlock();
-
-      exceptionOptions.reset();
-
-      return await request(
-        requestOptions.path,
-        cancelToken: requestOptions.cancelToken,
-        data: requestOptions.data,
-        onReceiveProgress: requestOptions.onReceiveProgress,
-        onSendProgress: requestOptions.onSendProgress,
-        queryParameters: requestOptions.queryParameters,
-        options: Options(
-          method: requestOptions.method,
-          sendTimeout: requestOptions.sendTimeout,
-          receiveTimeout: requestOptions.receiveTimeout,
-          extra: requestOptions.extra,
-          headers: requestOptions.headers,
-          responseType: requestOptions.responseType,
-          contentType: requestOptions.contentType,
-          validateStatus: requestOptions.validateStatus,
-          receiveDataWhenStatusError: requestOptions.receiveDataWhenStatusError,
-          followRedirects: requestOptions.followRedirects,
-          maxRedirects: requestOptions.maxRedirects,
-          requestEncoder: requestOptions.requestEncoder,
-          responseDecoder: requestOptions.responseDecoder,
-          listFormat: requestOptions.listFormat,
-        ),
-      );
+    } catch (e) {
+      print('REFRESH TOKEN EXCEPTION: $e');
     }
   }
 

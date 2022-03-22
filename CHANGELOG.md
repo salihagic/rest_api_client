@@ -1,3 +1,9 @@
+## [1.1.14] 
+* BadCertificate flag override option added
+
+## [1.1.13] 
+* Added logging options for storage and cache storage
+
 ## [1.1.12] 
 * Cache key fix
 

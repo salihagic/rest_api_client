@@ -8,6 +8,10 @@ class RestApiClientOptions {
   ///submit the request after the device reconnects to the network
   final bool keepRetryingOnNetworkError;
 
+  ///Sets the flag deciding if the instance of restApiClient should ignore ssl
+  ///certificate if it couldn't be decoded
+  final bool overrideBadCertificate;
+
   ///Define refresh token endpoint for RestApiClient
   ///instance to use the first time response status code is 401
   final String refreshTokenEndpoint;
@@ -34,6 +38,7 @@ class RestApiClientOptions {
   RestApiClientOptions({
     this.baseUrl = '',
     this.keepRetryingOnNetworkError = true,
+    this.overrideBadCertificate = true,
     this.refreshTokenEndpoint = '',
     this.refreshTokenParameterName = '',
     this.resolveJwt,
