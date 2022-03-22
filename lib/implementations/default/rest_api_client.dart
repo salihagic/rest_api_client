@@ -99,9 +99,14 @@ class RestApiClient extends DioMixin implements IRestApiClient {
   @override
   Future<IRestApiClient> init() async {
     await _storageRepository.init();
-    await _storageRepository.log();
+    if (loggingOptions.logStorage) {
+      await _storageRepository.log();
+    }
+
     await _cachedStorageRepository.init();
-    await _cachedStorageRepository.log();
+    if (loggingOptions.logCacheStorage) {
+      await _cachedStorageRepository.log();
+    }
 
     final jwt = await _storageRepository.get(RestApiClientKeys.jwt);
     if (jwt != null && jwt is String && jwt.isNotEmpty) {
