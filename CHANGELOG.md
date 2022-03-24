@@ -1,3 +1,6 @@
+## [1.1.15] 
+* Unlock requests and responsesonce refresh token exception happens (fix)
+
 ## [1.1.14] 
 * BadCertificate flag override option added
 

@@ -290,7 +290,12 @@ class RestApiClient extends DioMixin implements IRestApiClient {
         );
       }
     } catch (e) {
-      print('REFRESH TOKEN EXCEPTION: $e');
+      // ignore: deprecated_member_use
+      interceptors.requestLock.unlock();
+      // ignore: deprecated_member_use
+      interceptors.responseLock.unlock();
+
+      throw e;
     }
   }
 
