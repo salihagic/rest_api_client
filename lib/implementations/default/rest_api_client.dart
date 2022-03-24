@@ -229,10 +229,20 @@ class RestApiClient extends DioMixin implements IRestApiClient {
 
         final requestOptions = error.requestOptions;
 
-        final response = await Dio(BaseOptions()
-              ..baseUrl = restApiClientOptions.baseUrl
-              ..contentType = Headers.jsonContentType)
-            .post(
+        final dio = Dio(BaseOptions()
+          ..baseUrl = restApiClientOptions.baseUrl
+          ..contentType = Headers.jsonContentType);
+
+        if (restApiClientOptions.overrideBadCertificate) {
+          (dio.httpClientAdapter as DefaultHttpClientAdapter)
+              .onHttpClientCreate = (HttpClient client) {
+            client.badCertificateCallback =
+                (X509Certificate cert, String host, int port) => true;
+            return client;
+          };
+        }
+
+        final response = await dio.post(
           restApiClientOptions.refreshTokenEndpoint,
           data: {
             restApiClientOptions.refreshTokenParameterName:

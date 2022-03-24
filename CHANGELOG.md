@@ -1,3 +1,6 @@
+## [1.1.16] 
+* SSL CERTIFICATE override
+
 ## [1.1.15] 
 * Unlock requests and responsesonce refresh token exception happens (fix)
 
