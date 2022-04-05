@@ -1,3 +1,6 @@
+## [1.1.17] 
+* Upgraded dependencies
+
 ## [1.1.16] 
 * SSL CERTIFICATE override
 
