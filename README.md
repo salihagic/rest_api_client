@@ -125,4 +125,5 @@ Ignore all exceptions that might happen in the next request
   );
 
   restApiClient.delete('/Products/Reviews/234');
+  
 ```
