@@ -4,10 +4,10 @@ import 'package:rest_api_client/rest_api_client.dart';
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //This must be called once per application lifetime
-  await RestApiClient.initFlutter();
+  await RestApiClientOld.initFlutter();
 
-  IRestApiClient restApiClient = RestApiClient(
-    restApiClientOptions: RestApiClientOptions(
+  IRestApiClientOld restApiClient = RestApiClientOld(
+    restApiClientOptions: RestApiClientOptionsOld(
       //Defines your base API url eg. https://mybestrestapi.com
       baseUrl: 'https://mybestrestapi.com',
 
@@ -35,8 +35,7 @@ Future main() async {
       //If your api returns validation errors different from
       //default format that is response.data['validationErrors']
       //you can override it by providing this callback
-      resolveValidationErrorsMap: (response) =>
-          response['errors']['validation'],
+      resolveValidationErrorsMap: (response) => response['errors']['validation'],
     ),
     loggingOptions: LoggingOptions(
       //Toggle logging of your requests and responses
@@ -63,8 +62,7 @@ Future main() async {
 
   //Let's asume that somehow we got jwt and refresh token
   //Probably pinged our api Authentication endpoint to get these two values
-  jwt =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZmx1dHRlciI6IkZsdXR0ZXIgaXMgYXdlc29tZSIsImNoYWxsZW5nZSI6IllvdSBtYWRlIGl0LCB5b3UgY3JhY2tlZCB0aGUgY29kZS4gWW91J3JlIGF3ZXNvbWUgdG9vLiIsImlhdCI6MTUxNjIzOTAyMn0.5QJz8hhxYsHxShS4hWKdHzcFH_IsQQZAnWSEcHJkspE';
+  jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZmx1dHRlciI6IkZsdXR0ZXIgaXMgYXdlc29tZSIsImNoYWxsZW5nZSI6IllvdSBtYWRlIGl0LCB5b3UgY3JhY2tlZCB0aGUgY29kZS4gWW91J3JlIGF3ZXNvbWUgdG9vLiIsImlhdCI6MTUxNjIzOTAyMn0.5QJz8hhxYsHxShS4hWKdHzcFH_IsQQZAnWSEcHJkspE';
   refreshToken = 'c91c03ea6c46a86cbc019be3d71d0a1a';
 
   //set the authorization
@@ -90,11 +88,7 @@ Future main() async {
 
   restApiClient.post(
     '/Products/Reviews/234',
-    data: {
-      'grade': 5,
-      'comment':
-          'Throwing dart is not safe but upgrading to Dart 2.12.1 is. #nullsafety'
-    },
+    data: {'grade': 5, 'comment': 'Throwing dart is not safe but upgrading to Dart 2.12.1 is. #nullsafety'},
   );
 
   restApiClient.put(

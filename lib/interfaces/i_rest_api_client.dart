@@ -1,90 +1,23 @@
-import 'dart:async';
-import 'package:rest_api_client/rest_api_client.dart';
+import 'package:rest_api_client/models/result.dart';
 
-///Abstract class to be used as an interface
-///for implementing RestApiClient classes
-///Extends DioMixin so the underlying features
-///of the dio package are also awailable
-abstract class IRestApiClient extends DioMixin {
-  ///Defines options for handling exceptions per request
-  ///Any direct changes to this instances properties
-  ///are discarded after the response is handled
-  late BaseExceptionOptions exceptionOptions;
+abstract class IRestApiClient {
+  Future<Result<T>> get<T>(String path, {Map<String, dynamic>? queryParameters});
+  Future<Result<T>> getCached<T>(String path, {Map<String, dynamic>? queryParameters});
+  Stream<Result<T>> getStreamed<T>(String path, {Map<String, dynamic>? queryParameters});
 
-  ///Provides a way for the user to listen to any
-  ///RestApiClient exceptions that might happen during
-  ///the execution of requests
-  // ignore: close_sinks
-  late StreamController<BaseException> exceptions;
+  Future<Result<T>> post<T>(String path, {data, Map<String, dynamic>? queryParameters});
+  Future<Result<T>> postCached<T>(String path, {data, Map<String, dynamic>? queryParameters});
+  Stream<Result<T>> postStreamed<T>(String path, {data, Map<String, dynamic>? queryParameters});
 
-  ///Get jwt from storage
-  Future<String> get jwt;
+  Future<Result<T>> put<T>(String path, {data, Map<String, dynamic>? queryParameters});
 
-  ///Get refresh token from storage
-  Future<String> get refreshToken;
+  Future<Result<T>> head<T>(String path, {data, Map<String, dynamic>? queryParameters});
 
-  ///Method that initializes RestApiClient instance
-  Future<IRestApiClient> init();
+  Future<Result<T>> delete<T>(String path, {data, Map<String, dynamic>? queryParameters});
 
-  ///Best to call this method to set free allocated
-  ///resources that the RestApiClient instacte might
-  ///have allocated
-  Future dispose();
+  Future<Result<T>> patch<T>(String path, {data, Map<String, dynamic>? queryParameters});
 
-  ///Method that sets appropriate Accept language header
-  void setAcceptLanguageHeader(String languageCode);
+  Future<Result> download(String urlPath, savePath, {data, Map<String, dynamic>? queryParameters});
 
-  ///Method that adds Authorization header
-  ///and initializes mechanism for managing
-  ///refresh token logic
-  Future<bool> addAuthorization(
-      {required String jwt, required String refreshToken});
-
-  ///Removes authorization header along with jwt
-  ///and refreshToken from the secure storage
-  Future<bool> removeAuthorization();
-
-  ///Provides information if the current instance
-  ///of RestApiClient contains Authorization header
-  Future<bool> isAuthorized();
-
-  /// Handy method to make http GET request and cache reponse data
-  Future<Response<T>> getAndCache<T>(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-    ProgressCallback? onReceiveProgress,
-  });
-
-  /// Handy method to make http POST request and cache response data
-  Future<Response<T>> postAndCache<T>(
-    String path, {
-    data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-    ProgressCallback? onSendProgress,
-    ProgressCallback? onReceiveProgress,
-  });
-
-  ///Gets locally saved last response from the path
-  Future<Response<T>> getCached<T>(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-    ProgressCallback? onReceiveProgress,
-  });
-
-  ///Gets locally saved last response from the path
-  Future<Response<T>> postCached<T>(
-    String path, {
-    data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-    ProgressCallback? onSendProgress,
-    ProgressCallback? onReceiveProgress,
-  });
+  Future clearStorage();
 }

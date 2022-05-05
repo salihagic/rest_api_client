@@ -1,6 +1,6 @@
 ///This class is part of exception handling
 ///mechanism implemented in RestApiClient
-class BaseExceptionOptions {
+class ExceptionOptions {
   ///Toggle the value if you don't want to
   ///insert a new exception in exceptions stream
   ///from RestApiClient instance i the case of
@@ -19,10 +19,13 @@ class BaseExceptionOptions {
   ///HttpStatus 400 in the response
   bool showValidationErrors;
 
-  BaseExceptionOptions({
+  final Map<String, List<String>> Function(dynamic response)? resolveValidationErrorsMap;
+
+  ExceptionOptions({
     this.showInternalServerErrors = true,
     this.showNetworkErrors = true,
     this.showValidationErrors = true,
+    this.resolveValidationErrorsMap,
   }) {
     reset();
   }

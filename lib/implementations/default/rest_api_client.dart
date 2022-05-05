@@ -1,328 +1,178 @@
 import 'dart:convert';
-import 'package:crypto/crypto.dart';
-import 'package:rest_api_client/rest_api_client.dart';
-import 'dart:async';
 import 'dart:io';
+
+import 'package:crypto/crypto.dart';
 import 'package:dio/adapter.dart';
+import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:rest_api_client/constants/keys.dart';
+import 'package:rest_api_client/implementations/default/auth_handler.dart';
+import 'package:rest_api_client/implementations/default/exception_handler.dart';
+import 'package:rest_api_client/interfaces/i_rest_api_client.dart';
+import 'package:rest_api_client/models/result.dart';
+import 'package:rest_api_client/options/exception_options.dart';
+import 'package:rest_api_client/options/rest_api_client_options.dart';
 import 'package:storage_repository/storage_repository.dart';
 
-///Basic implementation of IRestApiClient interface
-///Provides a way to communicate with rest api,
-///manages exceptions that may occure and also
-///manages the authorization logic with jwt and refresh token
-class RestApiClient extends DioMixin implements IRestApiClient {
-  ///Defines options for handling exceptions per request
-  ///Any direct changes to this instances properties
-  ///are discarded after the response is handled
-  @override
-  BaseExceptionOptions exceptionOptions = BaseExceptionOptions();
+class RestApiClient implements IRestApiClient {
+  late Dio _dio;
+  late AuthHandler _authHandler;
+  late ExceptionHandler _exceptionHandler;
+  late IStorageRepository _secureStorage;
+  late IStorageRepository _cacheStorage;
 
-  ///Provides a way for the user to listen to any
-  ///RestApiClient exceptions that might happen during
-  ///the execution of requests
-  @override
-  StreamController<BaseException> exceptions =
-      StreamController<BaseException>.broadcast();
+  final RestApiClientOptions options;
+  late ExceptionOptions exceptionOptions;
 
-  ///Provides an interface for storing tokens to a
-  ///secure storage so they are available on app restart
-  late IStorageRepository _storageRepository;
-
-  ///Provides an interface for storing cached data
-  late IStorageRepository _cachedStorageRepository;
-
-  ///Use this class to provide configuration
-  ///for your RestApiClient instance
-  final RestApiClientOptions restApiClientOptions;
-
-  late DioConnectivityRequestRetrier _dioConnectivityRequestRetrier;
-
-  ///Customize logging options for requests/responses
-  final LoggingOptions loggingOptions;
-
-  ///Get jwt from storage
-  Future<String> get jwt async =>
-      await _storageRepository.get(RestApiClientKeys.jwt);
-
-  ///Get refresh token from storage
-  Future<String> get refreshToken async =>
-      await _storageRepository.get(RestApiClientKeys.refreshToken);
+  static Future<void> initFlutter() async => await StorageRepository.initFlutter();
 
   RestApiClient({
-    required this.restApiClientOptions,
-    this.loggingOptions = const LoggingOptions(),
+    required this.options,
+    required this.exceptionOptions,
   }) {
-    _cachedStorageRepository = StorageRepository(
-      key: RestApiClientKeys.cachedStorageKey,
-      logPrefix: RestApiClientKeys.cachedStorageLogPrefix,
-    );
-    _storageRepository = SecureStorageRepository(
-      key: RestApiClientKeys.storageKey,
-      logPrefix: RestApiClientKeys.storageLogPrefix,
-    );
+    _secureStorage = SecureStorageRepository(key: RestApiClientKeys.storageKey, logPrefix: RestApiClientKeys.storageLogPrefix);
+    _cacheStorage = StorageRepository(key: RestApiClientKeys.cachedStorageKey, logPrefix: RestApiClientKeys.cachedStorageLogPrefix);
 
-    options = BaseOptions();
-    httpClientAdapter = DefaultHttpClientAdapter();
+    _dio = Dio(BaseOptions(baseUrl: options.baseUrl));
+    _dio.httpClientAdapter = DefaultHttpClientAdapter();
+    _authHandler = AuthHandler(dio: _dio, secureStorage: _secureStorage, options: options, exceptionOptions: exceptionOptions);
+    _exceptionHandler = ExceptionHandler(exceptionOptions: exceptionOptions);
 
-    if (restApiClientOptions.keepRetryingOnNetworkError) {
-      _dioConnectivityRequestRetrier = DioConnectivityRequestRetrier(dio: this);
-    }
-
-    options.baseUrl = restApiClientOptions.baseUrl;
-
-    if (loggingOptions.logNetworkTraffic) {
-      _configureDebugLogger();
-    }
-
-    _configureRefreshTokenInterceptor();
-    if (restApiClientOptions.keepRetryingOnNetworkError) {
-      _configureRetryOnConnectionChangeInterceptor();
-    }
-
-    if (restApiClientOptions.overrideBadCertificate) {
-      (httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-          (HttpClient client) {
-        client.badCertificateCallback =
-            (X509Certificate cert, String host, int port) => true;
-        return client;
-      };
-    }
+    _configureLogging();
+    _addInterceptors();
+    _configureCertificateOverride();
   }
 
-  ///Method that should be called as soon as possible
-  static Future<void> initFlutter() async {
-    await StorageRepository.initFlutter();
-  }
-
-  ///Method that initializes RestApiClient instance
-  @override
   Future<IRestApiClient> init() async {
-    await _storageRepository.init();
-    if (loggingOptions.logStorage) {
-      await _storageRepository.log();
-    }
+    await _secureStorage.init();
+    if (options.loggingOptions.logStorage) await _secureStorage.log();
 
-    await _cachedStorageRepository.init();
-    if (loggingOptions.logCacheStorage) {
-      await _cachedStorageRepository.log();
-    }
+    await _cacheStorage.init();
+    if (options.loggingOptions.logCacheStorage) await _cacheStorage.log();
 
-    final jwt = await _storageRepository.get(RestApiClientKeys.jwt);
-    if (jwt != null && jwt is String && jwt.isNotEmpty) {
-      _addOrUpdateHeader(
-          key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
-    }
+    final jwt = await _secureStorage.get(RestApiClientKeys.jwt);
+    if (jwt != null && jwt is String && jwt.isNotEmpty) _authHandler.setJwtToHeader(jwt);
 
     return this;
   }
 
-  ///Best to call this method to set free allocated
-  ///resources that the RestApiClient instacte might
-  ///have allocated
   @override
-  Future dispose() async {
-    exceptions.close();
+  Future<Result<T>> get<T>(String path, {Map<String, dynamic>? queryParameters}) {
+    // TODO: implement get
+    throw UnimplementedError();
   }
 
-  ///Method that sets appropriate Accept language header
   @override
-  void setAcceptLanguageHeader(String languageCode) {
-    _addOrUpdateHeader(
-        key: RestApiClientKeys.acceptLanguage, value: languageCode);
+  Future<Result<T>> getCached<T>(String path, {Map<String, dynamic>? queryParameters}) {
+    // TODO: implement getCached
+    throw UnimplementedError();
   }
 
-  ///Method that adds Authorization header
-  ///and initializes mechanism for managing
-  ///refresh token logic
   @override
-  Future<bool> addAuthorization(
-      {required String jwt, required String refreshToken}) async {
-    final result = await _storageRepository.set(RestApiClientKeys.jwt, jwt);
-    _addOrUpdateHeader(
-        key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
-
-    return result &&
-        await _storageRepository.set(
-            RestApiClientKeys.refreshToken, refreshToken);
+  Stream<Result<T>> getStreamed<T>(String path, {Map<String, dynamic>? queryParameters}) {
+    // TODO: implement getStreamed
+    throw UnimplementedError();
   }
 
-  ///Removes authorization header along with jwt
-  ///and refreshToken from the secure storage
   @override
-  Future<bool> removeAuthorization() async {
-    final deleteJwtResult =
-        await _storageRepository.delete(RestApiClientKeys.jwt);
-    final deleteRefreshTokenResult =
-        await _storageRepository.delete(RestApiClientKeys.jwt);
-
-    options.headers.remove(RestApiClientKeys.authorization);
-
-    return deleteJwtResult && deleteRefreshTokenResult;
+  Future<Result<T>> post<T>(String path, {data, Map<String, dynamic>? queryParameters}) {
+    // TODO: implement post
+    throw UnimplementedError();
   }
 
-  ///Provides information if the current instance
-  ///of RestApiClient contains Authorization header
   @override
-  Future<bool> isAuthorized() async {
-    final containsAuthorizationHeader =
-        options.headers.containsKey(RestApiClientKeys.authorization);
-    final containsJwtInStorage =
-        await _storageRepository.contains(RestApiClientKeys.jwt);
-    final containsRefreshTokenInStorage =
-        await _storageRepository.contains(RestApiClientKeys.refreshToken);
-
-    return containsAuthorizationHeader &&
-        containsJwtInStorage &&
-        containsRefreshTokenInStorage;
+  Future<Result<T>> postCached<T>(String path, {data, Map<String, dynamic>? queryParameters}) {
+    // TODO: implement postCached
+    throw UnimplementedError();
   }
 
-  ///Loads the refresh token from secure storage
-  Future<String> _getRefreshToken() async {
-    final refreshToken =
-        await _storageRepository.get(RestApiClientKeys.refreshToken);
-    return refreshToken;
+  @override
+  Stream<Result<T>> postStreamed<T>(String path, {data, Map<String, dynamic>? queryParameters}) {
+    // TODO: implement postStreamed
+    throw UnimplementedError();
   }
 
-  ///Adds or updates the header under a given key
-  void _addOrUpdateHeader({
-    required String key,
-    required String value,
-  }) {
-    if (options.headers.containsKey(key)) {
-      options.headers.update(key, (v) => value);
-    } else {
-      options.headers.addAll({key: value});
+  @override
+  Future<Result<T>> put<T>(String path, {data, Map<String, dynamic>? queryParameters}) {
+    // TODO: implement put
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<T>> head<T>(String path, {data, Map<String, dynamic>? queryParameters}) {
+    // TODO: implement head
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<T>> delete<T>(String path, {data, Map<String, dynamic>? queryParameters}) {
+    // TODO: implement delete
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<T>> patch<T>(String path, {data, Map<String, dynamic>? queryParameters}) {
+    // TODO: implement patch
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result> download(String urlPath, savePath, {data, Map<String, dynamic>? queryParameters}) {
+    // TODO: implement download
+    throw UnimplementedError();
+  }
+
+  @override
+  Future clearStorage() async {
+    await _secureStorage.clear();
+    await _cacheStorage.clear();
+  }
+
+  Future _cacheResponse(Response response) async {
+    final cacheKey = _generateCacheKey(response.requestOptions);
+
+    await _cacheStorage.set(cacheKey, response.data);
+  }
+
+  Future<dynamic> _getDataFromCache(RequestOptions options) async {
+    final cacheKey = _generateCacheKey(options);
+
+    return await _cacheStorage.get(cacheKey);
+  }
+
+  String _generateCacheKey(RequestOptions options) {
+    final String authorization = options.headers.containsKey(RestApiClientKeys.authorization) ? options.headers[RestApiClientKeys.authorization] : '';
+    final queryParametersSerialized = options.queryParameters.isNotEmpty ? json.encode(options.queryParameters) : '';
+    final dataSerialized = (options.data != null && options.data.isNotEmpty) ? json.encode(options.data) : '';
+
+    final key = '$queryParametersSerialized$dataSerialized$authorization';
+
+    return '${options.path} - ${md5.convert(utf8.encode(key)).toString()}';
+  }
+
+  void _configureLogging() {
+    if (options.loggingOptions.logNetworkTraffic) {
+      _dio.interceptors.add(
+        PrettyDioLogger(
+          responseBody: options.loggingOptions.responseBody,
+          requestBody: options.loggingOptions.requestBody,
+          requestHeader: options.loggingOptions.requestHeader,
+          request: options.loggingOptions.request,
+          responseHeader: options.loggingOptions.responseHeader,
+          compact: options.loggingOptions.compact,
+          error: options.loggingOptions.error,
+        ),
+      );
     }
   }
 
-  ///Configures the logging for requests/reponses
-  void _configureDebugLogger() {
-    interceptors.add(
-      PrettyDioLogger(
-        responseBody: loggingOptions.responseBody,
-        requestBody: loggingOptions.requestBody,
-        requestHeader: loggingOptions.requestHeader,
-        request: loggingOptions.request,
-        responseHeader: loggingOptions.responseHeader,
-        compact: loggingOptions.compact,
-        error: loggingOptions.error,
-      ),
-    );
-  }
-
-  ///Checks if the Authorization header is present
-  bool get _usesAutorization =>
-      options.headers.containsKey(RestApiClientKeys.authorization);
-
-  ///Provides a default implementation for
-  ///managing the refreshing of the jwt by
-  ///calling the appropriate api endpoint
-  Future refreshTokenCallback(DioError error) async {
-    try {
-      if (restApiClientOptions.resolveJwt != null &&
-          restApiClientOptions.resolveRefreshToken != null) {
-        // ignore: deprecated_member_use
-        interceptors.requestLock.lock();
-        // ignore: deprecated_member_use
-        interceptors.responseLock.lock();
-
-        final requestOptions = error.requestOptions;
-
-        final dio = Dio(BaseOptions()
-          ..baseUrl = restApiClientOptions.baseUrl
-          ..contentType = Headers.jsonContentType);
-
-        if (restApiClientOptions.overrideBadCertificate) {
-          (dio.httpClientAdapter as DefaultHttpClientAdapter)
-              .onHttpClientCreate = (HttpClient client) {
-            client.badCertificateCallback =
-                (X509Certificate cert, String host, int port) => true;
-            return client;
-          };
-        }
-
-        final response = await dio.post(
-          restApiClientOptions.refreshTokenEndpoint,
-          data: {
-            restApiClientOptions.refreshTokenParameterName:
-                await _getRefreshToken()
-          },
-        );
-
-        final jwt = restApiClientOptions.resolveJwt!(response);
-        final refreshToken =
-            restApiClientOptions.resolveRefreshToken!(response);
-
-        await addAuthorization(jwt: jwt, refreshToken: refreshToken);
-
-        //Set for current request
-        if (requestOptions.headers
-            .containsKey(RestApiClientKeys.authorization)) {
-          requestOptions.headers
-              .update(RestApiClientKeys.authorization, (v) => 'Bearer $jwt');
-        } else {
-          requestOptions.headers
-              .addAll({RestApiClientKeys.authorization: 'Bearer $jwt'});
-        }
-
-        // ignore: deprecated_member_use
-        interceptors.requestLock.unlock();
-        // ignore: deprecated_member_use
-        interceptors.responseLock.unlock();
-
-        exceptionOptions.reset();
-
-        return await request(
-          requestOptions.path,
-          cancelToken: requestOptions.cancelToken,
-          data: requestOptions.data,
-          onReceiveProgress: requestOptions.onReceiveProgress,
-          onSendProgress: requestOptions.onSendProgress,
-          queryParameters: requestOptions.queryParameters,
-          options: Options(
-            method: requestOptions.method,
-            sendTimeout: requestOptions.sendTimeout,
-            receiveTimeout: requestOptions.receiveTimeout,
-            extra: requestOptions.extra,
-            headers: requestOptions.headers,
-            responseType: requestOptions.responseType,
-            contentType: requestOptions.contentType,
-            validateStatus: requestOptions.validateStatus,
-            receiveDataWhenStatusError:
-                requestOptions.receiveDataWhenStatusError,
-            followRedirects: requestOptions.followRedirects,
-            maxRedirects: requestOptions.maxRedirects,
-            requestEncoder: requestOptions.requestEncoder,
-            responseDecoder: requestOptions.responseDecoder,
-            listFormat: requestOptions.listFormat,
-          ),
-        );
-      }
-    } catch (e) {
-      // ignore: deprecated_member_use
-      interceptors.requestLock.unlock();
-      // ignore: deprecated_member_use
-      interceptors.responseLock.unlock();
-
-      throw e;
-    }
-  }
-
-  ///Handles HttpStatus code 401 and checks
-  ///if the token needs to be refreshed
-  void _configureRefreshTokenInterceptor() {
-    interceptors.add(
+  void _addInterceptors() {
+    _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (RequestOptions options, handler) {
-          options.extra.addAll({
-            'showInternalServerErrors':
-                exceptionOptions.showInternalServerErrors
-          });
-          options.extra.addAll(
-              {'showNetworkErrors': exceptionOptions.showNetworkErrors});
-          options.extra.addAll(
-              {'showValidationErrors': exceptionOptions.showValidationErrors});
+          options.extra.addAll({'showInternalServerErrors': exceptionOptions.showInternalServerErrors});
+          options.extra.addAll({'showNetworkErrors': exceptionOptions.showNetworkErrors});
+          options.extra.addAll({'showValidationErrors': exceptionOptions.showValidationErrors});
 
           return handler.next(options);
         },
@@ -332,19 +182,11 @@ class RestApiClient extends DioMixin implements IRestApiClient {
           return handler.next(response);
         },
         onError: (DioError error, handler) async {
-          if (_usesAutorization) {
-            if (error.response?.statusCode == HttpStatus.unauthorized) {
-              try {
-                return handler.resolve(await refreshTokenCallback(error));
-              } catch (e) {
-                print(e);
-              }
-            }
+          if (_authHandler.usesAutorization && error.response?.statusCode == HttpStatus.unauthorized) {
+            return handler.resolve(await _authHandler.refreshTokenCallback(error));
           }
 
-          _handleException(
-              _getExceptionFromDioError(error), error.requestOptions.extra);
-          exceptionOptions.reset();
+          await _exceptionHandler.handle(error, error.requestOptions.extra);
 
           return handler.next(error);
         },
@@ -352,229 +194,16 @@ class RestApiClient extends DioMixin implements IRestApiClient {
     );
   }
 
-  ///Handles retrying request when the device is reconnected to the internet
-  void _configureRetryOnConnectionChangeInterceptor() {
-    interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (RequestOptions options, handler) {
-          options.extra.addAll({
-            'keepRetryingOnNetworkError':
-                restApiClientOptions.keepRetryingOnNetworkError
-          });
-
-          return handler.next(options);
-        },
-        onError: (DioError error, handler) async {
-          if (_shouldRetryOnConnectionChange(error) &&
-              error.requestOptions.extra['keepRetryingOnNetworkError']) {
-            try {
-              return handler.resolve(await _dioConnectivityRequestRetrier
-                  .scheduleRequestRetry(error.requestOptions));
-            } catch (e) {
-              print(e);
-            }
-          }
-
-          // Let the error pass through if it's not the error we're looking for
-          return handler.next(error);
-        },
-      ),
-    );
-  }
-
-  bool _shouldRetryOnConnectionChange(DioError error) =>
-      error.type == DioErrorType.other &&
-      error.error != null &&
-      error.error is SocketException;
-
-  ///Resolves the instance of appropriate
-  ///RestApiClient exception from DioError
-  BaseException _getExceptionFromDioError(DioError error) {
-    if (error.type == DioErrorType.response) {
-      switch (error.response?.statusCode) {
-        case HttpStatus.internalServerError:
-          return ServerErrorException();
-        case HttpStatus.badGateway:
-          return ServerErrorException();
-        case HttpStatus.notFound:
-          return ValidationException.multipleFields(
-              validationMessages: getValidationMessages(error));
-        case HttpStatus.badRequest:
-          return ValidationException.multipleFields(
-              validationMessages: getValidationMessages(error));
-        case HttpStatus.unauthorized:
-          return UnauthorizedException();
-        case HttpStatus.forbidden:
-          return ForbiddenException();
-        default:
-          return BaseException();
-      }
-    } else {
-      return NetworkErrorException();
+  void _configureCertificateOverride() {
+    if (options.overrideBadCertificate) {
+      (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (HttpClient client) {
+        client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+        return client;
+      };
     }
   }
 
-  ///Resolves validation errors from DioError response
-  Map<String, List<String>> getValidationMessages(DioError error) {
-    try {
-      if (error.response?.data != null) {
-        Map<String, List<String>> errorsMap = {};
+  void setAcceptLanguageHeader(String languageCode) => _addOrUpdateHeader(key: RestApiClientKeys.acceptLanguage, value: languageCode);
 
-        if (restApiClientOptions.resolveValidationErrorsMap != null) {
-          errorsMap =
-              restApiClientOptions.resolveValidationErrorsMap!(error.response);
-        } else {
-          error.response!.data['validationErrors']?.forEach((key, value) =>
-              errorsMap[key] =
-                  value?.map<String>((x) => x as String)?.toList());
-          if (error.response!.data['errors'] != null) {
-            final errors = MapEntry<String, List<String>>(
-                '',
-                error.response!.data['errors']
-                        ?.map<String>((error) => error as String)
-                        ?.toList() ??
-                    ['']);
-            errorsMap.addAll(Map.fromEntries([errors]));
-          }
-        }
-
-        return errorsMap;
-      }
-    } catch (e) {
-      print(e);
-    }
-    return {};
-  }
-
-  ///Checks if the exception should be inserted
-  ///into the exceptions stream
-  void _handleException(BaseException exception, Map<String, dynamic> extra) {
-    if (exception is NetworkErrorException) {
-      if (extra['showNetworkErrors'] ?? false) exceptions.add(exception);
-    } else if (exception is ServerErrorException) {
-      if (extra['showInternalServerErrors'] ?? false) exceptions.add(exception);
-    } else if (exception is ValidationException) {
-      if (extra['showValidationErrors'] ?? false) exceptions.add(exception);
-    } else {
-      exceptions.add(exception);
-    }
-  }
-
-  /// Handy method to make http GET request and cache reponse data
-  @override
-  Future<Response<T>> getAndCache<T>(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-    ProgressCallback? onReceiveProgress,
-  }) async {
-    final response = await request<T>(
-      path,
-      queryParameters: queryParameters,
-      options: DioMixin.checkOptions('GET', options),
-      onReceiveProgress: onReceiveProgress,
-      cancelToken: cancelToken,
-    );
-
-    await _setCached(response);
-
-    return response;
-  }
-
-  /// Handy method to make http POST request and cached response data
-  @override
-  Future<Response<T>> postAndCache<T>(
-    String path, {
-    data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-    ProgressCallback? onSendProgress,
-    ProgressCallback? onReceiveProgress,
-  }) async {
-    final response = await request<T>(
-      path,
-      data: data,
-      options: DioMixin.checkOptions('POST', options),
-      queryParameters: queryParameters,
-      cancelToken: cancelToken,
-      onSendProgress: onSendProgress,
-      onReceiveProgress: onReceiveProgress,
-    );
-
-    await _setCached(response);
-
-    return response;
-  }
-
-  Future<Response<T>> getCached<T>(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-    ProgressCallback? onReceiveProgress,
-  }) async {
-    final requestOptions = RequestOptions(
-      path: path,
-      queryParameters: queryParameters,
-      headers: super.options.headers,
-    );
-
-    return Response(
-      requestOptions: requestOptions,
-      data: await _getDataFromCache(requestOptions),
-    );
-  }
-
-  Future<Response<T>> postCached<T>(
-    String path, {
-    data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-    ProgressCallback? onSendProgress,
-    ProgressCallback? onReceiveProgress,
-  }) async {
-    final requestOptions = RequestOptions(
-      path: path,
-      queryParameters: queryParameters,
-      data: data,
-      headers: super.options.headers,
-    );
-
-    return Response(
-      requestOptions: requestOptions,
-      data: await _getDataFromCache(requestOptions),
-    );
-  }
-
-  Future _setCached(Response response) async {
-    final cacheKey = _generateCacheKey(response.requestOptions);
-
-    await _cachedStorageRepository.set(cacheKey, response.data);
-  }
-
-  Future<dynamic> _getDataFromCache(RequestOptions options) async {
-    final cacheKey = _generateCacheKey(options);
-
-    return await _cachedStorageRepository.get(cacheKey);
-  }
-
-  String _generateCacheKey(RequestOptions options) {
-    final String authorization =
-        options.headers.containsKey(RestApiClientKeys.authorization)
-            ? options.headers[RestApiClientKeys.authorization]
-            : '';
-    final queryParametersSerialized = options.queryParameters.isNotEmpty
-        ? json.encode(options.queryParameters)
-        : '';
-    final dataSerialized = (options.data != null && options.data.isNotEmpty)
-        ? json.encode(options.data)
-        : '';
-
-    final key = '$queryParametersSerialized$dataSerialized$authorization';
-
-    return '${options.path} - ${md5.convert(utf8.encode(key)).toString()}';
-  }
+  void _addOrUpdateHeader({required String key, required String value}) => _dio.options.headers.containsKey(key) ? _dio.options.headers.update(key, (v) => value) : _dio.options.headers.addAll({key: value});
 }
