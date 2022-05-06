@@ -11,7 +11,8 @@ import 'package:rest_api_client/exceptions/validation_exception.dart';
 import 'package:rest_api_client/options/exception_options.dart';
 
 class ExceptionHandler {
-  final StreamController<BaseException> exceptions = StreamController<BaseException>.broadcast();
+  final StreamController<BaseException> exceptions =
+      StreamController<BaseException>.broadcast();
   final ExceptionOptions exceptionOptions;
 
   ExceptionHandler({
@@ -43,9 +44,11 @@ class ExceptionHandler {
         case HttpStatus.badGateway:
           return ServerErrorException();
         case HttpStatus.notFound:
-          return ValidationException.multipleFields(validationMessages: _getValidationMessages(error));
+          return ValidationException.multipleFields(
+              validationMessages: _getValidationMessages(error));
         case HttpStatus.badRequest:
-          return ValidationException.multipleFields(validationMessages: _getValidationMessages(error));
+          return ValidationException.multipleFields(
+              validationMessages: _getValidationMessages(error));
         case HttpStatus.unauthorized:
           return UnauthorizedException();
         case HttpStatus.forbidden:
@@ -64,11 +67,19 @@ class ExceptionHandler {
         Map<String, List<String>> errorsMap = {};
 
         if (exceptionOptions.resolveValidationErrorsMap != null) {
-          errorsMap = exceptionOptions.resolveValidationErrorsMap!(error.response);
+          errorsMap =
+              exceptionOptions.resolveValidationErrorsMap!(error.response);
         } else {
-          error.response!.data['validationErrors']?.forEach((key, value) => errorsMap[key] = value?.map<String>((x) => x as String)?.toList());
+          error.response!.data['validationErrors']?.forEach((key, value) =>
+              errorsMap[key] =
+                  value?.map<String>((x) => x as String)?.toList());
           if (error.response!.data['errors'] != null) {
-            final errors = MapEntry<String, List<String>>('', error.response!.data['errors']?.map<String>((error) => error as String)?.toList() ?? ['']);
+            final errors = MapEntry<String, List<String>>(
+                '',
+                error.response!.data['errors']
+                        ?.map<String>((error) => error as String)
+                        ?.toList() ??
+                    ['']);
             errorsMap.addAll(Map.fromEntries([errors]));
           }
         }

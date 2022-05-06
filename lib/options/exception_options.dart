@@ -19,7 +19,8 @@ class ExceptionOptions {
   ///HttpStatus 400 in the response
   bool showValidationErrors;
 
-  final Map<String, List<String>> Function(dynamic response)? resolveValidationErrorsMap;
+  final Map<String, List<String>> Function(dynamic response)?
+      resolveValidationErrorsMap;
 
   ExceptionOptions({
     this.showInternalServerErrors = true,

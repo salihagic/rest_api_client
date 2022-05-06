@@ -1,3 +1,6 @@
+## [2.0.0] 
+* Major refactoring
+
 ## [1.1.17] 
 * Upgraded dependencies
 

@@ -32,7 +32,8 @@ class RestApiClient implements IRestApiClient {
   @override
   late ExceptionHandler exceptionHandler;
 
-  static Future<void> initFlutter() async => await StorageRepository.initFlutter();
+  static Future<void> initFlutter() async =>
+      await StorageRepository.initFlutter();
 
   RestApiClient({
     required RestApiClientOptions options,
@@ -47,7 +48,12 @@ class RestApiClient implements IRestApiClient {
 
     _dio = Dio(BaseOptions(baseUrl: _options.baseUrl));
     _dio.httpClientAdapter = DefaultHttpClientAdapter();
-    authHandler = AuthHandler(dio: _dio, options: options, exceptionOptions: _exceptionOptions, authOptions: _authOptions, loggingOptions: _loggingOptions);
+    authHandler = AuthHandler(
+        dio: _dio,
+        options: options,
+        exceptionOptions: _exceptionOptions,
+        authOptions: _authOptions,
+        loggingOptions: _loggingOptions);
     exceptionHandler = ExceptionHandler(exceptionOptions: _exceptionOptions);
     cacheHandler = CacheHandler(loggingOptions: _loggingOptions);
 
@@ -70,7 +76,7 @@ class RestApiClient implements IRestApiClient {
     T Function(dynamic data)? parser,
   }) async {
     try {
-      final response = await _dio.get<T>(path, queryParameters: queryParameters);
+      final response = await _dio.get(path, queryParameters: queryParameters);
 
       if (_options.cacheEnabled) {
         await cacheHandler.set(response);
@@ -144,7 +150,7 @@ class RestApiClient implements IRestApiClient {
     T Function(dynamic data)? parser,
   }) async {
     try {
-      final response = await _dio.post<T>(
+      final response = await _dio.post(
         path,
         data: data,
         queryParameters: queryParameters,
@@ -227,7 +233,7 @@ class RestApiClient implements IRestApiClient {
     T Function(dynamic data)? parser,
   }) async {
     try {
-      final response = await _dio.put<T>(
+      final response = await _dio.put(
         path,
         queryParameters: queryParameters,
         data: data,
@@ -255,7 +261,7 @@ class RestApiClient implements IRestApiClient {
     T Function(dynamic data)? parser,
   }) async {
     try {
-      final response = await _dio.head<T>(
+      final response = await _dio.head(
         path,
         queryParameters: queryParameters,
         data: data,
@@ -283,7 +289,7 @@ class RestApiClient implements IRestApiClient {
     T Function(dynamic data)? parser,
   }) async {
     try {
-      final response = await _dio.delete<T>(
+      final response = await _dio.delete(
         path,
         queryParameters: queryParameters,
         data: data,
@@ -311,7 +317,7 @@ class RestApiClient implements IRestApiClient {
     T Function(dynamic data)? parser,
   }) async {
     try {
-      final response = await _dio.patch<T>(
+      final response = await _dio.patch(
         path,
         queryParameters: queryParameters,
         data: data,
@@ -359,7 +365,8 @@ class RestApiClient implements IRestApiClient {
     }
   }
 
-  void setContentType(String contentType) => _dio.options.contentType = contentType;
+  void setContentType(String contentType) =>
+      _dio.options.contentType = contentType;
 
   @override
   Future clearStorage() async {
@@ -387,9 +394,14 @@ class RestApiClient implements IRestApiClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (RequestOptions options, handler) {
-          options.extra.addAll({'showInternalServerErrors': _exceptionOptions.showInternalServerErrors});
-          options.extra.addAll({'showNetworkErrors': _exceptionOptions.showNetworkErrors});
-          options.extra.addAll({'showValidationErrors': _exceptionOptions.showValidationErrors});
+          options.extra.addAll({
+            'showInternalServerErrors':
+                _exceptionOptions.showInternalServerErrors
+          });
+          options.extra.addAll(
+              {'showNetworkErrors': _exceptionOptions.showNetworkErrors});
+          options.extra.addAll(
+              {'showValidationErrors': _exceptionOptions.showValidationErrors});
 
           return handler.next(options);
         },
@@ -399,8 +411,10 @@ class RestApiClient implements IRestApiClient {
           return handler.next(response);
         },
         onError: (DioError error, handler) async {
-          if (authHandler.usesAutorization && error.response?.statusCode == HttpStatus.unauthorized) {
-            return handler.resolve(await authHandler.refreshTokenCallback(error));
+          if (authHandler.usesAutorization &&
+              error.response?.statusCode == HttpStatus.unauthorized) {
+            return handler
+                .resolve(await authHandler.refreshTokenCallback(error));
           }
 
           await exceptionHandler.handle(error, error.requestOptions.extra);
@@ -413,18 +427,24 @@ class RestApiClient implements IRestApiClient {
 
   void _configureCertificateOverride() {
     if (_options.overrideBadCertificate) {
-      (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (HttpClient client) {
-        client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+          (HttpClient client) {
+        client.badCertificateCallback =
+            (X509Certificate cert, String host, int port) => true;
         return client;
       };
     }
   }
 
-  void setAcceptLanguageHeader(String languageCode) => _addOrUpdateHeader(key: RestApiClientKeys.acceptLanguage, value: languageCode);
+  void setAcceptLanguageHeader(String languageCode) => _addOrUpdateHeader(
+      key: RestApiClientKeys.acceptLanguage, value: languageCode);
 
-  void _addOrUpdateHeader({required String key, required String value}) => _dio.options.headers.containsKey(key) ? _dio.options.headers.update(key, (v) => value) : _dio.options.headers.addAll({key: value});
+  void _addOrUpdateHeader({required String key, required String value}) =>
+      _dio.options.headers.containsKey(key)
+          ? _dio.options.headers.update(key, (v) => value)
+          : _dio.options.headers.addAll({key: value});
 
-  T? _resolveResult<T>(dynamic data, [T Function(dynamic map)? parser]) {
+  T? _resolveResult<T>(dynamic data, [T Function(dynamic data)? parser]) {
     if (data != null) {
       if (parser != null) {
         return parser(data);
