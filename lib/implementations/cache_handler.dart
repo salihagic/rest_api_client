@@ -45,9 +45,16 @@ class CacheHandler {
   }
 
   String _generateCacheKey(RequestOptions options) {
-    final String authorization = options.headers.containsKey(RestApiClientKeys.authorization) ? options.headers[RestApiClientKeys.authorization] : '';
-    final queryParametersSerialized = options.queryParameters.isNotEmpty ? json.encode(options.queryParameters) : '';
-    final dataSerialized = (options.data != null && options.data.isNotEmpty) ? json.encode(options.data) : '';
+    final String authorization =
+        options.headers.containsKey(RestApiClientKeys.authorization)
+            ? options.headers[RestApiClientKeys.authorization]
+            : '';
+    final queryParametersSerialized = options.queryParameters.isNotEmpty
+        ? json.encode(options.queryParameters)
+        : '';
+    final dataSerialized = (options.data != null && options.data.isNotEmpty)
+        ? json.encode(options.data)
+        : '';
 
     final key = '$queryParametersSerialized$dataSerialized$authorization';
 
