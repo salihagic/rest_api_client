@@ -1,4 +1,4 @@
-import 'package:rest_api_client/rest_api_client.dart';
+import 'package:rest_api_client/exceptions/base_exception.dart';
 
 ///Derived exception class that represents
 ///any server error

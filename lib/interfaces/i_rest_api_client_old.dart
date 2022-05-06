@@ -1,5 +1,7 @@
 import 'dart:async';
-import 'package:rest_api_client/rest_api_client.dart';
+import 'package:dio/dio.dart';
+import 'package:rest_api_client/exceptions/base_exception.dart';
+import 'package:rest_api_client/options/exception_options.dart';
 
 ///Abstract class to be used as an interface
 ///for implementing RestApiClient classes

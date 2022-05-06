@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:rest_api_client/constants/keys.dart';
-import 'package:rest_api_client/options/_all.dart';
+import 'package:rest_api_client/options/auth_options.dart';
+import 'package:rest_api_client/options/exception_options.dart';
 import 'package:rest_api_client/options/rest_api_client_options.dart';
 import 'package:storage_repository/interfaces/i_storage_repository.dart';
 
@@ -12,12 +13,14 @@ class AuthHandler {
   final IStorageRepository secureStorage;
 
   final RestApiClientOptions options;
+  final AuthOptions authOptions;
   final ExceptionOptions exceptionOptions;
 
   AuthHandler({
     required this.dio,
     required this.secureStorage,
     required this.options,
+    required this.authOptions,
     required this.exceptionOptions,
   });
 
@@ -50,7 +53,7 @@ class AuthHandler {
 
   Future refreshTokenCallback(DioError error) async {
     try {
-      if (options.authOptions.resolveJwt != null && options.authOptions.resolveRefreshToken != null) {
+      if (authOptions.resolveJwt != null && authOptions.resolveRefreshToken != null) {
         // ignore: deprecated_member_use
         dio.interceptors.requestLock.lock();
         // ignore: deprecated_member_use
@@ -70,12 +73,12 @@ class AuthHandler {
         }
 
         final response = await newDioClient.post(
-          options.authOptions.refreshTokenEndpoint,
-          data: {options.authOptions.refreshTokenParameterName: await secureStorage.get(RestApiClientKeys.refreshToken)},
+          authOptions.refreshTokenEndpoint,
+          data: {authOptions.refreshTokenParameterName: await secureStorage.get(RestApiClientKeys.refreshToken)},
         );
 
-        final jwt = options.authOptions.resolveJwt!(response);
-        final refreshToken = options.authOptions.resolveRefreshToken!(response);
+        final jwt = authOptions.resolveJwt!(response);
+        final refreshToken = authOptions.resolveRefreshToken!(response);
 
         await authorize(jwt: jwt, refreshToken: refreshToken);
 

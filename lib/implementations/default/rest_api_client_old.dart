@@ -1,10 +1,22 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:rest_api_client/rest_api_client.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:dio/adapter.dart';
+import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:rest_api_client/constants/keys.dart';
+import 'package:rest_api_client/exceptions/base_exception.dart';
+import 'package:rest_api_client/exceptions/forbidden_exception.dart';
+import 'package:rest_api_client/exceptions/network_error_exception.dart';
+import 'package:rest_api_client/exceptions/server_error_exception.dart';
+import 'package:rest_api_client/exceptions/unauthorized_exception.dart';
+import 'package:rest_api_client/exceptions/validation_exception.dart';
+import 'package:rest_api_client/implementations/default/dio_connectivity_request_retrier.dart';
+import 'package:rest_api_client/interfaces/i_rest_api_client_old.dart';
+import 'package:rest_api_client/options/exception_options.dart';
+import 'package:rest_api_client/options/logging_options.dart';
+import 'package:rest_api_client/options/rest_api_client_options_old.dart';
 import 'package:storage_repository/storage_repository.dart';
 
 ///Basic implementation of IRestApiClient interface

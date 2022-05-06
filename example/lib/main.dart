@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:rest_api_client/rest_api_client.dart';
+import 'package:rest_api_client/implementations/default/rest_api_client_old.dart';
+import 'package:rest_api_client/interfaces/i_rest_api_client_old.dart';
+import 'package:rest_api_client/options/logging_options.dart';
+import 'package:rest_api_client/options/rest_api_client_options_old.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
