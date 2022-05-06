@@ -1,6 +1,6 @@
-import 'package:rest_api_client/implementations/default/auth_handler.dart';
-import 'package:rest_api_client/implementations/default/cache_handler.dart';
-import 'package:rest_api_client/implementations/default/exception_handler.dart';
+import 'package:rest_api_client/implementations/auth_handler.dart';
+import 'package:rest_api_client/implementations/cache_handler.dart';
+import 'package:rest_api_client/implementations/exception_handler.dart';
 import 'package:rest_api_client/models/result.dart';
 
 abstract class IRestApiClient {

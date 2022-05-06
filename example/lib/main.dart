@@ -1,44 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:rest_api_client/implementations/default/rest_api_client_old.dart';
-import 'package:rest_api_client/interfaces/i_rest_api_client_old.dart';
-import 'package:rest_api_client/options/logging_options.dart';
-import 'package:rest_api_client/options/rest_api_client_options_old.dart';
+import 'package:rest_api_client/rest_api_client.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //This must be called once per application lifetime
-  await RestApiClientOld.initFlutter();
+  await RestApiClient.initFlutter();
 
-  IRestApiClientOld restApiClient = RestApiClientOld(
-    restApiClientOptions: RestApiClientOptionsOld(
+  IRestApiClient restApiClient = RestApiClient(
+    options: RestApiClientOptions(
       //Defines your base API url eg. https://mybestrestapi.com
       baseUrl: 'https://mybestrestapi.com',
 
-      ///Toggle logging of your requests and responses
-      ///to the console while debugging
-      keepRetryingOnNetworkError: true,
-
-      //Define refresh token endpoint for RestApiClient
+      //Enable caching of response data
+      cacheEnabled: true,
+    ),
+    authOptions: AuthOptions(
+//Define refresh token endpoint for RestApiClient
       //instance to use the first time response status code is 401
-      refreshTokenEndpoint: '/Authentication/RefreshToken',
+      refreshTokenEndpoint: '/auth/token-refresh',
 
       //Define the name of your api parameter name
       //on RefreshToken endpoint eg. 'refreshToken' or 'value' ...
-      refreshTokenParameterName: 'refreshToken',
+      refreshTokenParameterName: 'token',
 
       //This method is called on successfull call to refreshTokenEndpoint
       //Provides a way to get a jwt from response, much like
       //resolveValidationErrorsMap callback
-      resolveJwt: (response) => response['jwt'],
+      resolveJwt: (response) => response.data['result']['accessToken']['token'],
 
       //Much like resolveJwt, this method is used to resolve
       //refresh token from response
-      resolveRefreshToken: (response) => response['refreshToken'],
-
-      //If your api returns validation errors different from
-      //default format that is response.data['validationErrors']
-      //you can override it by providing this callback
-      resolveValidationErrorsMap: (response) => response['errors']['validation'],
+      resolveRefreshToken: (response) => response.data['result']['refreshToken']['token'],
     ),
     loggingOptions: LoggingOptions(
       //Toggle logging of your requests and responses
@@ -69,13 +61,13 @@ Future main() async {
   refreshToken = 'c91c03ea6c46a86cbc019be3d71d0a1a';
 
   //set the authorization
-  restApiClient.addAuthorization(jwt: jwt, refreshToken: refreshToken);
+  restApiClient.authHandler.authorize(jwt: jwt, refreshToken: refreshToken);
 
   //Create authorized requests safely
   restApiClient.get('/Products');
 
   //Ignore server errors that might happen in the next request
-  restApiClient.exceptionOptions.showInternalServerErrors = false;
+  restApiClient.exceptionHandler.exceptionOptions.showInternalServerErrors = false;
 
   try {
     restApiClient.get(
@@ -87,7 +79,7 @@ Future main() async {
   }
 
   //Ignore all exceptions that might happen in the next request
-  restApiClient.exceptionOptions.disable();
+  restApiClient.exceptionHandler.exceptionOptions.disable();
 
   restApiClient.post(
     '/Products/Reviews/234',
