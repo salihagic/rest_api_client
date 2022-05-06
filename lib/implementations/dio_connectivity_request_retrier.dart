@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:rest_api_client/rest_api_client.dart';
+import 'package:dio/dio.dart';
 
 /// Request retrier that executes a previously sent request that failed with a network error.
 /// Executes when the connection returns
@@ -41,8 +41,7 @@ class DioConnectivityRequestRetrier {
                 responseType: requestOptions.responseType,
                 contentType: requestOptions.contentType,
                 validateStatus: requestOptions.validateStatus,
-                receiveDataWhenStatusError:
-                    requestOptions.receiveDataWhenStatusError,
+                receiveDataWhenStatusError: requestOptions.receiveDataWhenStatusError,
                 followRedirects: requestOptions.followRedirects,
                 maxRedirects: requestOptions.maxRedirects,
                 requestEncoder: requestOptions.requestEncoder,
