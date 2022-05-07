@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/adapter.dart';
@@ -73,7 +74,7 @@ class RestApiClient implements IRestApiClient {
   Future<Result<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
   }) async {
     try {
       final response = await _dio.get(path, queryParameters: queryParameters);
@@ -83,7 +84,7 @@ class RestApiClient implements IRestApiClient {
       }
 
       return NetworkResult(
-        data: _resolveResult(
+        data: await _resolveResult(
           response.data,
           parser,
         ),
@@ -103,7 +104,7 @@ class RestApiClient implements IRestApiClient {
   Future<Result<T>> getCached<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
   }) async {
     final requestOptions = RequestOptions(
       path: path,
@@ -112,7 +113,7 @@ class RestApiClient implements IRestApiClient {
     );
 
     return CacheResult(
-      data: _resolveResult(
+      data: await _resolveResult(
         (await cacheHandler.get(requestOptions)),
         parser,
       ),
@@ -123,7 +124,7 @@ class RestApiClient implements IRestApiClient {
   Stream<Result<T>> getStreamed<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
   }) async* {
     final cachedResult = await getCached(
       path,
@@ -147,7 +148,7 @@ class RestApiClient implements IRestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
   }) async {
     try {
       final response = await _dio.post(
@@ -161,7 +162,7 @@ class RestApiClient implements IRestApiClient {
       }
 
       return NetworkResult(
-        data: _resolveResult(
+        data: await _resolveResult(
           response.data,
           parser,
         ),
@@ -182,7 +183,7 @@ class RestApiClient implements IRestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
   }) async {
     final requestOptions = RequestOptions(
       path: path,
@@ -192,7 +193,7 @@ class RestApiClient implements IRestApiClient {
     );
 
     return CacheResult(
-      data: _resolveResult(
+      data: await _resolveResult(
         (await cacheHandler.get(requestOptions)),
         parser,
       ),
@@ -204,7 +205,7 @@ class RestApiClient implements IRestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
   }) async* {
     final cachedResult = await postCached(
       path,
@@ -230,7 +231,7 @@ class RestApiClient implements IRestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
   }) async {
     try {
       final response = await _dio.put(
@@ -240,7 +241,7 @@ class RestApiClient implements IRestApiClient {
       );
 
       return NetworkResult(
-        data: _resolveResult(response.data, parser),
+        data: await _resolveResult(response.data, parser),
       );
     } on DioError catch (e) {
       await exceptionHandler.handle(e);
@@ -258,7 +259,7 @@ class RestApiClient implements IRestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
   }) async {
     try {
       final response = await _dio.head(
@@ -268,7 +269,7 @@ class RestApiClient implements IRestApiClient {
       );
 
       return NetworkResult(
-        data: _resolveResult(response.data, parser),
+        data: await _resolveResult(response.data, parser),
       );
     } on DioError catch (e) {
       await exceptionHandler.handle(e);
@@ -286,7 +287,7 @@ class RestApiClient implements IRestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
   }) async {
     try {
       final response = await _dio.delete(
@@ -296,7 +297,7 @@ class RestApiClient implements IRestApiClient {
       );
 
       return NetworkResult(
-        data: _resolveResult(response.data, parser),
+        data: await _resolveResult(response.data, parser),
       );
     } on DioError catch (e) {
       await exceptionHandler.handle(e);
@@ -314,7 +315,7 @@ class RestApiClient implements IRestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
   }) async {
     try {
       final response = await _dio.patch(
@@ -324,7 +325,7 @@ class RestApiClient implements IRestApiClient {
       );
 
       return NetworkResult(
-        data: _resolveResult(response.data, parser),
+        data: await _resolveResult(response.data, parser),
       );
     } on DioError catch (e) {
       await exceptionHandler.handle(e);
@@ -352,7 +353,7 @@ class RestApiClient implements IRestApiClient {
       );
 
       return NetworkResult(
-        data: _resolveResult(response.data),
+        data: await _resolveResult(response.data),
       );
     } on DioError catch (e) {
       await exceptionHandler.handle(e);
@@ -444,10 +445,11 @@ class RestApiClient implements IRestApiClient {
           ? _dio.options.headers.update(key, (v) => value)
           : _dio.options.headers.addAll({key: value});
 
-  T? _resolveResult<T>(dynamic data, [T Function(dynamic data)? parser]) {
+  FutureOr<T?> _resolveResult<T>(dynamic data,
+      [FutureOr<T> Function(dynamic data)? parser]) async {
     if (data != null) {
       if (parser != null) {
-        return parser(data);
+        return await parser(data);
       } else {
         return data as T;
       }

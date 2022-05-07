@@ -1,3 +1,6 @@
+## [2.0.1] 
+* parser results in FutureOr
+
 ## [2.0.0] 
 * Major refactoring
 
