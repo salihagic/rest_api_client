@@ -1,3 +1,6 @@
+## [2.0.3] 
+* Added dio adapter stub for web support
+
 ## [2.0.2] 
 * BrowserHttpClientAdapter added for web support
 
