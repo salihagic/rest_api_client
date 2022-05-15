@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/adapter.dart';
+import 'package:dio/adapter_browser.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:rest_api_client/constants/keys.dart';
 import 'package:rest_api_client/implementations/auth_handler.dart';
@@ -48,14 +50,22 @@ class RestApiClient implements IRestApiClient {
     _authOptions = authOptions ?? AuthOptions();
 
     _dio = Dio(BaseOptions(baseUrl: _options.baseUrl));
-    _dio.httpClientAdapter = DefaultHttpClientAdapter();
+
+    if (kIsWeb) {
+      _dio.httpClientAdapter = BrowserHttpClientAdapter();
+    } else {
+      _dio.httpClientAdapter = DefaultHttpClientAdapter();
+    }
+
     authHandler = AuthHandler(
         dio: _dio,
         options: options,
         exceptionOptions: _exceptionOptions,
         authOptions: _authOptions,
         loggingOptions: _loggingOptions);
+
     exceptionHandler = ExceptionHandler(exceptionOptions: _exceptionOptions);
+
     cacheHandler = CacheHandler(loggingOptions: _loggingOptions);
 
     _configureLogging();
@@ -427,7 +437,7 @@ class RestApiClient implements IRestApiClient {
   }
 
   void _configureCertificateOverride() {
-    if (_options.overrideBadCertificate) {
+    if (_options.overrideBadCertificate && !kIsWeb) {
       (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
           (HttpClient client) {
         client.badCertificateCallback =

@@ -1,3 +1,6 @@
+## [2.0.2] 
+* BrowserHttpClientAdapter added for web support
+
 ## [2.0.1] 
 * parser results in FutureOr
 
