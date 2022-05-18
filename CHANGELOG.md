@@ -1,3 +1,6 @@
+## [2.0.4] 
+* Upgraded dependencies
+
 ## [2.0.3] 
 * Added dio adapter stub for web support
 
