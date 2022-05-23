@@ -426,8 +426,12 @@ class RestApiClient implements IRestApiClient {
         onError: (DioError error, handler) async {
           if (authHandler.usesAutorization &&
               error.response?.statusCode == HttpStatus.unauthorized) {
-            return handler
-                .resolve(await authHandler.refreshTokenCallback(error));
+            try {
+              return handler
+                  .resolve(await authHandler.refreshTokenCallback(error));
+            } catch (e) {
+              print(e);
+            }
           }
 
           await exceptionHandler.handle(error, error.requestOptions.extra);

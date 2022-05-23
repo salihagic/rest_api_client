@@ -1,3 +1,6 @@
+## [2.0.5] 
+* Minor refresh token fixes
+
 ## [2.0.4] 
 * Upgraded dependencies
 

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:rest_api_client/constants/keys.dart';
 import 'package:rest_api_client/options/auth_options.dart';
 import 'package:rest_api_client/options/exception_options.dart';
@@ -58,7 +59,7 @@ class AuthHandler {
   Future<bool> unAuthorize() async {
     final deleteJwtResult = await _storage.delete(RestApiClientKeys.jwt);
     final deleteRefreshTokenResult =
-        await _storage.delete(RestApiClientKeys.jwt);
+        await _storage.delete(RestApiClientKeys.refreshToken);
 
     dio.options.headers.remove(RestApiClientKeys.authorization);
 
@@ -91,6 +92,20 @@ class AuthHandler {
         final newDioClient = Dio(BaseOptions()
           ..baseUrl = options.baseUrl
           ..contentType = Headers.jsonContentType);
+
+        if (loggingOptions.logNetworkTraffic) {
+          newDioClient.interceptors.add(
+            PrettyDioLogger(
+              responseBody: loggingOptions.responseBody,
+              requestBody: loggingOptions.requestBody,
+              requestHeader: loggingOptions.requestHeader,
+              request: loggingOptions.request,
+              responseHeader: loggingOptions.responseHeader,
+              compact: loggingOptions.compact,
+              error: loggingOptions.error,
+            ),
+          );
+        }
 
         if (options.overrideBadCertificate) {
           (dio.httpClientAdapter as DefaultHttpClientAdapter)
