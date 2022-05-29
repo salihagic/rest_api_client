@@ -1,3 +1,6 @@
+## [2.1.0] 
+* Specify cacheEnabled explicitly on post method
+
 ## [2.0.5] 
 * Minor refresh token fixes
 
