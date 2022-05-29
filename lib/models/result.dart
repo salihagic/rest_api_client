@@ -1,4 +1,4 @@
-abstract class Result<T> {
+class Result<T> {
   T? data;
   Exception? exception;
   bool get hasData =>
@@ -12,9 +12,61 @@ abstract class Result<T> {
   Result({
     this.data,
     this.exception,
-    this.statusCode = 400,
+    this.statusCode = 200,
     this.statusMessage = '',
   });
+
+  factory Result.network({
+    T? data,
+    Exception? exception,
+    int? statusCode,
+    String? statusMessage,
+  }) =>
+      NetworkResult(
+        data: data,
+        exception: exception,
+        statusCode: statusCode,
+        statusMessage: statusMessage,
+      );
+
+  factory Result.cache({
+    T? data,
+    Exception? exception,
+  }) =>
+      NetworkResult(
+        data: data,
+        exception: exception,
+      );
+
+  factory Result.success({
+    T? data,
+  }) =>
+      SuccessResult(
+        data: data,
+      );
+
+  factory Result.error({
+    Exception? exception,
+  }) =>
+      ErrorResult(
+        exception: exception,
+      );
+}
+
+class SuccessResult<T> extends Result<T> {
+  SuccessResult({
+    T? data,
+  }) : super(
+          data: data,
+        );
+}
+
+class ErrorResult<T> extends Result<T> {
+  ErrorResult({
+    Exception? exception,
+  }) : super(
+          exception: exception,
+        );
 }
 
 class NetworkResult<T> extends Result<T> {
@@ -35,12 +87,8 @@ class CacheResult<T> extends Result<T> {
   CacheResult({
     T? data,
     Exception? exception,
-    int? statusCode,
-    String? statusMessage,
   }) : super(
           data: data,
           exception: exception,
-          statusCode: statusCode,
-          statusMessage: statusMessage,
         );
 }

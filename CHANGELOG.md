@@ -1,3 +1,6 @@
+## [2.1.1] 
+* Result fix
+
 ## [2.1.0] 
 * Specify cacheEnabled explicitly on post method
 
