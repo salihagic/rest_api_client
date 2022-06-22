@@ -1,5 +1,26 @@
-## [2.0.1] 
+## [2.1.2] 
 * Licence update
+
+## [2.1.1] 
+* Result fix
+
+## [2.1.0] 
+* Specify cacheEnabled explicitly on post method
+
+## [2.0.5] 
+* Minor refresh token fixes
+
+## [2.0.4] 
+* Upgraded dependencies
+
+## [2.0.3] 
+* Added dio adapter stub for web support
+
+## [2.0.2] 
+* BrowserHttpClientAdapter added for web support
+
+## [2.0.1] 
+* parser results in FutureOr
 
 ## [2.0.0] 
 * Major refactoring

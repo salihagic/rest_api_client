@@ -1,7 +1,14 @@
+import 'dart:async';
 import 'dart:io';
 
-import 'package:dio/adapter.dart';
+import 'package:rest_api_client/options/rest_api_client_request_options.dart';
+
+import 'dio_adapter_stub.dart'
+    if (dart.library.io) 'dio_adapter_mobile.dart'
+    if (dart.library.js) 'dio_adapter_web.dart';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:rest_api_client/constants/keys.dart';
 import 'package:rest_api_client/implementations/auth_handler.dart';
@@ -47,14 +54,22 @@ class RestApiClient implements IRestApiClient {
     _authOptions = authOptions ?? AuthOptions();
 
     _dio = Dio(BaseOptions(baseUrl: _options.baseUrl));
-    _dio.httpClientAdapter = DefaultHttpClientAdapter();
+
+    if (kIsWeb) {
+      _dio.httpClientAdapter = getAdapter();
+    } else {
+      _dio.httpClientAdapter = getAdapter();
+    }
+
     authHandler = AuthHandler(
         dio: _dio,
         options: options,
         exceptionOptions: _exceptionOptions,
         authOptions: _authOptions,
         loggingOptions: _loggingOptions);
+
     exceptionHandler = ExceptionHandler(exceptionOptions: _exceptionOptions);
+
     cacheHandler = CacheHandler(loggingOptions: _loggingOptions);
 
     _configureLogging();
@@ -73,17 +88,22 @@ class RestApiClient implements IRestApiClient {
   Future<Result<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
+    RestApiClientRequestOptions? options,
   }) async {
     try {
-      final response = await _dio.get(path, queryParameters: queryParameters);
+      final response = await _dio.get(
+        path,
+        queryParameters: queryParameters,
+        options: options?.toOptions(),
+      );
 
       if (_options.cacheEnabled) {
         await cacheHandler.set(response);
       }
 
       return NetworkResult(
-        data: _resolveResult(
+        data: await _resolveResult(
           response.data,
           parser,
         ),
@@ -103,7 +123,7 @@ class RestApiClient implements IRestApiClient {
   Future<Result<T>> getCached<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
   }) async {
     final requestOptions = RequestOptions(
       path: path,
@@ -112,7 +132,7 @@ class RestApiClient implements IRestApiClient {
     );
 
     return CacheResult(
-      data: _resolveResult(
+      data: await _resolveResult(
         (await cacheHandler.get(requestOptions)),
         parser,
       ),
@@ -123,7 +143,8 @@ class RestApiClient implements IRestApiClient {
   Stream<Result<T>> getStreamed<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
+    RestApiClientRequestOptions? options,
   }) async* {
     final cachedResult = await getCached(
       path,
@@ -139,6 +160,7 @@ class RestApiClient implements IRestApiClient {
       path,
       queryParameters: queryParameters,
       parser: parser,
+      options: options,
     );
   }
 
@@ -147,21 +169,24 @@ class RestApiClient implements IRestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
+    RestApiClientRequestOptions? options,
+    bool cacheEnabled = false,
   }) async {
     try {
       final response = await _dio.post(
         path,
         data: data,
         queryParameters: queryParameters,
+        options: options?.toOptions(),
       );
 
-      if (_options.cacheEnabled) {
+      if (cacheEnabled) {
         await cacheHandler.set(response);
       }
 
       return NetworkResult(
-        data: _resolveResult(
+        data: await _resolveResult(
           response.data,
           parser,
         ),
@@ -182,7 +207,7 @@ class RestApiClient implements IRestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
   }) async {
     final requestOptions = RequestOptions(
       path: path,
@@ -192,7 +217,7 @@ class RestApiClient implements IRestApiClient {
     );
 
     return CacheResult(
-      data: _resolveResult(
+      data: await _resolveResult(
         (await cacheHandler.get(requestOptions)),
         parser,
       ),
@@ -204,7 +229,8 @@ class RestApiClient implements IRestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
+    RestApiClientRequestOptions? options,
   }) async* {
     final cachedResult = await postCached(
       path,
@@ -222,6 +248,7 @@ class RestApiClient implements IRestApiClient {
       queryParameters: queryParameters,
       data: data,
       parser: parser,
+      options: options,
     );
   }
 
@@ -230,17 +257,19 @@ class RestApiClient implements IRestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
+    RestApiClientRequestOptions? options,
   }) async {
     try {
       final response = await _dio.put(
         path,
         queryParameters: queryParameters,
         data: data,
+        options: options?.toOptions(),
       );
 
       return NetworkResult(
-        data: _resolveResult(response.data, parser),
+        data: await _resolveResult(response.data, parser),
       );
     } on DioError catch (e) {
       await exceptionHandler.handle(e);
@@ -258,17 +287,19 @@ class RestApiClient implements IRestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
+    RestApiClientRequestOptions? options,
   }) async {
     try {
       final response = await _dio.head(
         path,
         queryParameters: queryParameters,
         data: data,
+        options: options?.toOptions(),
       );
 
       return NetworkResult(
-        data: _resolveResult(response.data, parser),
+        data: await _resolveResult(response.data, parser),
       );
     } on DioError catch (e) {
       await exceptionHandler.handle(e);
@@ -286,17 +317,19 @@ class RestApiClient implements IRestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
+    RestApiClientRequestOptions? options,
   }) async {
     try {
       final response = await _dio.delete(
         path,
         queryParameters: queryParameters,
         data: data,
+        options: options?.toOptions(),
       );
 
       return NetworkResult(
-        data: _resolveResult(response.data, parser),
+        data: await _resolveResult(response.data, parser),
       );
     } on DioError catch (e) {
       await exceptionHandler.handle(e);
@@ -314,17 +347,19 @@ class RestApiClient implements IRestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    T Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? parser,
+    RestApiClientRequestOptions? options,
   }) async {
     try {
       final response = await _dio.patch(
         path,
         queryParameters: queryParameters,
         data: data,
+        options: options?.toOptions(),
       );
 
       return NetworkResult(
-        data: _resolveResult(response.data, parser),
+        data: await _resolveResult(response.data, parser),
       );
     } on DioError catch (e) {
       await exceptionHandler.handle(e);
@@ -343,16 +378,18 @@ class RestApiClient implements IRestApiClient {
     savePath, {
     data,
     Map<String, dynamic>? queryParameters,
+    RestApiClientRequestOptions? options,
   }) async {
     try {
       final response = await _dio.download(
         urlPath,
         savePath,
         queryParameters: queryParameters,
+        options: options?.toOptions(),
       );
 
       return NetworkResult(
-        data: _resolveResult(response.data),
+        data: await _resolveResult(response.data),
       );
     } on DioError catch (e) {
       await exceptionHandler.handle(e);
@@ -413,8 +450,12 @@ class RestApiClient implements IRestApiClient {
         onError: (DioError error, handler) async {
           if (authHandler.usesAutorization &&
               error.response?.statusCode == HttpStatus.unauthorized) {
-            return handler
-                .resolve(await authHandler.refreshTokenCallback(error));
+            try {
+              return handler
+                  .resolve(await authHandler.refreshTokenCallback(error));
+            } catch (e) {
+              print(e);
+            }
           }
 
           await exceptionHandler.handle(error, error.requestOptions.extra);
@@ -426,8 +467,8 @@ class RestApiClient implements IRestApiClient {
   }
 
   void _configureCertificateOverride() {
-    if (_options.overrideBadCertificate) {
-      (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+    if (_options.overrideBadCertificate && !kIsWeb) {
+      (_dio.httpClientAdapter as dynamic).onHttpClientCreate =
           (HttpClient client) {
         client.badCertificateCallback =
             (X509Certificate cert, String host, int port) => true;
@@ -444,10 +485,11 @@ class RestApiClient implements IRestApiClient {
           ? _dio.options.headers.update(key, (v) => value)
           : _dio.options.headers.addAll({key: value});
 
-  T? _resolveResult<T>(dynamic data, [T Function(dynamic data)? parser]) {
+  FutureOr<T?> _resolveResult<T>(dynamic data,
+      [FutureOr<T> Function(dynamic data)? parser]) async {
     if (data != null) {
       if (parser != null) {
-        return parser(data);
+        return await parser(data);
       } else {
         return data as T;
       }

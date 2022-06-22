@@ -1,6 +1,7 @@
 export 'package:rest_api_client/implementations/i_rest_api_client.dart';
 export 'package:rest_api_client/implementations/rest_api_client.dart';
 
+export 'package:rest_api_client/options/rest_api_client_request_options.dart';
 export 'package:rest_api_client/options/rest_api_client_options.dart';
 export 'package:rest_api_client/options/logging_options.dart';
 export 'package:rest_api_client/options/auth_options.dart';
