@@ -1,3 +1,6 @@
+## [2.0.1] 
+* Licence update
+
 ## [2.0.0] 
 * Major refactoring
 
