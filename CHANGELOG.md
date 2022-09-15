@@ -1,3 +1,6 @@
+## [2.1.3] 
+* Send JWT header on refresh token endpoint
+
 ## [2.1.2] 
 * Licence update
 
