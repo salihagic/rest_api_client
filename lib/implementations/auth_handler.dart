@@ -118,6 +118,12 @@ class AuthHandler {
 
         final response = await newDioClient.post(
           authOptions.refreshTokenEndpoint,
+          options: Options(
+            headers: {
+              RestApiClientKeys.authorization:
+                  'Bearer ${await _storage.get(RestApiClientKeys.jwt)}',
+            },
+          ),
           data: {
             authOptions.refreshTokenParameterName:
                 await _storage.get(RestApiClientKeys.refreshToken)
