@@ -1,3 +1,6 @@
+## [2.1.2] 
+* Licence update
+
 ## [2.1.1] 
 * Result fix
 

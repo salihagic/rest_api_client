@@ -164,7 +164,7 @@ packages:
       name: hive
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.2.1"
+    version: "2.2.2"
   hive_flutter:
     dependency: transitive
     description:
@@ -290,7 +290,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "2.1.1"
+    version: "2.1.2"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -309,7 +309,7 @@ packages:
       name: storage_repository
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.8"
+    version: "1.1.9"
   string_scanner:
     dependency: transitive
     description:
