@@ -47,6 +47,7 @@ class RestApiClient implements IRestApiClient {
     ExceptionOptions? exceptionOptions,
     LoggingOptions? loggingOptions,
     AuthOptions? authOptions,
+    List<Interceptor> interceptors = const [],
   }) {
     _options = options;
     _exceptionOptions = exceptionOptions ?? ExceptionOptions();
@@ -55,11 +56,7 @@ class RestApiClient implements IRestApiClient {
 
     _dio = Dio(BaseOptions(baseUrl: _options.baseUrl));
 
-    if (kIsWeb) {
-      _dio.httpClientAdapter = getAdapter();
-    } else {
-      _dio.httpClientAdapter = getAdapter();
-    }
+    _dio.httpClientAdapter = getAdapter();
 
     authHandler = AuthHandler(
         dio: _dio,
@@ -73,7 +70,7 @@ class RestApiClient implements IRestApiClient {
     cacheHandler = CacheHandler(loggingOptions: _loggingOptions);
 
     _configureLogging();
-    _addInterceptors();
+    _addInterceptors(interceptors);
     _configureCertificateOverride();
   }
 
@@ -427,7 +424,13 @@ class RestApiClient implements IRestApiClient {
     }
   }
 
-  void _addInterceptors() {
+  void _addInterceptors(List<Interceptor> interceptors) {
+    _dio.interceptors.addAll(interceptors);
+
+    _addRefreshTokenInterceptor();
+  }
+
+  void _addRefreshTokenInterceptor() {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (RequestOptions options, handler) {

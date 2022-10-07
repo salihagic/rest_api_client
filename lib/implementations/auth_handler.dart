@@ -116,18 +116,24 @@ class AuthHandler {
           };
         }
 
+        final currentJwt = await _storage.get(RestApiClientKeys.jwt);
+        final currentRefreshToken =
+            await _storage.get(RestApiClientKeys.refreshToken);
+
         final response = await newDioClient.post(
           authOptions.refreshTokenEndpoint,
           options: Options(
-            headers: {
-              RestApiClientKeys.authorization:
-                  'Bearer ${await _storage.get(RestApiClientKeys.jwt)}',
-            },
+            headers: authOptions.refreshTokenHeadersBuilder
+                    ?.call(currentJwt, currentRefreshToken) ??
+                {
+                  RestApiClientKeys.authorization: 'Bearer $currentJwt',
+                },
           ),
-          data: {
-            authOptions.refreshTokenParameterName:
-                await _storage.get(RestApiClientKeys.refreshToken)
-          },
+          data: authOptions.refreshTokenBodyBuilder
+                  ?.call(currentJwt, currentRefreshToken) ??
+              {
+                authOptions.refreshTokenParameterName: currentRefreshToken,
+              },
         );
 
         final jwt = authOptions.resolveJwt!(response);

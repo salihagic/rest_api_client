@@ -1,3 +1,6 @@
+## [2.1.4] 
+* Added optional refresh token request overrides and optional interceptors
+
 ## [2.1.3] 
 * Send JWT header on refresh token endpoint
 
