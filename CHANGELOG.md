@@ -1,3 +1,6 @@
+## [2.1.5] 
+* Renamed Headers constants to RestApiClientHeaders
+
 ## [2.1.4] 
 * Added optional refresh token request overrides and optional interceptors
 
