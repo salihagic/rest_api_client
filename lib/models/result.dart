@@ -33,7 +33,7 @@ class Result<T> {
     T? data,
     Exception? exception,
   }) =>
-      NetworkResult(
+      CacheResult(
         data: data,
         exception: exception,
       );
