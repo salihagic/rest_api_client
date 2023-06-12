@@ -19,8 +19,11 @@ class ExceptionHandler {
     required this.exceptionOptions,
   });
 
-  Future handle(DioError error, [Map<String, dynamic> extra = const {}]) async {
-    _handleException(_getExceptionFromDioError(error), extra);
+  Future handle(
+    DioException e, [
+    Map<String, dynamic> extra = const {},
+  ]) async {
+    _handleException(_getExceptionFromDioError(e), extra);
     exceptionOptions.reset();
   }
 
@@ -36,19 +39,19 @@ class ExceptionHandler {
     }
   }
 
-  BaseException _getExceptionFromDioError(DioError error) {
-    if (error.type == DioErrorType.response) {
-      switch (error.response?.statusCode) {
+  BaseException _getExceptionFromDioError(DioException e) {
+    if (e.type == DioExceptionType.badResponse) {
+      switch (e.response?.statusCode) {
         case HttpStatus.internalServerError:
           return ServerErrorException();
         case HttpStatus.badGateway:
           return ServerErrorException();
         case HttpStatus.notFound:
           return ValidationException.multipleFields(
-              validationMessages: _getValidationMessages(error));
+              validationMessages: _getValidationMessages(e));
         case HttpStatus.badRequest:
           return ValidationException.multipleFields(
-              validationMessages: _getValidationMessages(error));
+              validationMessages: _getValidationMessages(e));
         case HttpStatus.unauthorized:
           return UnauthorizedException();
         case HttpStatus.forbidden:
@@ -61,7 +64,7 @@ class ExceptionHandler {
     }
   }
 
-  Map<String, List<String>> _getValidationMessages(DioError error) {
+  Map<String, List<String>> _getValidationMessages(DioException error) {
     try {
       if (error.response?.data != null) {
         Map<String, List<String>> errorsMap = {};

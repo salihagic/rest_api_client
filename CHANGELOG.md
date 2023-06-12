@@ -1,3 +1,6 @@
+## [2.1.6] 
+* Upgraded dependencies
+
 ## [2.1.5] 
 * Renamed Headers constants to RestApiClientHeaders
 

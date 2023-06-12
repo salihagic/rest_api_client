@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dio/io.dart';
 import 'package:rest_api_client/options/rest_api_client_request_options.dart';
 
 import 'dio_adapter_stub.dart'
@@ -105,7 +106,7 @@ class RestApiClient implements IRestApiClient {
           parser,
         ),
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       await exceptionHandler.handle(e);
 
       return NetworkResult(
@@ -188,7 +189,7 @@ class RestApiClient implements IRestApiClient {
           parser,
         ),
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       await exceptionHandler.handle(e);
 
       return NetworkResult(
@@ -268,7 +269,7 @@ class RestApiClient implements IRestApiClient {
       return NetworkResult(
         data: await _resolveResult(response.data, parser),
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       await exceptionHandler.handle(e);
 
       return NetworkResult(
@@ -298,7 +299,7 @@ class RestApiClient implements IRestApiClient {
       return NetworkResult(
         data: await _resolveResult(response.data, parser),
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       await exceptionHandler.handle(e);
 
       return NetworkResult(
@@ -328,7 +329,7 @@ class RestApiClient implements IRestApiClient {
       return NetworkResult(
         data: await _resolveResult(response.data, parser),
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       await exceptionHandler.handle(e);
 
       return NetworkResult(
@@ -358,7 +359,7 @@ class RestApiClient implements IRestApiClient {
       return NetworkResult(
         data: await _resolveResult(response.data, parser),
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       await exceptionHandler.handle(e);
 
       return NetworkResult(
@@ -388,7 +389,7 @@ class RestApiClient implements IRestApiClient {
       return NetworkResult(
         data: await _resolveResult(response.data),
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       await exceptionHandler.handle(e);
 
       return NetworkResult(
@@ -432,7 +433,7 @@ class RestApiClient implements IRestApiClient {
 
   void _addRefreshTokenInterceptor() {
     _dio.interceptors.add(
-      InterceptorsWrapper(
+      QueuedInterceptorsWrapper(
         onRequest: (RequestOptions options, handler) {
           options.extra.addAll({
             'showInternalServerErrors':
@@ -450,7 +451,7 @@ class RestApiClient implements IRestApiClient {
 
           return handler.next(response);
         },
-        onError: (DioError error, handler) async {
+        onError: (DioException error, handler) async {
           if (authHandler.usesAutorization &&
               error.response?.statusCode == HttpStatus.unauthorized) {
             try {
@@ -471,10 +472,12 @@ class RestApiClient implements IRestApiClient {
 
   void _configureCertificateOverride() {
     if (_options.overrideBadCertificate && !kIsWeb) {
-      (_dio.httpClientAdapter as dynamic).onHttpClientCreate =
-          (HttpClient client) {
+      (_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+        final client = HttpClient();
+
         client.badCertificateCallback =
             (X509Certificate cert, String host, int port) => true;
+
         return client;
       };
     }

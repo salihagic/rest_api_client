@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:rest_api_client/constants/keys.dart';
 import 'package:rest_api_client/options/auth_options.dart';
@@ -78,119 +78,100 @@ class AuthHandler {
         containsRefreshTokenInStorage;
   }
 
-  Future refreshTokenCallback(DioError error) async {
-    try {
-      if (authOptions.resolveJwt != null &&
-          authOptions.resolveRefreshToken != null) {
-        // ignore: deprecated_member_use
-        dio.interceptors.requestLock.lock();
-        // ignore: deprecated_member_use
-        dio.interceptors.responseLock.lock();
+  Future refreshTokenCallback(DioException e) async {
+    if (authOptions.resolveJwt != null &&
+        authOptions.resolveRefreshToken != null) {
+      final requestOptions = e.requestOptions;
 
-        final requestOptions = error.requestOptions;
+      final newDioClient = Dio(BaseOptions()
+        ..baseUrl = options.baseUrl
+        ..contentType = Headers.jsonContentType);
 
-        final newDioClient = Dio(BaseOptions()
-          ..baseUrl = options.baseUrl
-          ..contentType = Headers.jsonContentType);
-
-        if (loggingOptions.logNetworkTraffic) {
-          newDioClient.interceptors.add(
-            PrettyDioLogger(
-              responseBody: loggingOptions.responseBody,
-              requestBody: loggingOptions.requestBody,
-              requestHeader: loggingOptions.requestHeader,
-              request: loggingOptions.request,
-              responseHeader: loggingOptions.responseHeader,
-              compact: loggingOptions.compact,
-              error: loggingOptions.error,
-            ),
-          );
-        }
-
-        if (options.overrideBadCertificate) {
-          (dio.httpClientAdapter as DefaultHttpClientAdapter)
-              .onHttpClientCreate = (HttpClient client) {
-            client.badCertificateCallback =
-                (X509Certificate cert, String host, int port) => true;
-            return client;
-          };
-        }
-
-        final currentJwt = await _storage.get(RestApiClientKeys.jwt);
-        final currentRefreshToken =
-            await _storage.get(RestApiClientKeys.refreshToken);
-
-        final response = await newDioClient.post(
-          authOptions.refreshTokenEndpoint,
-          options: Options(
-            headers: authOptions.refreshTokenHeadersBuilder
-                    ?.call(currentJwt, currentRefreshToken) ??
-                {
-                  RestApiClientKeys.authorization: 'Bearer $currentJwt',
-                },
-          ),
-          data: authOptions.refreshTokenBodyBuilder
-                  ?.call(currentJwt, currentRefreshToken) ??
-              {
-                authOptions.refreshTokenParameterName: currentRefreshToken,
-              },
-        );
-
-        final jwt = authOptions.resolveJwt!(response);
-        final refreshToken = authOptions.resolveRefreshToken!(response);
-
-        await authorize(jwt: jwt, refreshToken: refreshToken);
-
-        //Set for current request
-        if (requestOptions.headers
-            .containsKey(RestApiClientKeys.authorization)) {
-          requestOptions.headers
-              .update(RestApiClientKeys.authorization, (v) => 'Bearer $jwt');
-        } else {
-          requestOptions.headers
-              .addAll({RestApiClientKeys.authorization: 'Bearer $jwt'});
-        }
-
-        // ignore: deprecated_member_use
-        dio.interceptors.requestLock.unlock();
-        // ignore: deprecated_member_use
-        dio.interceptors.responseLock.unlock();
-
-        exceptionOptions.reset();
-
-        return await dio.request(
-          requestOptions.path,
-          cancelToken: requestOptions.cancelToken,
-          data: requestOptions.data,
-          onReceiveProgress: requestOptions.onReceiveProgress,
-          onSendProgress: requestOptions.onSendProgress,
-          queryParameters: requestOptions.queryParameters,
-          options: Options(
-            method: requestOptions.method,
-            sendTimeout: requestOptions.sendTimeout,
-            receiveTimeout: requestOptions.receiveTimeout,
-            extra: requestOptions.extra,
-            headers: requestOptions.headers,
-            responseType: requestOptions.responseType,
-            contentType: requestOptions.contentType,
-            validateStatus: requestOptions.validateStatus,
-            receiveDataWhenStatusError:
-                requestOptions.receiveDataWhenStatusError,
-            followRedirects: requestOptions.followRedirects,
-            maxRedirects: requestOptions.maxRedirects,
-            requestEncoder: requestOptions.requestEncoder,
-            responseDecoder: requestOptions.responseDecoder,
-            listFormat: requestOptions.listFormat,
+      if (loggingOptions.logNetworkTraffic) {
+        newDioClient.interceptors.add(
+          PrettyDioLogger(
+            responseBody: loggingOptions.responseBody,
+            requestBody: loggingOptions.requestBody,
+            requestHeader: loggingOptions.requestHeader,
+            request: loggingOptions.request,
+            responseHeader: loggingOptions.responseHeader,
+            compact: loggingOptions.compact,
+            error: loggingOptions.error,
           ),
         );
       }
-    } catch (e) {
-      // ignore: deprecated_member_use
-      dio.interceptors.requestLock.unlock();
-      // ignore: deprecated_member_use
-      dio.interceptors.responseLock.unlock();
 
-      throw e;
+      if (options.overrideBadCertificate) {
+        (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+          final client = HttpClient();
+
+          client.badCertificateCallback =
+              (X509Certificate cert, String host, int port) => true;
+
+          return client;
+        };
+      }
+
+      final currentJwt = await _storage.get(RestApiClientKeys.jwt);
+      final currentRefreshToken =
+          await _storage.get(RestApiClientKeys.refreshToken);
+
+      final response = await newDioClient.post(
+        authOptions.refreshTokenEndpoint,
+        options: Options(
+          headers: authOptions.refreshTokenHeadersBuilder
+                  ?.call(currentJwt, currentRefreshToken) ??
+              {
+                RestApiClientKeys.authorization: 'Bearer $currentJwt',
+              },
+        ),
+        data: authOptions.refreshTokenBodyBuilder
+                ?.call(currentJwt, currentRefreshToken) ??
+            {
+              authOptions.refreshTokenParameterName: currentRefreshToken,
+            },
+      );
+
+      final jwt = authOptions.resolveJwt!(response);
+      final refreshToken = authOptions.resolveRefreshToken!(response);
+
+      await authorize(jwt: jwt, refreshToken: refreshToken);
+
+      //Set for current request
+      if (requestOptions.headers.containsKey(RestApiClientKeys.authorization)) {
+        requestOptions.headers
+            .update(RestApiClientKeys.authorization, (v) => 'Bearer $jwt');
+      } else {
+        requestOptions.headers
+            .addAll({RestApiClientKeys.authorization: 'Bearer $jwt'});
+      }
+
+      exceptionOptions.reset();
+
+      return await dio.request(
+        requestOptions.path,
+        cancelToken: requestOptions.cancelToken,
+        data: requestOptions.data,
+        onReceiveProgress: requestOptions.onReceiveProgress,
+        onSendProgress: requestOptions.onSendProgress,
+        queryParameters: requestOptions.queryParameters,
+        options: Options(
+          method: requestOptions.method,
+          sendTimeout: requestOptions.sendTimeout,
+          receiveTimeout: requestOptions.receiveTimeout,
+          extra: requestOptions.extra,
+          headers: requestOptions.headers,
+          responseType: requestOptions.responseType,
+          contentType: requestOptions.contentType,
+          validateStatus: requestOptions.validateStatus,
+          receiveDataWhenStatusError: requestOptions.receiveDataWhenStatusError,
+          followRedirects: requestOptions.followRedirects,
+          maxRedirects: requestOptions.maxRedirects,
+          requestEncoder: requestOptions.requestEncoder,
+          responseDecoder: requestOptions.responseDecoder,
+          listFormat: requestOptions.listFormat,
+        ),
+      );
     }
   }
 
