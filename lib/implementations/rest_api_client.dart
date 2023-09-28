@@ -483,10 +483,10 @@ class RestApiClient implements IRestApiClient {
     }
   }
 
-  void setAcceptLanguageHeader(String languageCode) => _addOrUpdateHeader(
+  void setAcceptLanguageHeader(String languageCode) => addOrUpdateHeader(
       key: RestApiClientKeys.acceptLanguage, value: languageCode);
 
-  void _addOrUpdateHeader({required String key, required String value}) =>
+  void addOrUpdateHeader({required String key, required String value}) =>
       _dio.options.headers.containsKey(key)
           ? _dio.options.headers.update(key, (v) => value)
           : _dio.options.headers.addAll({key: value});

@@ -99,6 +99,7 @@ abstract class IRestApiClient {
 
   void setContentType(String contentType);
   void setAcceptLanguageHeader(String languageCode);
+  void addOrUpdateHeader({required String key, required String value});
 
   Future clearStorage();
 }

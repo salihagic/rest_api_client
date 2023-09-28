@@ -1,3 +1,6 @@
+## [2.1.8] 
+* Add or update headers
+
 ## [2.1.7] 
 * Result update
 
