@@ -452,7 +452,7 @@ class RestApiClient implements IRestApiClient {
           return handler.next(response);
         },
         onError: (DioException error, handler) async {
-          if (authHandler.usesAutorization &&
+          if (authHandler.usesAuth &&
               error.response?.statusCode == HttpStatus.unauthorized) {
             try {
               return handler

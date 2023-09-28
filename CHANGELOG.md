@@ -1,3 +1,6 @@
+## [2.1.9] 
+* Renamed auth methods
+
 ## [2.1.8] 
 * Add or update headers
 

@@ -63,7 +63,7 @@ Future main() async {
   refreshToken = 'c91c03ea6c46a86cbc019be3d71d0a1a';
 
   //set the authorization
-  restApiClient.authHandler.authorize(jwt: jwt, refreshToken: refreshToken);
+  restApiClient.authHandler.authenticate(jwt: jwt, refreshToken: refreshToken);
 
   //Create authorized requests safely
   restApiClient.get('/Products');

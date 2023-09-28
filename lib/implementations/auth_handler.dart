@@ -44,10 +44,10 @@ class AuthHandler {
     if (jwt != null && jwt is String && jwt.isNotEmpty) _setJwtToHeader(jwt);
   }
 
-  bool get usesAutorization =>
+  bool get usesAuth =>
       dio.options.headers.containsKey(RestApiClientKeys.authorization);
 
-  Future<bool> authorize(
+  Future<bool> authenticate(
       {required String jwt, required String refreshToken}) async {
     _addOrUpdateHeader(
         key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
@@ -56,7 +56,7 @@ class AuthHandler {
         await _storage.set(RestApiClientKeys.refreshToken, refreshToken);
   }
 
-  Future<bool> unAuthorize() async {
+  Future<bool> deAuthenticate() async {
     final deleteJwtResult = await _storage.delete(RestApiClientKeys.jwt);
     final deleteRefreshTokenResult =
         await _storage.delete(RestApiClientKeys.refreshToken);
@@ -66,7 +66,7 @@ class AuthHandler {
     return deleteJwtResult && deleteRefreshTokenResult;
   }
 
-  Future<bool> isAuthorized() async {
+  Future<bool> isAuthenticated() async {
     final containsAuthorizationHeader =
         dio.options.headers.containsKey(RestApiClientKeys.authorization);
     final containsJwtInStorage = await _storage.contains(RestApiClientKeys.jwt);
@@ -135,7 +135,7 @@ class AuthHandler {
       final jwt = authOptions.resolveJwt!(response);
       final refreshToken = authOptions.resolveRefreshToken!(response);
 
-      await authorize(jwt: jwt, refreshToken: refreshToken);
+      await authenticate(jwt: jwt, refreshToken: refreshToken);
 
       //Set for current request
       if (requestOptions.headers.containsKey(RestApiClientKeys.authorization)) {
