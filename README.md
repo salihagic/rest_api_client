@@ -64,8 +64,8 @@ you probably pinged your api Authentication endpoint to get these two values.
   jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZmx1dHRlciI6IkZsdXR0ZXIgaXMgYXdlc29tZSIsImNoYWxsZW5nZSI6IllvdSBtYWRlIGl0LCB5b3UgY3JhY2tlZCB0aGUgY29kZS4gWW91J3JlIGF3ZXNvbWUgdG9vLiIsImlhdCI6MTUxNjIzOTAyMn0.5QJz8hhxYsHxShS4hWKdHzcFH_IsQQZAnWSEcHJkspE';
   refreshToken = 'c91c03ea6c46a86cbc019be3d71d0a1a';
 
-  //set the authorization
-  restApiClient.authHandler.authorize(jwt: jwt, refreshToken: refreshToken);
+  //set the authorization (JWT)
+  restApiClient.authHandler.authenticate(jwt: jwt, refreshToken: refreshToken);
 
   //Create authorized requests safely
   restApiClient.get('/Products');

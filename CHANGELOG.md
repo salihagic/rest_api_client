@@ -1,3 +1,6 @@
+## [2.2.0] 
+* Updated README
+
 ## [2.1.9] 
 * Renamed auth methods
 
