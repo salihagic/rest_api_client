@@ -371,12 +371,17 @@ class RestApiClient implements IRestApiClient {
   }
 
   @override
-  Future<Result> download(
+  Future<Result> download<T>(
     String urlPath,
     savePath, {
     data,
     Map<String, dynamic>? queryParameters,
     RestApiClientRequestOptions? options,
+    ProgressCallback? onReceiveProgress,
+    CancelToken? cancelToken,
+    bool deleteOnError = true,
+    String lengthHeader = Headers.contentLengthHeader,
+    FutureOr<T> Function(dynamic data)? parser,
   }) async {
     try {
       final response = await _dio.download(
@@ -384,10 +389,15 @@ class RestApiClient implements IRestApiClient {
         savePath,
         queryParameters: queryParameters,
         options: options?.toOptions(),
+        data: data,
+        onReceiveProgress: onReceiveProgress,
+        cancelToken: cancelToken,
+        deleteOnError: deleteOnError,
+        lengthHeader: lengthHeader,
       );
 
       return NetworkResult(
-        data: await _resolveResult(response.data),
+        data: await _resolveResult(response.data, parser),
       );
     } on DioException catch (e) {
       await exceptionHandler.handle(e);

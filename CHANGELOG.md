@@ -1,3 +1,6 @@
+## [2.2.1] 
+* Download method progress added
+
 ## [2.2.0] 
 * Updated README
 

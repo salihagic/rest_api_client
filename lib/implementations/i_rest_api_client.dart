@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:rest_api_client/implementations/auth_handler.dart';
 import 'package:rest_api_client/implementations/cache_handler.dart';
 import 'package:rest_api_client/implementations/exception_handler.dart';
-import 'package:rest_api_client/models/result.dart';
-import 'package:rest_api_client/options/rest_api_client_request_options.dart';
+import 'package:rest_api_client/rest_api_client.dart';
 
 abstract class IRestApiClient {
   late AuthHandler authHandler;
@@ -89,12 +88,17 @@ abstract class IRestApiClient {
     RestApiClientRequestOptions? options,
   });
 
-  Future<Result> download(
+  Future<Result> download<T>(
     String urlPath,
     savePath, {
     data,
     Map<String, dynamic>? queryParameters,
     RestApiClientRequestOptions? options,
+    ProgressCallback? onReceiveProgress,
+    CancelToken? cancelToken,
+    bool deleteOnError = true,
+    String lengthHeader = Headers.contentLengthHeader,
+    FutureOr<T> Function(dynamic data)? parser,
   });
 
   void setContentType(String contentType);
