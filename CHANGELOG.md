@@ -1,3 +1,6 @@
+## [2.2.2] 
+* Upgraded dependencies
+
 ## [2.2.1] 
 * Download method progress added
 
@@ -12,7 +15,6 @@
 
 ## [2.1.7] 
 * Result update
-
 
 ## [2.1.6] 
 * Upgraded dependencies
