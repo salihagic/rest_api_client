@@ -371,7 +371,7 @@ class RestApiClient implements IRestApiClient {
   }
 
   @override
-  Future<Result> download<T>(
+  Future<Result<T>> download<T>(
     String urlPath,
     savePath, {
     data,
