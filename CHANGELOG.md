@@ -1,3 +1,6 @@
+## [2.2.4] 
+* Upgraded dependencies
+
 ## [2.2.3] 
 * Download method result updated
 

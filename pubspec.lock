@@ -369,10 +369,10 @@ packages:
     dependency: "direct main"
     description:
       name: storage_repository
-      sha256: c48b1cf02fbaa06f9b7422b2520b600bad9bd9128b1fa566cfcd882df213c0a4
+      sha256: cebe3ff9f0d162dd2abeb2919b666f358e8b96ff891ffdbaf8ec60ed89210443
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.10"
+    version: "1.1.11"
   stream_channel:
     dependency: transitive
     description:
