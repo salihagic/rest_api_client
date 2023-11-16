@@ -1,3 +1,6 @@
+## [2.2.5] 
+* Upgraded dependencies
+
 ## [2.2.4] 
 * Upgraded dependencies
 
