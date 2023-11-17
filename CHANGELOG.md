@@ -1,3 +1,6 @@
+## [2.2.6] 
+* Updated naming convention (I<something> -> <something>Impl)
+
 ## [2.2.5] 
 * Upgraded dependencies
 

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
-import 'package:rest_api_client/constants/keys.dart';
+import 'package:rest_api_client/constants/rest_api_client_keys.dart';
 import 'package:rest_api_client/options/auth_options.dart';
 import 'package:rest_api_client/options/exception_options.dart';
 import 'package:rest_api_client/options/logging_options.dart';
@@ -18,7 +18,7 @@ class AuthHandler {
   final ExceptionOptions exceptionOptions;
   final LoggingOptions loggingOptions;
 
-  late IStorageRepository _storage;
+  late StorageRepository _storage;
 
   AuthHandler({
     required this.dio,
@@ -27,7 +27,7 @@ class AuthHandler {
     required this.exceptionOptions,
     required this.loggingOptions,
   }) {
-    _storage = SecureStorageRepository(
+    _storage = SecureStorageRepositoryImpl(
       key: RestApiClientKeys.storageKey,
       logPrefix: RestApiClientKeys.storageLogPrefix,
     );

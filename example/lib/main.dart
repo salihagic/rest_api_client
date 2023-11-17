@@ -6,7 +6,7 @@ Future main() async {
   //This must be called once per application lifetime
   await RestApiClient.initFlutter();
 
-  IRestApiClient restApiClient = RestApiClient(
+  RestApiClient restApiClient = RestApiClientImpl(
     options: RestApiClientOptions(
       //Defines your base API url eg. https://mybestrestapi.com
       baseUrl: 'https://mybestrestapi.com',

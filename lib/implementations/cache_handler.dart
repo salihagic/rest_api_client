@@ -2,19 +2,22 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
-import 'package:rest_api_client/constants/keys.dart';
+import 'package:rest_api_client/constants/rest_api_client_keys.dart';
+import 'package:rest_api_client/options/cache_options.dart';
 import 'package:rest_api_client/options/logging_options.dart';
 import 'package:storage_repository/storage_repository.dart';
 
 class CacheHandler {
   final LoggingOptions loggingOptions;
+  final CacheOptions cacheOptions;
 
-  late IStorageRepository _storage;
+  late StorageRepository _storage;
 
   CacheHandler({
     required this.loggingOptions,
+    required this.cacheOptions,
   }) {
-    _storage = StorageRepository(
+    _storage = StorageRepositoryImpl(
       key: RestApiClientKeys.cachedStorageKey,
       logPrefix: RestApiClientKeys.cachedStorageLogPrefix,
     );
@@ -45,10 +48,11 @@ class CacheHandler {
   }
 
   String _generateCacheKey(RequestOptions options) {
-    final String authorization =
-        options.headers.containsKey(RestApiClientKeys.authorization)
+    final String authorization = cacheOptions.useAuthorization
+        ? options.headers.containsKey(RestApiClientKeys.authorization)
             ? options.headers[RestApiClientKeys.authorization]
-            : '';
+            : ''
+        : '';
     final queryParametersSerialized = options.queryParameters.isNotEmpty
         ? json.encode(options.queryParameters)
         : '';
@@ -56,8 +60,16 @@ class CacheHandler {
         ? json.encode(options.data)
         : '';
 
-    final key = '$queryParametersSerialized$dataSerialized$authorization';
+    final combinedKey =
+        _encode('$queryParametersSerialized$dataSerialized$authorization');
 
-    return '${options.path} - ${md5.convert(utf8.encode(key)).toString()}';
+    final keyBase = cacheOptions.generateCacheKey?.call(options, combinedKey) ??
+        combinedKey;
+
+    final key = '${options.path} - ${_encode(keyBase)}';
+
+    return key;
   }
+
+  String _encode(String value) => md5.convert(utf8.encode(value)).toString();
 }
