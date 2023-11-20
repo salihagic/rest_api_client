@@ -11,8 +11,11 @@ class CacheOptions {
   // Set it to false to ignore JWT from cache key structure.
   final bool useAuthorization;
 
+  final Duration cacheLifetimeDuration;
+
   const CacheOptions({
     this.generateCacheKey,
     this.useAuthorization = true,
+    this.cacheLifetimeDuration = const Duration(days: 10),
   });
 }

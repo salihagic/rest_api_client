@@ -1,3 +1,6 @@
+## [2.2.7] 
+* Cache lifetime duration added
+
 ## [2.2.6] 
 * Updated naming convention (I<something> -> <something>Impl)
 

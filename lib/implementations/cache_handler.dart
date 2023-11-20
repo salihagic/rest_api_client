@@ -1,10 +1,7 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
-import 'package:dio/dio.dart';
-import 'package:rest_api_client/constants/rest_api_client_keys.dart';
-import 'package:rest_api_client/options/cache_options.dart';
-import 'package:rest_api_client/options/logging_options.dart';
+import 'package:rest_api_client/rest_api_client.dart';
 import 'package:storage_repository/storage_repository.dart';
 
 class CacheHandler {
@@ -29,18 +26,40 @@ class CacheHandler {
     if (loggingOptions.logCacheStorage) {
       await _storage.log();
     }
+
+    await _clearExpiredCacheData();
   }
 
   Future<dynamic> get(RequestOptions options) async {
     final cacheKey = _generateCacheKey(options);
 
-    return await _storage.get(cacheKey);
+    final data = await _storage.get(cacheKey);
+
+    if (data == null) {
+      return null;
+    }
+
+    final cacheModel = CacheModel.fromMap(data);
+
+    if (cacheModel.isExpired) {
+      await _storage.delete(cacheKey);
+
+      return null;
+    }
+
+    return cacheModel.value;
   }
 
   Future set(Response response) async {
     final cacheKey = _generateCacheKey(response.requestOptions);
 
-    await _storage.set(cacheKey, response.data);
+    final cacheModel = CacheModel(
+      expirationDateTime:
+          DateTime.now().add(cacheOptions.cacheLifetimeDuration),
+      value: response.data,
+    );
+
+    await _storage.set(cacheKey, cacheModel.toMap());
   }
 
   Future clear() async {
@@ -48,16 +67,16 @@ class CacheHandler {
   }
 
   String _generateCacheKey(RequestOptions options) {
-    final String authorization = cacheOptions.useAuthorization
-        ? options.headers.containsKey(RestApiClientKeys.authorization)
-            ? options.headers[RestApiClientKeys.authorization]
-            : ''
-        : '';
     final queryParametersSerialized = options.queryParameters.isNotEmpty
         ? json.encode(options.queryParameters)
         : '';
     final dataSerialized = (options.data != null && options.data.isNotEmpty)
         ? json.encode(options.data)
+        : '';
+    final String authorization = cacheOptions.useAuthorization
+        ? options.headers.containsKey(RestApiClientKeys.authorization)
+            ? options.headers[RestApiClientKeys.authorization]
+            : ''
         : '';
 
     final combinedKey =
@@ -72,4 +91,16 @@ class CacheHandler {
   }
 
   String _encode(String value) => md5.convert(utf8.encode(value)).toString();
+
+  Future<void> _clearExpiredCacheData() async {
+    final data = await _storage.getAll();
+
+    for (final entry in data.entries) {
+      final cacheModel = CacheModel.fromMap(entry.value);
+
+      if (cacheModel.isExpired) {
+        await _storage.delete(entry.key);
+      }
+    }
+  }
 }
