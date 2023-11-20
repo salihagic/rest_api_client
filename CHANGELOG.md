@@ -1,3 +1,6 @@
+## [2.2.8] 
+* Logging fix
+
 ## [2.2.7] 
 * Cache lifetime duration added
 

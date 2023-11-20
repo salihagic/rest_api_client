@@ -23,11 +23,11 @@ class CacheHandler {
   Future init() async {
     await _storage.init();
 
+    await _clearExpiredCacheData();
+
     if (loggingOptions.logCacheStorage) {
       await _storage.log();
     }
-
-    await _clearExpiredCacheData();
   }
 
   Future<dynamic> get(RequestOptions options) async {
