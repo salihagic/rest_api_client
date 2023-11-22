@@ -1,3 +1,6 @@
+## [2.2.9] 
+* authenticate -> authorize
+
 ## [2.2.8] 
 * Logging fix
 

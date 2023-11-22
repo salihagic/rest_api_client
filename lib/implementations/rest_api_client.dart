@@ -102,6 +102,12 @@ abstract class RestApiClient {
   void setAcceptLanguageHeader(String languageCode);
   void addOrUpdateHeader({required String key, required String value});
 
+  Future<bool> authorize({required String jwt, required String refreshToken});
+
+  Future<bool> unAuthorize();
+
+  Future<bool> isAuthorized();
+
   Future clearStorage();
 
   static Future<void> initFlutter() async =>

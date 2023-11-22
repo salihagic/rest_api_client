@@ -497,6 +497,19 @@ class RestApiClientImpl implements RestApiClient {
   void setAcceptLanguageHeader(String languageCode) => addOrUpdateHeader(
       key: RestApiClientKeys.acceptLanguage, value: languageCode);
 
+  Future<bool> authorize(
+      {required String jwt, required String refreshToken}) async {
+    return await authHandler.authorize(jwt: jwt, refreshToken: refreshToken);
+  }
+
+  Future<bool> unAuthorize() async {
+    return await authHandler.unAuthorize();
+  }
+
+  Future<bool> isAuthorized() async {
+    return await authHandler.isAuthorized();
+  }
+
   void addOrUpdateHeader({required String key, required String value}) =>
       _dio.options.headers.containsKey(key)
           ? _dio.options.headers.update(key, (v) => value)

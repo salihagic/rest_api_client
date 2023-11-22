@@ -1,4 +1,5 @@
 class AuthOptions {
+  final bool useSecureStorage;
   final String refreshTokenEndpoint;
   final String refreshTokenParameterName;
   final String Function(dynamic response)? resolveJwt;
@@ -9,6 +10,7 @@ class AuthOptions {
       refreshTokenHeadersBuilder;
 
   const AuthOptions({
+    this.useSecureStorage = true,
     this.refreshTokenEndpoint = '',
     this.refreshTokenParameterName = '',
     this.resolveJwt,

@@ -27,10 +27,15 @@ class AuthHandler {
     required this.exceptionOptions,
     required this.loggingOptions,
   }) {
-    _storage = SecureStorageRepositoryImpl(
-      key: RestApiClientKeys.storageKey,
-      logPrefix: RestApiClientKeys.storageLogPrefix,
-    );
+    _storage = authOptions.useSecureStorage
+        ? SecureStorageRepositoryImpl(
+            key: RestApiClientKeys.storageKey,
+            logPrefix: RestApiClientKeys.storageLogPrefix,
+          )
+        : StorageRepositoryImpl(
+            key: RestApiClientKeys.storageKey,
+            logPrefix: RestApiClientKeys.storageLogPrefix,
+          );
   }
 
   Future init() async {
@@ -47,7 +52,7 @@ class AuthHandler {
   bool get usesAuth =>
       dio.options.headers.containsKey(RestApiClientKeys.authorization);
 
-  Future<bool> authenticate(
+  Future<bool> authorize(
       {required String jwt, required String refreshToken}) async {
     _addOrUpdateHeader(
         key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
@@ -56,7 +61,7 @@ class AuthHandler {
         await _storage.set(RestApiClientKeys.refreshToken, refreshToken);
   }
 
-  Future<bool> deAuthenticate() async {
+  Future<bool> unAuthorize() async {
     final deleteJwtResult = await _storage.delete(RestApiClientKeys.jwt);
     final deleteRefreshTokenResult =
         await _storage.delete(RestApiClientKeys.refreshToken);
@@ -66,7 +71,7 @@ class AuthHandler {
     return deleteJwtResult && deleteRefreshTokenResult;
   }
 
-  Future<bool> isAuthenticated() async {
+  Future<bool> isAuthorized() async {
     final containsAuthorizationHeader =
         dio.options.headers.containsKey(RestApiClientKeys.authorization);
     final containsJwtInStorage = await _storage.contains(RestApiClientKeys.jwt);
@@ -135,7 +140,7 @@ class AuthHandler {
       final jwt = authOptions.resolveJwt!(response);
       final refreshToken = authOptions.resolveRefreshToken!(response);
 
-      await authenticate(jwt: jwt, refreshToken: refreshToken);
+      await authorize(jwt: jwt, refreshToken: refreshToken);
 
       //Set for current request
       if (requestOptions.headers.containsKey(RestApiClientKeys.authorization)) {
