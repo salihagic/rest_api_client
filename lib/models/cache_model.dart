@@ -20,16 +20,21 @@ class CacheModel {
     };
   }
 
-  factory CacheModel.fromMap(Map<String, dynamic> map) {
-    final expirationDateTime = map['expirationDateTime'] != null
-        ? DateTime.parse(map['expirationDateTime'])
-        : null;
-    final value = map['value'];
-
-    return CacheModel(
-      expirationDateTime: expirationDateTime,
-      value: value,
-    );
+  factory CacheModel.fromMap(dynamic data) {
+    if (data is Map<String, dynamic> &&
+        (data['expirationDateTime'] != null || data['value'] != null)) {
+      return CacheModel(
+        expirationDateTime: data['expirationDateTime'] != null
+            ? DateTime.parse(data['expirationDateTime'])
+            : null,
+        value: data['value'],
+      );
+    } else {
+      return CacheModel(
+        expirationDateTime: null,
+        value: data,
+      );
+    }
   }
 
   @override

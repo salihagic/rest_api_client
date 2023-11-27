@@ -78,7 +78,9 @@ class RestApiClientImpl implements RestApiClient {
 
   Future<RestApiClient> init() async {
     await authHandler.init();
-    await cacheHandler.init();
+    if (_options.cacheEnabled) {
+      await cacheHandler.init();
+    }
 
     return this;
   }
@@ -417,7 +419,9 @@ class RestApiClientImpl implements RestApiClient {
   @override
   Future clearStorage() async {
     await authHandler.clear();
-    await cacheHandler.clear();
+    if (_options.cacheEnabled) {
+      await cacheHandler.clear();
+    }
   }
 
   void _configureLogging() {
