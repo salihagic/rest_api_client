@@ -147,14 +147,16 @@ class RestApiClientImpl implements RestApiClient {
     FutureOr<T> Function(dynamic data)? parser,
     RestApiClientRequestOptions? options,
   }) async* {
-    final cachedResult = await getCached(
-      path,
-      queryParameters: queryParameters,
-      parser: parser,
-    );
+    if (_options.cacheEnabled) {
+      final cachedResult = await getCached(
+        path,
+        queryParameters: queryParameters,
+        parser: parser,
+      );
 
-    if (cachedResult.hasData) {
-      yield cachedResult;
+      if (cachedResult.hasData) {
+        yield cachedResult;
+      }
     }
 
     yield await get(
@@ -233,15 +235,17 @@ class RestApiClientImpl implements RestApiClient {
     FutureOr<T> Function(dynamic data)? parser,
     RestApiClientRequestOptions? options,
   }) async* {
-    final cachedResult = await postCached(
-      path,
-      queryParameters: queryParameters,
-      data: data,
-      parser: parser,
-    );
+    if (_options.cacheEnabled) {
+      final cachedResult = await postCached(
+        path,
+        queryParameters: queryParameters,
+        data: data,
+        parser: parser,
+      );
 
-    if (cachedResult.hasData) {
-      yield cachedResult;
+      if (cachedResult.hasData) {
+        yield cachedResult;
+      }
     }
 
     yield await post(
