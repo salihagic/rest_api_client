@@ -2,7 +2,7 @@ class CacheModel {
   final DateTime? expirationDateTime;
   final dynamic value;
 
-  bool get isExpired => expirationDateTime?.isBefore(DateTime.now()) ?? false;
+  bool get isExpired => expirationDateTime?.isBefore(DateTime.now()) ?? true;
 
   CacheModel({
     required this.expirationDateTime,

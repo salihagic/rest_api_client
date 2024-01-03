@@ -1,3 +1,6 @@
+## [2.2.13] 
+* CacheHandler bugfix
+
 ## [2.2.12] 
 * CacheHandler bugfix
 
