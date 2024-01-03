@@ -2,11 +2,7 @@ class CacheModel {
   final DateTime? expirationDateTime;
   final dynamic value;
 
-  bool get isExpired {
-    final isExpired = expirationDateTime?.isBefore(DateTime.now()) ?? false;
-
-    return isExpired;
-  }
+  bool get isExpired => expirationDateTime?.isBefore(DateTime.now()) ?? false;
 
   CacheModel({
     required this.expirationDateTime,
@@ -21,20 +17,22 @@ class CacheModel {
   }
 
   factory CacheModel.fromMap(dynamic data) {
-    if (data is Map<String, dynamic> &&
-        (data['expirationDateTime'] != null || data['value'] != null)) {
-      return CacheModel(
-        expirationDateTime: data['expirationDateTime'] != null
-            ? DateTime.parse(data['expirationDateTime'])
-            : null,
-        value: data['value'],
-      );
-    } else {
-      return CacheModel(
-        expirationDateTime: null,
-        value: data,
-      );
+    try {
+      if (data is Map<String, dynamic> &&
+          (data['expirationDateTime'] != null || data['value'] != null)) {
+        return CacheModel(
+          expirationDateTime: dateTimeFromJson(data['expirationDateTime']),
+          value: data['value'],
+        );
+      }
+    } catch (e) {
+      print(e);
     }
+
+    return CacheModel(
+      expirationDateTime: null,
+      value: data,
+    );
   }
 
   @override
@@ -43,7 +41,56 @@ class CacheModel {
 }
 
 extension _DateTimeExtensions on DateTime? {
-  String? toJson() => this != null
-      ? '${this!.year}-${this!.month}-${this!.day}T${this!.hour.toString().padLeft(2, '0')}:${this!.minute.toString().padLeft(2, '0')}:${this!.second.toString().padLeft(2, '0')}'
-      : null;
+  String? toJson() {
+    try {
+      if (this == null) {
+        return null;
+      }
+
+      final years = _section(this?.year);
+      final months = _section(this?.month);
+      final days = _section(this?.day);
+      final hours = _section(this?.hour);
+      final minutes = _section(this?.minute);
+      final seconds = _section(this?.second);
+
+      return '$years.$months.$days.$hours.$minutes.$seconds';
+    } catch (e) {
+      print(e);
+
+      return null;
+    }
+  }
+
+  String _section(int? value) => (value ?? 0).toString().padLeft(2, '0');
+}
+
+DateTime? dateTimeFromJson(String? json) {
+  try {
+    final parts = (json ?? '').split('.');
+
+    if (parts.length != 6) {
+      return null;
+    }
+
+    final years = int.parse(parts[0]);
+    final months = int.parse(parts[1]);
+    final days = int.parse(parts[2]);
+    final hours = int.parse(parts[3]);
+    final minutes = int.parse(parts[4]);
+    final seconds = int.parse(parts[5]);
+
+    return DateTime(
+      years,
+      months,
+      days,
+      hours,
+      minutes,
+      seconds,
+    );
+  } catch (e) {
+    print(e);
+
+    return null;
+  }
 }
