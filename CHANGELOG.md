@@ -1,3 +1,6 @@
+## [2.2.14] 
+* Cache storage reset flag
+
 ## [2.2.13] 
 * CacheHandler bugfix
 

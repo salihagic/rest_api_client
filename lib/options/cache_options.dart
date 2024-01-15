@@ -15,10 +15,13 @@ class CacheOptions {
 
   final Duration cacheLifetimeDuration;
 
+  final bool resetOnRestart;
+
   const CacheOptions({
     this.generateCacheKey,
     this.useAuthorization = true,
     this.useSecureStorage = false,
+    this.resetOnRestart = false,
     this.cacheLifetimeDuration = const Duration(days: 10),
   });
 }

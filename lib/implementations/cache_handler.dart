@@ -28,7 +28,11 @@ class CacheHandler {
   Future init() async {
     await _storage.init();
 
-    await _clearExpiredCacheData();
+    if (cacheOptions.resetOnRestart) {
+      await _storage.clear();
+    } else {
+      await _clearExpiredCacheData();
+    }
 
     if (loggingOptions.logCacheStorage) {
       await _storage.log();
