@@ -1,3 +1,6 @@
+## [2.2.15] 
+* HttpStatus.unprocessableEntity exception validation messages
+
 ## [2.2.14] 
 * Cache storage reset flag
 

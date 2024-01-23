@@ -49,6 +49,9 @@ class ExceptionHandler {
         case HttpStatus.notFound:
           return ValidationException.multipleFields(
               validationMessages: _getValidationMessages(e));
+        case HttpStatus.unprocessableEntity:
+          return ValidationException.multipleFields(
+              validationMessages: _getValidationMessages(e));
         case HttpStatus.badRequest:
           return ValidationException.multipleFields(
               validationMessages: _getValidationMessages(e));
