@@ -1,3 +1,6 @@
+## [2.2.16] 
+* Refresh token interceptor fix
+
 ## [2.2.15] 
 * HttpStatus.unprocessableEntity exception validation messages
 

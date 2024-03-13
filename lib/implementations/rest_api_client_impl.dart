@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/io.dart';
+import 'package:rest_api_client/implementations/refresh_token_interceptor.dart';
 import 'package:rest_api_client/options/cache_options.dart';
 import 'package:rest_api_client/options/rest_api_client_request_options.dart';
 
@@ -447,46 +448,11 @@ class RestApiClientImpl implements RestApiClient {
   void _addInterceptors(List<Interceptor> interceptors) {
     _dio.interceptors.addAll(interceptors);
 
-    _addRefreshTokenInterceptor();
-  }
-
-  void _addRefreshTokenInterceptor() {
-    _dio.interceptors.add(
-      QueuedInterceptorsWrapper(
-        onRequest: (RequestOptions options, handler) {
-          options.extra.addAll({
-            'showInternalServerErrors':
-                _exceptionOptions.showInternalServerErrors
-          });
-          options.extra.addAll(
-              {'showNetworkErrors': _exceptionOptions.showNetworkErrors});
-          options.extra.addAll(
-              {'showValidationErrors': _exceptionOptions.showValidationErrors});
-
-          return handler.next(options);
-        },
-        onResponse: (Response response, handler) {
-          _exceptionOptions.reset();
-
-          return handler.next(response);
-        },
-        onError: (DioException error, handler) async {
-          if (authHandler.usesAuth &&
-              error.response?.statusCode == HttpStatus.unauthorized) {
-            try {
-              return handler
-                  .resolve(await authHandler.refreshTokenCallback(error));
-            } catch (e) {
-              print(e);
-            }
-          }
-
-          await exceptionHandler.handle(error, error.requestOptions.extra);
-
-          return handler.next(error);
-        },
-      ),
-    );
+    _dio.interceptors.add(RefreshTokenInterceptor(
+      authHandler: authHandler,
+      exceptionHandler: exceptionHandler,
+      exceptionOptions: _exceptionOptions,
+    ));
   }
 
   void _configureCertificateOverride() {
