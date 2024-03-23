@@ -1,3 +1,6 @@
+## [2.2.17] 
+* Browser Client Adapter updated
+
 ## [2.2.16] 
 * Refresh token interceptor fix
 
