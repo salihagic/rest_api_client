@@ -4,12 +4,9 @@ import 'package:rest_api_client/exceptions/base_exception.dart';
 ///any server error
 class UnauthorizedException extends BaseException {
   UnauthorizedException({
-    bool silent = false,
-    List<String> messages = const [],
-  }) : super(
-          silent: silent,
-          messages: messages,
-        );
+    super.silent,
+    super.messages,
+  });
 
   ///Method to be called in debugging mode to
   ///check the contents of the exception

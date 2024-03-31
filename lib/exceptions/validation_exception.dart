@@ -6,12 +6,9 @@ class ValidationException extends BaseException {
   Map<String, List<String>>? validationMessages;
 
   ValidationException({
-    bool silent = false,
-    List<String> messages = const [],
-  }) : super(
-          silent: silent,
-          messages: messages,
-        );
+    super.silent,
+    super.messages,
+  });
 
   ///Constructon for creating validation
   ///messages list separated by property

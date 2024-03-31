@@ -20,10 +20,11 @@ class ExceptionHandler {
   });
 
   Future handle(
-    DioException e, [
+    DioException e, {
     Map<String, dynamic> extra = const {},
-  ]) async {
-    _handleException(_getExceptionFromDioError(e), extra);
+    bool? silent,
+  }) async {
+    _handleException(_getExceptionFromDioError(e, silent ?? false), extra);
     exceptionOptions.reset();
   }
 
@@ -39,31 +40,31 @@ class ExceptionHandler {
     }
   }
 
-  BaseException _getExceptionFromDioError(DioException e) {
+  BaseException _getExceptionFromDioError(DioException e, bool silent) {
     if (e.type == DioExceptionType.badResponse) {
       switch (e.response?.statusCode) {
         case HttpStatus.internalServerError:
-          return ServerErrorException();
+          return ServerErrorException(silent: silent);
         case HttpStatus.badGateway:
-          return ServerErrorException();
+          return ServerErrorException(silent: silent);
         case HttpStatus.notFound:
           return ValidationException.multipleFields(
-              validationMessages: _getValidationMessages(e));
+              silent: silent, validationMessages: _getValidationMessages(e));
         case HttpStatus.unprocessableEntity:
           return ValidationException.multipleFields(
-              validationMessages: _getValidationMessages(e));
+              silent: silent, validationMessages: _getValidationMessages(e));
         case HttpStatus.badRequest:
           return ValidationException.multipleFields(
-              validationMessages: _getValidationMessages(e));
+              silent: silent, validationMessages: _getValidationMessages(e));
         case HttpStatus.unauthorized:
-          return UnauthorizedException();
+          return UnauthorizedException(silent: silent);
         case HttpStatus.forbidden:
-          return ForbiddenException();
+          return ForbiddenException(silent: silent);
         default:
-          return BaseException();
+          return BaseException(silent: silent);
       }
     } else {
-      return NetworkErrorException();
+      return NetworkErrorException(silent: silent);
     }
   }
 

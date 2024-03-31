@@ -1,3 +1,6 @@
+## [2.2.18] 
+* Silent exceptions
+
 ## [2.2.17] 
 * Browser Client Adapter updated
 

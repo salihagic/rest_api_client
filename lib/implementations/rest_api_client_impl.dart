@@ -111,7 +111,7 @@ class RestApiClientImpl implements RestApiClient {
         ),
       );
     } on DioException catch (e) {
-      await exceptionHandler.handle(e);
+      await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
         exception: e,
@@ -196,7 +196,7 @@ class RestApiClientImpl implements RestApiClient {
         ),
       );
     } on DioException catch (e) {
-      await exceptionHandler.handle(e);
+      await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
         exception: e,
@@ -278,7 +278,7 @@ class RestApiClientImpl implements RestApiClient {
         data: await _resolveResult(response.data, parser),
       );
     } on DioException catch (e) {
-      await exceptionHandler.handle(e);
+      await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
         exception: e,
@@ -308,7 +308,7 @@ class RestApiClientImpl implements RestApiClient {
         data: await _resolveResult(response.data, parser),
       );
     } on DioException catch (e) {
-      await exceptionHandler.handle(e);
+      await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
         exception: e,
@@ -338,7 +338,7 @@ class RestApiClientImpl implements RestApiClient {
         data: await _resolveResult(response.data, parser),
       );
     } on DioException catch (e) {
-      await exceptionHandler.handle(e);
+      await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
         exception: e,
@@ -368,7 +368,7 @@ class RestApiClientImpl implements RestApiClient {
         data: await _resolveResult(response.data, parser),
       );
     } on DioException catch (e) {
-      await exceptionHandler.handle(e);
+      await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
         exception: e,
@@ -408,7 +408,7 @@ class RestApiClientImpl implements RestApiClient {
         data: await _resolveResult(response.data, parser),
       );
     } on DioException catch (e) {
-      await exceptionHandler.handle(e);
+      await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
         exception: e,
