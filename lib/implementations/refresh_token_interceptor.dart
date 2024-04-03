@@ -37,7 +37,11 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
     if (authHandler.usesAuth &&
         error.response?.statusCode == HttpStatus.unauthorized) {
       try {
-        return handler.resolve(await authHandler.refreshTokenCallback(error));
+        final response = await authHandler.refreshTokenCallback(error);
+
+        return response != null
+            ? handler.resolve(response)
+            : handler.next(error);
       } catch (e) {
         print(e);
       }

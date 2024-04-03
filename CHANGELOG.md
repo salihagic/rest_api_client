@@ -1,3 +1,6 @@
+## [2.2.19] 
+* Exposed jwt and refreshToken getters, exposed refreshToken() method for manual refresh
+
 ## [2.2.18] 
 * Silent exceptions
 

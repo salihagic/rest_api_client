@@ -481,7 +481,7 @@ class RestApiClientImpl implements RestApiClient {
   }
 
   Future<bool> isAuthorized() async {
-    return await authHandler.isAuthorized();
+    return await authHandler.isAuthorized;
   }
 
   void addOrUpdateHeader({required String key, required String value}) =>

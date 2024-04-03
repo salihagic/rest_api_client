@@ -39,6 +39,22 @@ class AuthHandler {
           );
   }
 
+  Future<bool> get containsAuthorizationHeader async =>
+      dio.options.headers.containsKey(RestApiClientKeys.authorization);
+  Future<bool> get containsJwtInStorage async =>
+      await _storage.contains(RestApiClientKeys.jwt);
+  Future<bool> get containsRefreshTokenInStorage async =>
+      await _storage.contains(RestApiClientKeys.refreshToken);
+  Future<bool> get isAuthorized async =>
+      await containsAuthorizationHeader &&
+      await containsJwtInStorage &&
+      await containsRefreshTokenInStorage;
+  Future<String?> get jwt async => await _storage.get(RestApiClientKeys.jwt);
+  Future<String?> get refreshToken async =>
+      await _storage.get(RestApiClientKeys.refreshToken);
+  bool get usesAuth =>
+      dio.options.headers.containsKey(RestApiClientKeys.authorization);
+
   Future init() async {
     await _storage.init();
 
@@ -46,12 +62,10 @@ class AuthHandler {
       await _storage.log();
     }
 
-    final jwt = await _storage.get(RestApiClientKeys.jwt);
-    if (jwt != null && jwt is String && jwt.isNotEmpty) _setJwtToHeader(jwt);
+    final currentJwt = await jwt;
+    if (currentJwt != null && currentJwt.isNotEmpty)
+      _setJwtToHeader(currentJwt);
   }
-
-  bool get usesAuth =>
-      dio.options.headers.containsKey(RestApiClientKeys.authorization);
 
   Future<bool> authorize(
       {required String jwt, required String refreshToken}) async {
@@ -72,84 +86,23 @@ class AuthHandler {
     return deleteJwtResult && deleteRefreshTokenResult;
   }
 
-  Future<bool> isAuthorized() async {
-    final containsAuthorizationHeader =
-        dio.options.headers.containsKey(RestApiClientKeys.authorization);
-    final containsJwtInStorage = await _storage.contains(RestApiClientKeys.jwt);
-    final containsRefreshTokenInStorage =
-        await _storage.contains(RestApiClientKeys.refreshToken);
-
-    return containsAuthorizationHeader &&
-        containsJwtInStorage &&
-        containsRefreshTokenInStorage;
-  }
-
-  Future refreshTokenCallback(DioException e) async {
+  /// Gets called when response status code is UnAuthorized and refreshes the token by calling specified refresh-token endpoint
+  Future<Response<T>?> refreshTokenCallback<T>(DioException e) async {
     if (authOptions.resolveJwt != null &&
         authOptions.resolveRefreshToken != null) {
+      await executeTokenRefresh();
+
+      final currentJwt = await jwt;
+
       final requestOptions = e.requestOptions;
-
-      final newDioClient = Dio(BaseOptions()
-        ..baseUrl = options.baseUrl
-        ..contentType = Headers.jsonContentType);
-
-      if (loggingOptions.logNetworkTraffic) {
-        newDioClient.interceptors.add(
-          PrettyDioLogger(
-            responseBody: loggingOptions.responseBody,
-            requestBody: loggingOptions.requestBody,
-            requestHeader: loggingOptions.requestHeader,
-            request: loggingOptions.request,
-            responseHeader: loggingOptions.responseHeader,
-            compact: loggingOptions.compact,
-            error: loggingOptions.error,
-          ),
-        );
-      }
-
-      if (options.overrideBadCertificate && !kIsWeb) {
-        (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
-          final client = HttpClient();
-
-          client.badCertificateCallback =
-              (X509Certificate cert, String host, int port) => true;
-
-          return client;
-        };
-      }
-
-      final currentJwt = await _storage.get(RestApiClientKeys.jwt);
-      final currentRefreshToken =
-          await _storage.get(RestApiClientKeys.refreshToken);
-
-      final response = await newDioClient.post(
-        authOptions.refreshTokenEndpoint,
-        options: Options(
-          headers: authOptions.refreshTokenHeadersBuilder
-                  ?.call(currentJwt, currentRefreshToken) ??
-              {
-                RestApiClientKeys.authorization: 'Bearer $currentJwt',
-              },
-        ),
-        data: authOptions.refreshTokenBodyBuilder
-                ?.call(currentJwt, currentRefreshToken) ??
-            {
-              authOptions.refreshTokenParameterName: currentRefreshToken,
-            },
-      );
-
-      final jwt = authOptions.resolveJwt!(response);
-      final refreshToken = authOptions.resolveRefreshToken!(response);
-
-      await authorize(jwt: jwt, refreshToken: refreshToken);
 
       //Set for current request
       if (requestOptions.headers.containsKey(RestApiClientKeys.authorization)) {
-        requestOptions.headers
-            .update(RestApiClientKeys.authorization, (v) => 'Bearer $jwt');
+        requestOptions.headers.update(
+            RestApiClientKeys.authorization, (v) => 'Bearer $currentJwt');
       } else {
         requestOptions.headers
-            .addAll({RestApiClientKeys.authorization: 'Bearer $jwt'});
+            .addAll({RestApiClientKeys.authorization: 'Bearer $currentJwt'});
       }
 
       exceptionOptions.reset();
@@ -179,6 +132,64 @@ class AuthHandler {
         ),
       );
     }
+
+    return null;
+  }
+
+  /// Refreshes the token by calling specified refresh-token endpoint
+  Future<void> executeTokenRefresh() async {
+    final newDioClient = Dio(BaseOptions()
+      ..baseUrl = options.baseUrl
+      ..contentType = Headers.jsonContentType);
+
+    if (loggingOptions.logNetworkTraffic) {
+      newDioClient.interceptors.add(
+        PrettyDioLogger(
+          responseBody: loggingOptions.responseBody,
+          requestBody: loggingOptions.requestBody,
+          requestHeader: loggingOptions.requestHeader,
+          request: loggingOptions.request,
+          responseHeader: loggingOptions.responseHeader,
+          compact: loggingOptions.compact,
+          error: loggingOptions.error,
+        ),
+      );
+    }
+
+    if (options.overrideBadCertificate && !kIsWeb) {
+      (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+        final client = HttpClient();
+
+        client.badCertificateCallback =
+            (X509Certificate cert, String host, int port) => true;
+
+        return client;
+      };
+    }
+
+    final currentJwt = await jwt;
+    final currentRefreshToken = await refreshToken;
+
+    final response = await newDioClient.post(
+      authOptions.refreshTokenEndpoint,
+      options: Options(
+        headers: authOptions.refreshTokenHeadersBuilder
+                ?.call(currentJwt ?? '', currentRefreshToken ?? '') ??
+            {
+              RestApiClientKeys.authorization: 'Bearer $currentJwt',
+            },
+      ),
+      data: authOptions.refreshTokenBodyBuilder
+              ?.call(currentJwt ?? '', currentRefreshToken ?? '') ??
+          {
+            authOptions.refreshTokenParameterName: currentRefreshToken,
+          },
+    );
+
+    final resolvedJwt = authOptions.resolveJwt!(response);
+    final resolvedRefreshToken = authOptions.resolveRefreshToken!(response);
+
+    await authorize(jwt: resolvedJwt, refreshToken: resolvedRefreshToken);
   }
 
   Future clear() async {
