@@ -2,6 +2,7 @@ import 'package:rest_api_client/rest_api_client.dart';
 
 class Result<T> {
   T? data;
+  Response? response;
   Exception? exception;
   bool get hasData =>
       (data is List && (data as List).isNotEmpty) ||
@@ -18,6 +19,7 @@ class Result<T> {
 
   Result({
     this.data,
+    this.response,
     this.exception,
     this.statusCode = 200,
     this.statusMessage = '',
@@ -25,12 +27,14 @@ class Result<T> {
 
   factory Result.network({
     T? data,
+    Response? response,
     Exception? exception,
     int? statusCode,
     String? statusMessage,
   }) =>
       NetworkResult(
         data: data,
+        response: response,
         exception: exception,
         statusCode: statusCode,
         statusMessage: statusMessage,
@@ -109,11 +113,13 @@ class LocalErrorResult<T> extends Result<T> {
 class NetworkResult<T> extends Result<T> {
   NetworkResult({
     T? data,
+    Response? response,
     Exception? exception,
     int? statusCode,
     String? statusMessage,
   }) : super(
           data: data,
+          response: response,
           exception: exception,
           statusCode: statusCode,
           statusMessage: statusMessage,

@@ -1,3 +1,6 @@
+## [2.2.22] 
+* Result dio response added
+
 ## [2.2.21] 
 * Updated docs
 
