@@ -50,7 +50,9 @@ Future main() async {
     ),
     exceptionOptions: ExceptionOptions(
       resolveValidationErrorsMap: (response) {
-        if (response != null && response.data != null && response.data['code'] != null) {
+        if (response != null &&
+            response.data != null &&
+            response.data['code'] != null) {
           return {
             'ERROR': [response.data['code']],
           };
@@ -103,7 +105,8 @@ Future main() async {
 
   //Let's asume that somehow we got jwt and refresh token
   //Probably pinged our api Authentication endpoint to get these two values
-  jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZmx1dHRlciI6IkZsdXR0ZXIgaXMgYXdlc29tZSIsImNoYWxsZW5nZSI6IllvdSBtYWRlIGl0LCB5b3UgY3JhY2tlZCB0aGUgY29kZS4gWW91J3JlIGF3ZXNvbWUgdG9vLiIsImlhdCI6MTUxNjIzOTAyMn0.5QJz8hhxYsHxShS4hWKdHzcFH_IsQQZAnWSEcHJkspE';
+  jwt =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZmx1dHRlciI6IkZsdXR0ZXIgaXMgYXdlc29tZSIsImNoYWxsZW5nZSI6IllvdSBtYWRlIGl0LCB5b3UgY3JhY2tlZCB0aGUgY29kZS4gWW91J3JlIGF3ZXNvbWUgdG9vLiIsImlhdCI6MTUxNjIzOTAyMn0.5QJz8hhxYsHxShS4hWKdHzcFH_IsQQZAnWSEcHJkspE';
   refreshToken = 'c91c03ea6c46a86cbc019be3d71d0a1a';
 
   //set the authorization
@@ -113,7 +116,8 @@ Future main() async {
   restApiClient.get('/Products');
 
   //Ignore server errors that might happen in the next request
-  restApiClient.exceptionHandler.exceptionOptions.showInternalServerErrors = false;
+  restApiClient.exceptionHandler.exceptionOptions.showInternalServerErrors =
+      false;
 
   try {
     restApiClient.get(
@@ -129,7 +133,11 @@ Future main() async {
 
   restApiClient.post(
     '/Products/Reviews/234',
-    data: {'grade': 5, 'comment': 'Throwing dart is not safe but upgrading to Dart 2.12.1 is. #nullsafety'},
+    data: {
+      'grade': 5,
+      'comment':
+          'Throwing dart is not safe but upgrading to Dart 2.12.1 is. #nullsafety'
+    },
   );
 
   restApiClient.put(

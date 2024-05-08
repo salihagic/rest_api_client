@@ -1,3 +1,6 @@
+## [2.2.21] 
+* Updated docs
+
 ## [2.2.20] 
 * Return data in Network result on error
 
