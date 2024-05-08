@@ -1,3 +1,6 @@
+## [2.2.20] 
+* Return data in Network result on error
+
 ## [2.2.19] 
 * Exposed jwt and refreshToken getters, exposed refreshToken() method for manual refresh
 

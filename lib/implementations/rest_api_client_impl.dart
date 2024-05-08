@@ -105,15 +105,13 @@ class RestApiClientImpl implements RestApiClient {
       }
 
       return NetworkResult(
-        data: await _resolveResult(
-          response.data,
-          parser,
-        ),
+        data: await _resolveResult(response.data, parser),
       );
     } on DioException catch (e) {
       await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
+        data: await _resolveResult(e.response?.data, parser),
         exception: e,
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
@@ -190,15 +188,13 @@ class RestApiClientImpl implements RestApiClient {
       }
 
       return NetworkResult(
-        data: await _resolveResult(
-          response.data,
-          parser,
-        ),
+        data: await _resolveResult(response.data, parser),
       );
     } on DioException catch (e) {
       await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
+        data: await _resolveResult(e.response?.data, parser),
         exception: e,
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
@@ -281,6 +277,7 @@ class RestApiClientImpl implements RestApiClient {
       await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
+        data: await _resolveResult(e.response?.data, parser),
         exception: e,
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
@@ -311,6 +308,7 @@ class RestApiClientImpl implements RestApiClient {
       await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
+        data: await _resolveResult(e.response?.data, parser),
         exception: e,
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
@@ -341,6 +339,7 @@ class RestApiClientImpl implements RestApiClient {
       await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
+        data: await _resolveResult(e.response?.data, parser),
         exception: e,
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
@@ -371,6 +370,7 @@ class RestApiClientImpl implements RestApiClient {
       await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
+        data: await _resolveResult(e.response?.data, parser),
         exception: e,
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
@@ -411,6 +411,7 @@ class RestApiClientImpl implements RestApiClient {
       await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
+        data: await _resolveResult(e.response?.data, parser),
         exception: e,
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
