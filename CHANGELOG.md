@@ -1,3 +1,6 @@
+## [2.2.23] 
+* Upgraded dependencies
+
 ## [2.2.22] 
 * Result dio response added
 
