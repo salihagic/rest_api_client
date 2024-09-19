@@ -13,6 +13,7 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
     required this.exceptionOptions,
   });
 
+  @override
   void onRequest(RequestOptions options, handler) {
     options.extra.addAll({
       'showInternalServerErrors': exceptionOptions.showInternalServerErrors
@@ -26,6 +27,7 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
   }
 
   /// Called when the response is about to be resolved.
+  @override
   void onResponse(Response response, handler) {
     exceptionOptions.reset();
 
@@ -33,6 +35,7 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
   }
 
   /// Called when an exception was occurred during the request.
+  @override
   void onError(DioException error, handler) async {
     if (authHandler.usesAuth &&
         error.response?.statusCode == HttpStatus.unauthorized) {
