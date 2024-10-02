@@ -1,3 +1,6 @@
+## [2.2.27] 
+* parser -> onSuccess & onError
+
 ## [2.2.26] 
 * override
 

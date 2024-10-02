@@ -2,6 +2,7 @@ import 'package:rest_api_client/rest_api_client.dart';
 
 class Result<T> {
   T? data;
+  dynamic errorData;
   Response? response;
   Exception? exception;
   bool get hasData =>
@@ -19,6 +20,7 @@ class Result<T> {
 
   Result({
     this.data,
+    this.errorData,
     this.response,
     this.exception,
     this.statusCode = 200,
@@ -27,6 +29,7 @@ class Result<T> {
 
   factory Result.network({
     T? data,
+    T? errorData,
     Response? response,
     Exception? exception,
     int? statusCode,
@@ -34,6 +37,7 @@ class Result<T> {
   }) =>
       NetworkResult(
         data: data,
+        errorData: errorData,
         response: response,
         exception: exception,
         statusCode: statusCode,
@@ -97,7 +101,9 @@ class LocalSuccessResult<T> extends Result<T> {
 class ErrorResult<T> extends Result<T> {
   ErrorResult({
     Exception? exception,
+    dynamic errorData,
   }) : super(
+          errorData: errorData,
           exception: exception,
         );
 }
@@ -105,20 +111,24 @@ class ErrorResult<T> extends Result<T> {
 class LocalErrorResult<T> extends Result<T> {
   LocalErrorResult({
     Exception? exception,
+    dynamic errorData,
   }) : super(
           exception: exception,
+          errorData: errorData,
         );
 }
 
 class NetworkResult<T> extends Result<T> {
   NetworkResult({
     T? data,
+    dynamic errorData,
     Response? response,
     Exception? exception,
     int? statusCode,
     String? statusMessage,
   }) : super(
           data: data,
+          errorData: errorData,
           response: response,
           exception: exception,
           statusCode: statusCode,
@@ -129,6 +139,7 @@ class NetworkResult<T> extends Result<T> {
 class CacheResult<T> extends Result<T> {
   CacheResult({
     T? data,
+    dynamic errorData,
     Exception? exception,
   }) : super(
           data: data,

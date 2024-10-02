@@ -90,7 +90,8 @@ class RestApiClientImpl implements RestApiClient {
   Future<Result<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   }) async {
     try {
@@ -106,14 +107,14 @@ class RestApiClientImpl implements RestApiClient {
 
       return NetworkResult(
         response: response,
-        data: await _resolveResult(response.data, parser),
+        data: await _resolveResult(response.data, onSuccess),
       );
     } on DioException catch (e) {
       await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
         response: e.response,
-        data: await _resolveResult(e.response?.data, parser),
+        errorData: await _resolveResult(e.response?.data, onError),
         exception: e,
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
@@ -125,7 +126,8 @@ class RestApiClientImpl implements RestApiClient {
   Future<Result<T>> getCached<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
   }) async {
     final requestOptions = RequestOptions(
       path: path,
@@ -136,7 +138,7 @@ class RestApiClientImpl implements RestApiClient {
     return CacheResult(
       data: await _resolveResult(
         (await cacheHandler.get(requestOptions)),
-        parser,
+        onSuccess,
       ),
     );
   }
@@ -145,14 +147,15 @@ class RestApiClientImpl implements RestApiClient {
   Stream<Result<T>> getStreamed<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   }) async* {
     if (_options.cacheEnabled) {
       final cachedResult = await getCached(
         path,
         queryParameters: queryParameters,
-        parser: parser,
+        onSuccess: onSuccess,
       );
 
       if (cachedResult.hasData) {
@@ -163,7 +166,7 @@ class RestApiClientImpl implements RestApiClient {
     yield await get(
       path,
       queryParameters: queryParameters,
-      parser: parser,
+      onSuccess: onSuccess,
       options: options,
     );
   }
@@ -173,7 +176,8 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
     bool cacheEnabled = false,
   }) async {
@@ -191,14 +195,13 @@ class RestApiClientImpl implements RestApiClient {
 
       return NetworkResult(
         response: response,
-        data: await _resolveResult(response.data, parser),
+        data: await _resolveResult(response.data, onSuccess),
       );
     } on DioException catch (e) {
       await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
         response: e.response,
-        data: await _resolveResult(e.response?.data, parser),
         exception: e,
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
@@ -211,7 +214,8 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
   }) async {
     final requestOptions = RequestOptions(
       path: path,
@@ -223,7 +227,7 @@ class RestApiClientImpl implements RestApiClient {
     return CacheResult(
       data: await _resolveResult(
         (await cacheHandler.get(requestOptions)),
-        parser,
+        onSuccess,
       ),
     );
   }
@@ -233,7 +237,8 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   }) async* {
     if (_options.cacheEnabled) {
@@ -241,7 +246,7 @@ class RestApiClientImpl implements RestApiClient {
         path,
         queryParameters: queryParameters,
         data: data,
-        parser: parser,
+        onSuccess: onSuccess,
       );
 
       if (cachedResult.hasData) {
@@ -253,7 +258,7 @@ class RestApiClientImpl implements RestApiClient {
       path,
       queryParameters: queryParameters,
       data: data,
-      parser: parser,
+      onSuccess: onSuccess,
       options: options,
     );
   }
@@ -263,7 +268,8 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   }) async {
     try {
@@ -276,14 +282,13 @@ class RestApiClientImpl implements RestApiClient {
 
       return NetworkResult(
         response: response,
-        data: await _resolveResult(response.data, parser),
+        data: await _resolveResult(response.data, onSuccess),
       );
     } on DioException catch (e) {
       await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
         response: e.response,
-        data: await _resolveResult(e.response?.data, parser),
         exception: e,
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
@@ -296,7 +301,8 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   }) async {
     try {
@@ -309,14 +315,13 @@ class RestApiClientImpl implements RestApiClient {
 
       return NetworkResult(
         response: response,
-        data: await _resolveResult(response.data, parser),
+        data: await _resolveResult(response.data, onSuccess),
       );
     } on DioException catch (e) {
       await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
         response: e.response,
-        data: await _resolveResult(e.response?.data, parser),
         exception: e,
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
@@ -329,7 +334,8 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   }) async {
     try {
@@ -342,14 +348,13 @@ class RestApiClientImpl implements RestApiClient {
 
       return NetworkResult(
         response: response,
-        data: await _resolveResult(response.data, parser),
+        data: await _resolveResult(response.data, onSuccess),
       );
     } on DioException catch (e) {
       await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
         response: e.response,
-        data: await _resolveResult(e.response?.data, parser),
         exception: e,
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
@@ -362,7 +367,8 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   }) async {
     try {
@@ -375,14 +381,13 @@ class RestApiClientImpl implements RestApiClient {
 
       return NetworkResult(
         response: response,
-        data: await _resolveResult(response.data, parser),
+        data: await _resolveResult(response.data, onSuccess),
       );
     } on DioException catch (e) {
       await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
         response: e.response,
-        data: await _resolveResult(e.response?.data, parser),
         exception: e,
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
@@ -401,7 +406,8 @@ class RestApiClientImpl implements RestApiClient {
     CancelToken? cancelToken,
     bool deleteOnError = true,
     String lengthHeader = Headers.contentLengthHeader,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
   }) async {
     try {
       final response = await _dio.download(
@@ -418,14 +424,13 @@ class RestApiClientImpl implements RestApiClient {
 
       return NetworkResult(
         response: response,
-        data: await _resolveResult(response.data, parser),
+        data: await _resolveResult(response.data, onSuccess),
       );
     } on DioException catch (e) {
       await exceptionHandler.handle(e, silent: options?.silentException);
 
       return NetworkResult(
         response: e.response,
-        data: await _resolveResult(e.response?.data, parser),
         exception: e,
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
@@ -505,10 +510,10 @@ class RestApiClientImpl implements RestApiClient {
           : _dio.options.headers.addAll({key: value});
 
   FutureOr<T?> _resolveResult<T>(dynamic data,
-      [FutureOr<T> Function(dynamic data)? parser]) async {
+      [FutureOr<T> Function(dynamic data)? onSuccess]) async {
     if (data != null) {
-      if (parser != null) {
-        return await parser(data);
+      if (onSuccess != null) {
+        return await onSuccess(data);
       } else {
         return data as T;
       }

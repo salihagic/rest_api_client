@@ -12,20 +12,23 @@ abstract class RestApiClient {
   Future<Result<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   });
 
   Future<Result<T>> getCached<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
   });
 
   Stream<Result<T>> getStreamed<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   });
 
@@ -33,7 +36,8 @@ abstract class RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
     bool cacheEnabled = false,
   });
@@ -42,14 +46,16 @@ abstract class RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
   });
 
   Stream<Result<T>> postStreamed<T>(
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   });
 
@@ -57,7 +63,8 @@ abstract class RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   });
 
@@ -65,7 +72,8 @@ abstract class RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   });
 
@@ -73,7 +81,8 @@ abstract class RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   });
 
@@ -81,7 +90,8 @@ abstract class RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   });
 
@@ -95,7 +105,8 @@ abstract class RestApiClient {
     CancelToken? cancelToken,
     bool deleteOnError = true,
     String lengthHeader = Headers.contentLengthHeader,
-    FutureOr<T> Function(dynamic data)? parser,
+    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onError,
   });
 
   void setContentType(String contentType);
