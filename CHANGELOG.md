@@ -1,3 +1,6 @@
+## [2.2.28] 
+* Headers getter exposed
+
 ## [2.2.27] 
 * parser -> onSuccess & onError
 

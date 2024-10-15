@@ -42,6 +42,10 @@ class RestApiClientImpl implements RestApiClient {
   @override
   late ExceptionHandler exceptionHandler;
 
+  @override
+  Map<String, String> get headers =>
+      _dio.options.headers.map((key, value) => MapEntry(key, value.toString()));
+
   RestApiClientImpl({
     required RestApiClientOptions options,
     ExceptionOptions? exceptionOptions,

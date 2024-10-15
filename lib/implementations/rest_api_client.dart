@@ -6,6 +6,7 @@ abstract class RestApiClient {
   late AuthHandler authHandler;
   late ExceptionHandler exceptionHandler;
   late CacheHandler cacheHandler;
+  Map<String, String> get headers;
 
   Future<RestApiClient> init();
 
