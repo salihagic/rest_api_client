@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:rest_api_client/rest_api_client.dart';
 
 class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
@@ -15,15 +15,21 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
 
   @override
   void onRequest(RequestOptions options, handler) {
-    options.extra.addAll({
-      'showInternalServerErrors': exceptionOptions.showInternalServerErrors
-    });
-    options.extra
-        .addAll({'showNetworkErrors': exceptionOptions.showNetworkErrors});
-    options.extra.addAll(
-        {'showValidationErrors': exceptionOptions.showValidationErrors});
+    options.extra.addAll({'showInternalServerErrors': exceptionOptions.showInternalServerErrors});
+    options.extra.addAll({'showNetworkErrors': exceptionOptions.showNetworkErrors});
+    options.extra.addAll({'showValidationErrors': exceptionOptions.showValidationErrors});
 
-    return handler.next(options);
+    if (authHandler.usesAuth) {
+      try {
+        final isExpired = JwtDecoder.isExpired(authHandler.jwt ?? '');
+
+        print('JWT LOGS: IS EXPIRED JWT 7: ${isExpired}');
+
+        return isExpired ? authHandler.refreshTokenCallback(options, handler) : handler.next(options);
+      } catch (e) {
+        print(e);
+      }
+    }
   }
 
   /// Called when the response is about to be resolved.
@@ -37,20 +43,15 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
   /// Called when an exception was occurred during the request.
   @override
   void onError(DioException error, handler) async {
-    if (authHandler.usesAuth &&
-        error.response?.statusCode == HttpStatus.unauthorized) {
+    if (authHandler.usesAuth && error.response?.statusCode == HttpStatus.unauthorized) {
       try {
-        final response = await authHandler.refreshTokenCallback(error);
+        final response = await authHandler.refreshTokenCallback(error.requestOptions);
 
-        return response != null
-            ? handler.resolve(response)
-            : handler.next(error);
+        return response != null ? handler.resolve(response) : handler.next(error);
       } catch (e) {
         print(e);
       }
     }
-
-    await exceptionHandler.handle(error, extra: error.requestOptions.extra);
 
     return handler.next(error);
   }

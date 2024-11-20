@@ -13,3 +13,4 @@ dependencies:
   dio: ^5.5.0+1
   pretty_dio_logger: ^1.4.0
   storage_repository: ^1.1.15
+  jwt_decoder: ^2.0.1
