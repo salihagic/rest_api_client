@@ -6,12 +6,17 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
   final AuthHandler authHandler;
   final ExceptionHandler exceptionHandler;
   final ExceptionOptions exceptionOptions;
+  final AuthOptions authOptions;
 
   RefreshTokenInterceptor({
     required this.authHandler,
     required this.exceptionHandler,
     required this.exceptionOptions,
+    required this.authOptions,
   });
+
+  bool get isPreemptivelyRefreshBeforeExpiry => authHandler.usesAuth && authOptions.refreshTokenExecutionType == RefreshTokenStrategy.preemptivelyRefreshBeforeExpiry;
+  bool get isResponseAndRetry => authHandler.usesAuth && authOptions.refreshTokenExecutionType == RefreshTokenStrategy.responseAndRetry;
 
   @override
   void onRequest(RequestOptions options, handler) {
@@ -19,16 +24,20 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
     options.extra.addAll({'showNetworkErrors': exceptionOptions.showNetworkErrors});
     options.extra.addAll({'showValidationErrors': exceptionOptions.showValidationErrors});
 
-    if (authHandler.usesAuth) {
+    if (isPreemptivelyRefreshBeforeExpiry && !authOptions.ignoreAuthForPaths.contains(options.path)) {
       try {
         final isExpired = JwtDecoder.isExpired(authHandler.jwt ?? '');
 
-        print('JWT LOGS: IS EXPIRED JWT 7: ${isExpired}');
-
-        return isExpired ? authHandler.refreshTokenCallback(options, handler) : handler.next(options);
+        if (isExpired) {
+          authHandler.refreshTokenCallback(options, handler);
+        } else {
+          handler.next(options);
+        }
       } catch (e) {
         print(e);
       }
+    } else {
+      handler.next(options);
     }
   }
 
@@ -43,16 +52,20 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
   /// Called when an exception was occurred during the request.
   @override
   void onError(DioException error, handler) async {
-    if (authHandler.usesAuth && error.response?.statusCode == HttpStatus.unauthorized) {
+    if (isResponseAndRetry && error.response?.statusCode == HttpStatus.unauthorized) {
       try {
         final response = await authHandler.refreshTokenCallback(error.requestOptions);
 
-        return response != null ? handler.resolve(response) : handler.next(error);
+        if (response != null) {
+          handler.resolve(response);
+        } else {
+          handler.next(error);
+        }
       } catch (e) {
         print(e);
       }
+    } else {
+      handler.next(error);
     }
-
-    return handler.next(error);
   }
 }

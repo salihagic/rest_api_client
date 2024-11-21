@@ -473,6 +473,7 @@ class RestApiClientImpl implements RestApiClient {
       authHandler: authHandler,
       exceptionHandler: exceptionHandler,
       exceptionOptions: _exceptionOptions,
+      authOptions: _authOptions,
     ));
   }
 

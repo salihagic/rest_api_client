@@ -2,7 +2,8 @@ class AuthOptions {
   final bool useSecureStorage;
   final String refreshTokenEndpoint;
   final String refreshTokenParameterName;
-  final RefreshTokenExecutionType refreshTokenExecutionType;
+  final RefreshTokenStrategy refreshTokenExecutionType;
+  final List<String> ignoreAuthForPaths;
   final String Function(dynamic response)? resolveJwt;
   final String Function(dynamic response)? resolveRefreshToken;
   final dynamic Function(String jwt, String refreshToken)? refreshTokenBodyBuilder;
@@ -12,7 +13,8 @@ class AuthOptions {
     this.useSecureStorage = true,
     this.refreshTokenEndpoint = '',
     this.refreshTokenParameterName = '',
-    this.refreshTokenExecutionType = RefreshTokenExecutionType.responseAndRetry,
+    this.refreshTokenExecutionType = RefreshTokenStrategy.responseAndRetry,
+    this.ignoreAuthForPaths = const [],
     this.resolveJwt,
     this.resolveRefreshToken,
     this.refreshTokenBodyBuilder,
@@ -20,7 +22,7 @@ class AuthOptions {
   });
 }
 
-enum RefreshTokenExecutionType {
+enum RefreshTokenStrategy {
   responseAndRetry,
   preemptivelyRefreshBeforeExpiry,
 }
