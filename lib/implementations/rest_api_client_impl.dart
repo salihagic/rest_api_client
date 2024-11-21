@@ -6,7 +6,9 @@ import 'package:rest_api_client/implementations/refresh_token_interceptor.dart';
 import 'package:rest_api_client/options/cache_options.dart';
 import 'package:rest_api_client/options/rest_api_client_request_options.dart';
 
-import 'dio_adapter_stub.dart' if (dart.library.io) 'dio_adapter_mobile.dart' if (dart.library.js) 'dio_adapter_web.dart';
+import 'dio_adapter_stub.dart'
+    if (dart.library.io) 'dio_adapter_mobile.dart'
+    if (dart.library.js) 'dio_adapter_web.dart';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -41,7 +43,8 @@ class RestApiClientImpl implements RestApiClient {
   late ExceptionHandler exceptionHandler;
 
   @override
-  Map<String, String> get headers => _dio.options.headers.map((key, value) => MapEntry(key, value.toString()));
+  Map<String, String> get headers =>
+      _dio.options.headers.map((key, value) => MapEntry(key, value.toString()));
 
   RestApiClientImpl({
     required RestApiClientOptions options,
@@ -72,7 +75,8 @@ class RestApiClientImpl implements RestApiClient {
       exceptionHandler: exceptionHandler,
     );
 
-    cacheHandler = CacheHandler(loggingOptions: _loggingOptions, cacheOptions: _cacheOptions);
+    cacheHandler = CacheHandler(
+        loggingOptions: _loggingOptions, cacheOptions: _cacheOptions);
 
     _addInterceptors(interceptors);
     _configureLogging();
@@ -440,7 +444,8 @@ class RestApiClientImpl implements RestApiClient {
     }
   }
 
-  void setContentType(String contentType) => _dio.options.contentType = contentType;
+  void setContentType(String contentType) =>
+      _dio.options.contentType = contentType;
 
   @override
   Future clearStorage() async {
@@ -482,16 +487,19 @@ class RestApiClientImpl implements RestApiClient {
       (_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
         final client = HttpClient();
 
-        client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+        client.badCertificateCallback =
+            (X509Certificate cert, String host, int port) => true;
 
         return client;
       };
     }
   }
 
-  void setAcceptLanguageHeader(String languageCode) => addOrUpdateHeader(key: RestApiClientKeys.acceptLanguage, value: languageCode);
+  void setAcceptLanguageHeader(String languageCode) => addOrUpdateHeader(
+      key: RestApiClientKeys.acceptLanguage, value: languageCode);
 
-  Future<bool> authorize({required String jwt, required String refreshToken}) async {
+  Future<bool> authorize(
+      {required String jwt, required String refreshToken}) async {
     return await authHandler.authorize(jwt: jwt, refreshToken: refreshToken);
   }
 
@@ -503,9 +511,13 @@ class RestApiClientImpl implements RestApiClient {
     return await authHandler.isAuthorized;
   }
 
-  void addOrUpdateHeader({required String key, required String value}) => _dio.options.headers.containsKey(key) ? _dio.options.headers.update(key, (v) => value) : _dio.options.headers.addAll({key: value});
+  void addOrUpdateHeader({required String key, required String value}) =>
+      _dio.options.headers.containsKey(key)
+          ? _dio.options.headers.update(key, (v) => value)
+          : _dio.options.headers.addAll({key: value});
 
-  FutureOr<T?> _resolveResult<T>(dynamic data, [FutureOr<T> Function(dynamic data)? onSuccess]) async {
+  FutureOr<T?> _resolveResult<T>(dynamic data,
+      [FutureOr<T> Function(dynamic data)? onSuccess]) async {
     if (data != null) {
       if (onSuccess != null) {
         return await onSuccess(data);

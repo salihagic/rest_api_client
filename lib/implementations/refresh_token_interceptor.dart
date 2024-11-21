@@ -15,16 +15,27 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
     required this.authOptions,
   });
 
-  bool get isPreemptivelyRefreshBeforeExpiry => authHandler.usesAuth && authOptions.refreshTokenExecutionType == RefreshTokenStrategy.preemptivelyRefreshBeforeExpiry;
-  bool get isResponseAndRetry => authHandler.usesAuth && authOptions.refreshTokenExecutionType == RefreshTokenStrategy.responseAndRetry;
+  bool get isPreemptivelyRefreshBeforeExpiry =>
+      authHandler.usesAuth &&
+      authOptions.refreshTokenExecutionType ==
+          RefreshTokenStrategy.preemptivelyRefreshBeforeExpiry;
+  bool get isResponseAndRetry =>
+      authHandler.usesAuth &&
+      authOptions.refreshTokenExecutionType ==
+          RefreshTokenStrategy.responseAndRetry;
 
   @override
   void onRequest(RequestOptions options, handler) {
-    options.extra.addAll({'showInternalServerErrors': exceptionOptions.showInternalServerErrors});
-    options.extra.addAll({'showNetworkErrors': exceptionOptions.showNetworkErrors});
-    options.extra.addAll({'showValidationErrors': exceptionOptions.showValidationErrors});
+    options.extra.addAll({
+      'showInternalServerErrors': exceptionOptions.showInternalServerErrors
+    });
+    options.extra
+        .addAll({'showNetworkErrors': exceptionOptions.showNetworkErrors});
+    options.extra.addAll(
+        {'showValidationErrors': exceptionOptions.showValidationErrors});
 
-    if (isPreemptivelyRefreshBeforeExpiry && !authOptions.ignoreAuthForPaths.contains(options.path)) {
+    if (isPreemptivelyRefreshBeforeExpiry &&
+        !authOptions.ignoreAuthForPaths.contains(options.path)) {
       try {
         final isExpired = JwtDecoder.isExpired(authHandler.jwt ?? '');
 
@@ -52,9 +63,11 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
   /// Called when an exception was occurred during the request.
   @override
   void onError(DioException error, handler) async {
-    if (isResponseAndRetry && error.response?.statusCode == HttpStatus.unauthorized) {
+    if (isResponseAndRetry &&
+        error.response?.statusCode == HttpStatus.unauthorized) {
       try {
-        final response = await authHandler.refreshTokenCallback(error.requestOptions);
+        final response =
+            await authHandler.refreshTokenCallback(error.requestOptions);
 
         if (response != null) {
           handler.resolve(response);
