@@ -1,3 +1,6 @@
+## [2.3.0] 
+* RefreshTokenStrategy added for preemtively refreshing token on expiry
+
 ## [2.2.28] 
 * Headers getter exposed
 
