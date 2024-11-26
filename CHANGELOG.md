@@ -1,3 +1,6 @@
+## [2.3.2] 
+* Exception handler fix
+
 ## [2.3.1] 
 ## [2.3.0] 
 * RefreshTokenStrategy added for preemtively refreshing token on expiry

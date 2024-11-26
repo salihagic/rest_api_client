@@ -78,6 +78,8 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
         print(e);
       }
     } else {
+      await exceptionHandler.handle(error, extra: error.requestOptions.extra);
+
       handler.next(error);
     }
   }
