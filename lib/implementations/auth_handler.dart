@@ -191,7 +191,7 @@ class AuthHandler {
 
       await authorize(jwt: resolvedJwt, refreshToken: resolvedRefreshToken);
     } on DioException catch (error) {
-      await exceptionHandler.handle(error, extra: error.requestOptions.extra);
+      await exceptionHandler.handle(error);
 
       handler?.next(error.requestOptions);
     }

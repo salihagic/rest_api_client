@@ -21,50 +21,43 @@ class ExceptionHandler {
 
   Future handle(
     DioException e, {
-    Map<String, dynamic> extra = const {},
     bool? silent,
   }) async {
-    _handleException(_getExceptionFromDioError(e, silent ?? false), extra);
+    exceptions.add(_getExceptionFromDioError(e, silent ?? false));
     exceptionOptions.reset();
-  }
-
-  void _handleException(BaseException exception, Map<String, dynamic> extra) {
-    if (exception is NetworkErrorException) {
-      if (extra['showNetworkErrors'] ?? false) exceptions.add(exception);
-    } else if (exception is ServerErrorException) {
-      if (extra['showInternalServerErrors'] ?? false) exceptions.add(exception);
-    } else if (exception is ValidationException) {
-      if (extra['showValidationErrors'] ?? false) exceptions.add(exception);
-    } else {
-      exceptions.add(exception);
-    }
   }
 
   BaseException _getExceptionFromDioError(DioException e, bool silent) {
     if (e.type == DioExceptionType.badResponse) {
       switch (e.response?.statusCode) {
         case HttpStatus.internalServerError:
-          return ServerErrorException(silent: silent);
+          return ServerErrorException(silent: silent, exception: e);
         case HttpStatus.badGateway:
-          return ServerErrorException(silent: silent);
+          return ServerErrorException(silent: silent, exception: e);
         case HttpStatus.notFound:
           return ValidationException.multipleFields(
-              silent: silent, validationMessages: _getValidationMessages(e));
+              silent: silent,
+              validationMessages: _getValidationMessages(e),
+              exception: e);
         case HttpStatus.unprocessableEntity:
           return ValidationException.multipleFields(
-              silent: silent, validationMessages: _getValidationMessages(e));
+              silent: silent,
+              validationMessages: _getValidationMessages(e),
+              exception: e);
         case HttpStatus.badRequest:
           return ValidationException.multipleFields(
-              silent: silent, validationMessages: _getValidationMessages(e));
+              silent: silent,
+              validationMessages: _getValidationMessages(e),
+              exception: e);
         case HttpStatus.unauthorized:
-          return UnauthorizedException(silent: silent);
+          return UnauthorizedException(silent: silent, exception: e);
         case HttpStatus.forbidden:
-          return ForbiddenException(silent: silent);
+          return ForbiddenException(silent: silent, exception: e);
         default:
-          return BaseException(silent: silent);
+          return BaseException(silent: silent, exception: e);
       }
     } else {
-      return NetworkErrorException(silent: silent);
+      return NetworkErrorException(silent: silent, exception: e);
     }
   }
 

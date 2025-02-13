@@ -1,3 +1,6 @@
+## [2.3.3] 
+* Exception handler fix
+
 ## [2.3.2] 
 * Exception handler fix
 

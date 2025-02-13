@@ -6,6 +6,7 @@ class NetworkErrorException extends BaseException {
   NetworkErrorException({
     super.silent,
     super.messages,
+    super.exception,
   });
 
   ///Method to be called in debugging mode to

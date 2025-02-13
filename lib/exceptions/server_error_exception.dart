@@ -6,6 +6,7 @@ class ServerErrorException extends BaseException {
   ServerErrorException({
     super.silent,
     super.messages,
+    super.exception,
   });
 
   ///Method to be called in debugging mode to

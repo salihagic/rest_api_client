@@ -6,6 +6,7 @@ class ForbiddenException extends BaseException {
   ForbiddenException({
     super.silent,
     super.messages,
+    super.exception,
   });
 
   ///Method to be called in debugging mode to

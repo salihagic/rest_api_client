@@ -78,7 +78,7 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
         print(e);
       }
     } else {
-      await exceptionHandler.handle(error, extra: error.requestOptions.extra);
+      await exceptionHandler.handle(error);
 
       handler.next(error);
     }

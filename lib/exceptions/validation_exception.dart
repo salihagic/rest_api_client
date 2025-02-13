@@ -1,4 +1,4 @@
-import 'package:rest_api_client/exceptions/base_exception.dart';
+import 'package:rest_api_client/rest_api_client.dart';
 
 ///Derived exception class that represents
 ///any validation error
@@ -8,6 +8,7 @@ class ValidationException extends BaseException {
   ValidationException({
     super.silent,
     super.messages,
+    super.exception,
   });
 
   ///Constructon for creating validation
@@ -15,6 +16,7 @@ class ValidationException extends BaseException {
   ValidationException.multipleFields({
     bool silent = false,
     this.validationMessages = const {},
+    required DioException exception,
   }) : super(
           silent: silent,
           messages: validationMessages != null
@@ -26,6 +28,7 @@ class ValidationException extends BaseException {
                   .expand<String>((list) => list)
                   .toList()
               : [],
+          exception: exception,
         );
 
   ///Method to be called in debugging mode to
