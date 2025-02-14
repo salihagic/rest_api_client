@@ -99,8 +99,6 @@ class AuthHandler {
             .addAll({RestApiClientKeys.authorization: 'Bearer $currentJwt'});
       }
 
-      exceptionOptions.reset();
-
       if (handler != null) {
         handler.next(requestOptions);
       } else {

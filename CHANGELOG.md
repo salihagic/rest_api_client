@@ -1,3 +1,6 @@
+## [2.3.4] 
+* Exception handling updates
+
 ## [2.3.3] 
 * Exception handler fix
 

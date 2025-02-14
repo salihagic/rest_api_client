@@ -23,8 +23,10 @@ class ExceptionHandler {
     DioException e, {
     bool? silent,
   }) async {
-    exceptions.add(_getExceptionFromDioError(e, silent ?? false));
-    exceptionOptions.reset();
+    final exception = _getExceptionFromDioError(e, silent ?? false);
+
+    exceptions.add(exception);
+    // exceptionOptions.reset();
   }
 
   BaseException _getExceptionFromDioError(DioException e, bool silent) {

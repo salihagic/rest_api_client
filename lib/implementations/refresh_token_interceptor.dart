@@ -26,14 +26,6 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
 
   @override
   void onRequest(RequestOptions options, handler) {
-    options.extra.addAll({
-      'showInternalServerErrors': exceptionOptions.showInternalServerErrors
-    });
-    options.extra
-        .addAll({'showNetworkErrors': exceptionOptions.showNetworkErrors});
-    options.extra.addAll(
-        {'showValidationErrors': exceptionOptions.showValidationErrors});
-
     if (isPreemptivelyRefreshBeforeExpiry &&
         !authOptions.ignoreAuthForPaths.contains(options.path)) {
       try {
@@ -55,8 +47,6 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
   /// Called when the response is about to be resolved.
   @override
   void onResponse(Response response, handler) {
-    exceptionOptions.reset();
-
     return handler.next(response);
   }
 
@@ -78,8 +68,6 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
         print(e);
       }
     } else {
-      await exceptionHandler.handle(error);
-
       handler.next(error);
     }
   }
