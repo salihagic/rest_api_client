@@ -1,3 +1,6 @@
+## [2.3.5] 
+* Upgraded dependencies
+
 ## [2.3.4] 
 * Exception handling updates
 
