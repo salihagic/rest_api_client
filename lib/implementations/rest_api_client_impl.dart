@@ -141,12 +141,18 @@ class RestApiClientImpl implements RestApiClient {
       headers: _dio.options.headers,
     );
 
-    return CacheResult(
-      data: await _resolveResult(
-        (await cacheHandler.get(requestOptions)),
-        onSuccess,
-      ),
-    );
+    try {
+      return CacheResult(
+        data: await _resolveResult(
+          (await cacheHandler.get(requestOptions)),
+          onSuccess,
+        ),
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+
+      return Result.error(exception: Exception(e.toString()));
+    }
   }
 
   @override
