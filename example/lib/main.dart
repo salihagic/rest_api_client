@@ -115,10 +115,6 @@ Future main() async {
   //Create authorized requests safely
   restApiClient.get('/Products');
 
-  //Ignore server errors that might happen in the next request
-  restApiClient.exceptionHandler.exceptionOptions.showInternalServerErrors =
-      false;
-
   try {
     restApiClient.get(
       '/Products',
@@ -127,9 +123,6 @@ Future main() async {
   } catch (e) {
     print(e);
   }
-
-  //Ignore all exceptions that might happen in the next request
-  restApiClient.exceptionHandler.exceptionOptions.disable();
 
   restApiClient.post(
     '/Products/Reviews/234',

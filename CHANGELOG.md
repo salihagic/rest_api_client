@@ -1,5 +1,11 @@
-## [2.3.4] 
+## [2.3.6] 
 * Cache handler fix
+
+## [2.3.5] 
+* Upgraded dependencies
+
+## [2.3.4] 
+* Exception handling updates
 
 ## [2.3.3] 
 * Exception handler fix
