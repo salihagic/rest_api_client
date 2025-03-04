@@ -1,3 +1,6 @@
+## [2.3.7] 
+* Parsing exceptions handled
+
 ## [2.3.6] 
 * Cache handler fix
 

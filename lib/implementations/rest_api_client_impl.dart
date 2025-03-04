@@ -125,6 +125,10 @@ class RestApiClientImpl implements RestApiClient {
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
       );
+    } catch (e) {
+      debugPrint(e.toString());
+
+      return Result.error(exception: Exception(e.toString()));
     }
   }
 
@@ -218,6 +222,10 @@ class RestApiClientImpl implements RestApiClient {
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
       );
+    } catch (e) {
+      debugPrint(e.toString());
+
+      return Result.error(exception: Exception(e.toString()));
     }
   }
 
@@ -305,6 +313,10 @@ class RestApiClientImpl implements RestApiClient {
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
       );
+    } catch (e) {
+      debugPrint(e.toString());
+
+      return Result.error(exception: Exception(e.toString()));
     }
   }
 
@@ -338,6 +350,10 @@ class RestApiClientImpl implements RestApiClient {
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
       );
+    } catch (e) {
+      debugPrint(e.toString());
+
+      return Result.error(exception: Exception(e.toString()));
     }
   }
 
@@ -371,6 +387,10 @@ class RestApiClientImpl implements RestApiClient {
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
       );
+    } catch (e) {
+      debugPrint(e.toString());
+
+      return Result.error(exception: Exception(e.toString()));
     }
   }
 
@@ -404,6 +424,10 @@ class RestApiClientImpl implements RestApiClient {
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
       );
+    } catch (e) {
+      debugPrint(e.toString());
+
+      return Result.error(exception: Exception(e.toString()));
     }
   }
 
@@ -447,6 +471,10 @@ class RestApiClientImpl implements RestApiClient {
         statusCode: e.response?.statusCode,
         statusMessage: e.response?.statusMessage,
       );
+    } catch (e) {
+      debugPrint(e.toString());
+
+      return Result.error(exception: Exception(e.toString()));
     }
   }
 
