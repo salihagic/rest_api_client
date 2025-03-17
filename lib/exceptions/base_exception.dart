@@ -22,5 +22,5 @@ class BaseException implements Exception {
   ///Method to be called in debugging mode to
   ///check the contents of the exception
   @override
-  String toString() => 'BASE EXCEPTION: ${this.messages}';
+  String toString() => 'BASE EXCEPTION: $messages';
 }

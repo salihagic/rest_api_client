@@ -83,6 +83,7 @@ class RestApiClientImpl implements RestApiClient {
     _configureCertificateOverride();
   }
 
+  @override
   Future<RestApiClient> init() async {
     await authHandler.init();
     if (_options.cacheEnabled) {
@@ -478,6 +479,7 @@ class RestApiClientImpl implements RestApiClient {
     }
   }
 
+  @override
   void setContentType(String contentType) =>
       _dio.options.contentType = contentType;
 
@@ -529,22 +531,26 @@ class RestApiClientImpl implements RestApiClient {
     }
   }
 
+  @override
   void setAcceptLanguageHeader(String languageCode) => addOrUpdateHeader(
       key: RestApiClientKeys.acceptLanguage, value: languageCode);
-
+  @override
   Future<bool> authorize(
       {required String jwt, required String refreshToken}) async {
     return await authHandler.authorize(jwt: jwt, refreshToken: refreshToken);
   }
 
+  @override
   Future<bool> unAuthorize() async {
     return await authHandler.unAuthorize();
   }
 
+  @override
   Future<bool> isAuthorized() async {
     return await authHandler.isAuthorized;
   }
 
+  @override
   void addOrUpdateHeader({required String key, required String value}) =>
       _dio.options.headers.containsKey(key)
           ? _dio.options.headers.update(key, (v) => value)

@@ -58,8 +58,9 @@ class AuthHandler {
     }
 
     final currentJwt = jwt;
-    if (currentJwt != null && currentJwt.isNotEmpty)
+    if (currentJwt != null && currentJwt.isNotEmpty) {
       _setJwtToHeader(currentJwt);
+    }
   }
 
   Future<bool> authorize(

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:rest_api_client/exceptions/base_exception.dart';
 import 'package:rest_api_client/exceptions/forbidden_exception.dart';
 import 'package:rest_api_client/exceptions/network_error_exception.dart';
@@ -89,7 +90,7 @@ class ExceptionHandler {
         return errorsMap;
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
     return {};
   }

@@ -25,14 +25,14 @@ Future main() async {
       //on RefreshToken endpoint eg. 'refreshToken' or 'value' ...
       refreshTokenParameterName: 'token',
 
-      refreshTokenBodyBuilder: (jwt, refreshToken) => {
-        'accessToken': jwt,
-        'refreshToken': refreshToken,
-      },
+      refreshTokenBodyBuilder:
+          (jwt, refreshToken) => {
+            'accessToken': jwt,
+            'refreshToken': refreshToken,
+          },
 
-      refreshTokenHeadersBuilder: (jwt, _) => {
-        RestApiClientKeys.authorization: 'Bearer $jwt',
-      },
+      refreshTokenHeadersBuilder:
+          (jwt, _) => {RestApiClientKeys.authorization: 'Bearer $jwt'},
 
       //This method is called on successfull call to refreshTokenEndpoint
       //Provides a way to get a jwt from response, much like
@@ -116,12 +116,9 @@ Future main() async {
   restApiClient.get('/Products');
 
   try {
-    restApiClient.get(
-      '/Products',
-      queryParameters: {'name': 'darts'},
-    );
+    restApiClient.get('/Products', queryParameters: {'name': 'darts'});
   } catch (e) {
-    print(e);
+    debugPrint(e.toString());
   }
 
   restApiClient.post(
@@ -129,16 +126,13 @@ Future main() async {
     data: {
       'grade': 5,
       'comment':
-          'Throwing dart is not safe but upgrading to Dart 2.12.1 is. #nullsafety'
+          'Throwing dart is not safe but upgrading to Dart 2.12.1 is. #nullsafety',
     },
   );
 
   restApiClient.put(
     '/Products/Reviews/234',
-    data: {
-      'grade': 5,
-      'comment': 'On the other hand throwing dartz is fun',
-    },
+    data: {'grade': 5, 'comment': 'On the other hand throwing dartz is fun'},
   );
 
   restApiClient.delete('/Products/Reviews/234');

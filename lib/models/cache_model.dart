@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class CacheModel {
   final DateTime? expirationDateTime;
   final dynamic value;
@@ -26,7 +28,7 @@ class CacheModel {
         );
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
 
     return CacheModel(
@@ -56,7 +58,7 @@ extension _DateTimeExtensions on DateTime? {
 
       return '$years.$months.$days.$hours.$minutes.$seconds';
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
 
       return null;
     }
@@ -89,7 +91,7 @@ DateTime? dateTimeFromJson(String? json) {
       seconds,
     );
   } catch (e) {
-    print(e);
+    debugPrint(e.toString());
 
     return null;
   }

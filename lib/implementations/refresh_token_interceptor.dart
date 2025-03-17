@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:rest_api_client/rest_api_client.dart';
 
@@ -37,7 +38,7 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
           handler.next(options);
         }
       } catch (e) {
-        print(e);
+        debugPrint(e.toString());
       }
     } else {
       handler.next(options);
@@ -65,7 +66,7 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
           handler.next(error);
         }
       } catch (e) {
-        print(e);
+        debugPrint(e.toString());
       }
     } else {
       handler.next(error);

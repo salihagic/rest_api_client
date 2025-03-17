@@ -14,11 +14,10 @@ class ValidationException extends BaseException {
   ///Constructon for creating validation
   ///messages list separated by property
   ValidationException.multipleFields({
-    bool silent = false,
+    super.silent,
     this.validationMessages = const {},
     required DioException exception,
   }) : super(
-          silent: silent,
           messages: validationMessages != null
               ? validationMessages.entries
                   .map<List<String>>(

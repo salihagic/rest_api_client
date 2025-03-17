@@ -1,3 +1,7 @@
+## 2.3.8
+
+* Shrunk example size
+
 ## [2.3.7] 
 * Parsing exceptions handled
 

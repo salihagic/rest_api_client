@@ -83,66 +83,38 @@ class Result<T> {
 }
 
 class SuccessResult<T> extends Result<T> {
-  SuccessResult({
-    T? data,
-  }) : super(
-          data: data,
-        );
+  SuccessResult({super.data});
 }
 
 class LocalSuccessResult<T> extends Result<T> {
-  LocalSuccessResult({
-    T? data,
-  }) : super(
-          data: data,
-        );
+  LocalSuccessResult({super.data});
 }
 
 class ErrorResult<T> extends Result<T> {
   ErrorResult({
-    Exception? exception,
-    dynamic errorData,
-  }) : super(
-          errorData: errorData,
-          exception: exception,
-        );
+    super.exception,
+    super.errorData,
+  });
 }
 
 class LocalErrorResult<T> extends Result<T> {
   LocalErrorResult({
-    Exception? exception,
-    dynamic errorData,
-  }) : super(
-          exception: exception,
-          errorData: errorData,
-        );
+    super.exception,
+    super.errorData,
+  });
 }
 
 class NetworkResult<T> extends Result<T> {
   NetworkResult({
-    T? data,
-    dynamic errorData,
-    Response? response,
-    Exception? exception,
-    int? statusCode,
-    String? statusMessage,
-  }) : super(
-          data: data,
-          errorData: errorData,
-          response: response,
-          exception: exception,
-          statusCode: statusCode,
-          statusMessage: statusMessage,
-        );
+    super.data,
+    super.errorData,
+    super.response,
+    super.exception,
+    super.statusCode,
+    super.statusMessage,
+  });
 }
 
 class CacheResult<T> extends Result<T> {
-  CacheResult({
-    T? data,
-    dynamic errorData,
-    Exception? exception,
-  }) : super(
-          data: data,
-          exception: exception,
-        );
+  CacheResult({super.data, super.exception});
 }
