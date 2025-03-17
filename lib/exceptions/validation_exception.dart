@@ -1,18 +1,22 @@
 import 'package:rest_api_client/rest_api_client.dart';
 
-///Derived exception class that represents
-///any validation error
+/// A derived exception class that represents any validation errors
+/// encountered during API requests, typically related to improper data input.
 class ValidationException extends BaseException {
+  /// A map containing validation messages grouped by field names.
   Map<String, List<String>>? validationMessages;
 
+  /// Creates a new instance of [ValidationException].
   ValidationException({
     super.silent,
     super.messages,
     super.exception,
   });
 
-  ///Constructon for creating validation
-  ///messages list separated by property
+  /// Constructor for creating validation messages list separated by property.
+  ///
+  /// The [validationMessages] map provides validation errors for multiple fields,
+  /// while the [exception] parameter provides the underlying exception details.
   ValidationException.multipleFields({
     super.silent,
     this.validationMessages = const {},
@@ -30,8 +34,7 @@ class ValidationException extends BaseException {
           exception: exception,
         );
 
-  ///Method to be called in debugging mode to
-  ///check the contents of the exception
+  /// Returns a string representation of the ValidationException for debugging purposes.
   @override
   String toString() => 'VALIDATION EXCEPTION: $messages';
 }

@@ -7,7 +7,6 @@ import 'package:storage_repository/storage_repository.dart';
 
 class AuthHandler {
   final Dio dio;
-
   final RestApiClientOptions options;
   final AuthOptions authOptions;
   final ExceptionOptions exceptionOptions;
@@ -82,7 +81,6 @@ class AuthHandler {
     return deleteJwtResult && deleteRefreshTokenResult;
   }
 
-  /// Gets called when response status code is UnAuthorized and refreshes the token by calling specified refresh-token endpoint
   Future<Response<T>?> refreshTokenCallback<T>(RequestOptions requestOptions,
       [RequestInterceptorHandler? handler]) async {
     if (authOptions.resolveJwt != null &&
@@ -91,7 +89,6 @@ class AuthHandler {
 
       final currentJwt = jwt;
 
-      //Set for current request
       if (requestOptions.headers.containsKey(RestApiClientKeys.authorization)) {
         requestOptions.headers.update(
             RestApiClientKeys.authorization, (v) => 'Bearer $currentJwt');
@@ -134,7 +131,6 @@ class AuthHandler {
     return null;
   }
 
-  /// Refreshes the token by calling specified refresh-token endpoint
   Future<void> executeTokenRefresh([RequestInterceptorHandler? handler]) async {
     final newDioClient = Dio(BaseOptions()
       ..baseUrl = options.baseUrl

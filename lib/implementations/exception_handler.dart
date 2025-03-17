@@ -11,16 +11,20 @@ import 'package:rest_api_client/exceptions/unauthorized_exception.dart';
 import 'package:rest_api_client/exceptions/validation_exception.dart';
 import 'package:rest_api_client/options/exception_options.dart';
 
+/// Handles exceptions thrown by Dio during API calls.
+/// Converts DioException into custom BaseException types.
 class ExceptionHandler {
   final StreamController<BaseException> exceptions =
       StreamController<BaseException>.broadcast();
   final ExceptionOptions exceptionOptions;
 
+  /// Constructor for ExceptionHandler
   ExceptionHandler({
     required this.exceptionOptions,
   });
 
-  Future handle(
+  /// Handles Dio exceptions and adds them to the exceptions stream.
+  Future<void> handle(
     DioException e, {
     bool? silent,
   }) async {
@@ -30,6 +34,7 @@ class ExceptionHandler {
     // exceptionOptions.reset();
   }
 
+  /// Maps DioException to specific custom exceptions based on response status code.
   BaseException _getExceptionFromDioError(DioException e, bool silent) {
     if (e.type == DioExceptionType.badResponse) {
       switch (e.response?.statusCode) {
@@ -64,6 +69,7 @@ class ExceptionHandler {
     }
   }
 
+  /// Retrieves validation error messages from the server response.
   Map<String, List<String>> _getValidationMessages(DioException error) {
     try {
       if (error.response?.data != null) {
