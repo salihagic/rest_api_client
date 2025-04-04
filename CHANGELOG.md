@@ -1,3 +1,7 @@
+## 2.3.10
+
+* Failure result return value fix
+
 ## 2.3.9
 
 * Docs updated
