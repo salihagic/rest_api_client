@@ -61,12 +61,12 @@ class CacheHandler {
   }
 
   /// Caches the response data from a request.
-  Future<void> set(Response response) async {
+  Future<void> set(Response response, [Duration? cacheLifetimeDuration]) async {
     final cacheKey = _generateCacheKey(response.requestOptions);
 
     final cacheModel = CacheModel(
-      expirationDateTime:
-          DateTime.now().add(cacheOptions.cacheLifetimeDuration),
+      expirationDateTime: DateTime.now()
+          .add(cacheLifetimeDuration ?? cacheOptions.cacheLifetimeDuration),
       value: response.data,
     );
 

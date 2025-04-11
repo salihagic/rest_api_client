@@ -1,3 +1,7 @@
+## 2.3.11
+
+* getCachedOrNetwork method added
+
 ## 2.3.10
 
 * Failure result return value fix

@@ -126,6 +126,7 @@ class RestApiClientImpl implements RestApiClient {
     FutureOr<T> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
+    Duration? cacheLifetimeDuration,
   }) async {
     try {
       final response = await _dio.get(
@@ -137,7 +138,7 @@ class RestApiClientImpl implements RestApiClient {
 
       // Cache response if caching is enabled
       if (_options.cacheEnabled) {
-        await cacheHandler.set(response);
+        await cacheHandler.set(response, cacheLifetimeDuration);
       }
 
       return NetworkResult(
@@ -194,6 +195,39 @@ class RestApiClientImpl implements RestApiClient {
     }
   }
 
+  /// Gets a cached response from the specified [path] or network response if cache miss or expired.
+  @override
+  Future<Result<T>> getCachedOrNetwork<T>(
+    String path, {
+    Map<String, dynamic>? queryParameters, // Optional query parameters
+    FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
+    FutureOr<T> Function(dynamic data)? onError, // Callback on error
+    RestApiClientRequestOptions? options, // Request options
+    Duration?
+        cacheLifetimeDuration, // Lifetime of cached data, defaults to CacheOptions.cacheLifetimeDuration
+  }) async {
+    // Check for cached result
+    if (_options.cacheEnabled) {
+      final cachedResult = await getCached(
+        path,
+        queryParameters: queryParameters,
+        onSuccess: onSuccess,
+      );
+
+      if (cachedResult.hasData) {
+        return cachedResult; // return cached result
+      }
+    }
+
+    return await get(
+      path, // Perform actual GET request
+      queryParameters: queryParameters, // Query parameters for request
+      onSuccess: onSuccess, // Optional success callback
+      options: options, // Optional request options
+      cacheLifetimeDuration: cacheLifetimeDuration,
+    );
+  }
+
   /// Performs a streamed GET request to the specified path, optionally using cached data.
   @override
   Stream<Result<T>> getStreamed<T>(
@@ -202,6 +236,8 @@ class RestApiClientImpl implements RestApiClient {
     FutureOr<T> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
+    Duration?
+        cacheLifetimeDuration, // Lifetime of cached data, defaults to CacheOptions.cacheLifetimeDuration
   }) async* {
     // Check for cached result if caching is enabled.
     if (_options.cacheEnabled) {
@@ -221,6 +257,7 @@ class RestApiClientImpl implements RestApiClient {
       queryParameters: queryParameters, // Query parameters for request
       onSuccess: onSuccess, // Optional success callback
       options: options, // Optional request options
+      cacheLifetimeDuration: cacheLifetimeDuration,
     );
   }
 
@@ -234,6 +271,7 @@ class RestApiClientImpl implements RestApiClient {
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
     bool cacheEnabled = false,
+    Duration? cacheLifetimeDuration,
   }) async {
     try {
       final response = await _dio.post(
@@ -245,7 +283,7 @@ class RestApiClientImpl implements RestApiClient {
 
       // Cache response if caching is enabled
       if (cacheEnabled) {
-        await cacheHandler.set(response);
+        await cacheHandler.set(response, cacheLifetimeDuration);
       }
 
       return NetworkResult(
@@ -304,6 +342,7 @@ class RestApiClientImpl implements RestApiClient {
     FutureOr<T> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
+    Duration? cacheLifetimeDuration,
   }) async* {
     // Check for cached result if caching is enabled.
     if (_options.cacheEnabled) {
@@ -325,6 +364,7 @@ class RestApiClientImpl implements RestApiClient {
       data: data, // Data to send in the request body
       onSuccess: onSuccess, // Optional success callback
       options: options, // Optional request options
+      cacheLifetimeDuration: cacheLifetimeDuration,
     );
   }
 
@@ -634,9 +674,9 @@ class RestApiClientImpl implements RestApiClient {
 
   /// Resolves a result based on the data and optional success callback.
   FutureOr<T?> _resolveResult<T>(dynamic data,
-      [FutureOr<T> Function(dynamic data)? onSuccess]) async {
-    if (data != null && onSuccess != null) {
-      return await onSuccess(data); // Call success callback
+      [FutureOr<T> Function(dynamic data)? callback]) async {
+    if (data != null && callback != null) {
+      return await callback(data); // Call success callback
     } else {
       return null; // Return null if no data
     }

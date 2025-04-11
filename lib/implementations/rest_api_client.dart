@@ -19,6 +19,8 @@ abstract class RestApiClient {
     FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
     RestApiClientRequestOptions? options, // Request options
+    Duration?
+        cacheLifetimeDuration, // Lifetime of cached data, defaults to CacheOptions.cacheLifetimeDuration
   });
 
   /// Gets a cached response from the specified [path].
@@ -29,6 +31,17 @@ abstract class RestApiClient {
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
   });
 
+  /// Gets a cached response from the specified [path] or network response if cache miss or expired.
+  Future<Result<T>> getCachedOrNetwork<T>(
+    String path, {
+    Map<String, dynamic>? queryParameters, // Optional query parameters
+    FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
+    FutureOr<T> Function(dynamic data)? onError, // Callback on error
+    RestApiClientRequestOptions? options, // Request options
+    Duration?
+        cacheLifetimeDuration, // Lifetime of cached data, defaults to CacheOptions.cacheLifetimeDuration
+  });
+
   /// Streams the result of a GET request to the specified [path].
   Stream<Result<T>> getStreamed<T>(
     String path, {
@@ -36,6 +49,8 @@ abstract class RestApiClient {
     FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
     RestApiClientRequestOptions? options, // Request options
+    Duration?
+        cacheLifetimeDuration, // Lifetime of cached data, defaults to CacheOptions.cacheLifetimeDuration
   });
 
   /// Sends a POST request to the specified [path].
@@ -47,6 +62,8 @@ abstract class RestApiClient {
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
     RestApiClientRequestOptions? options, // Request options
     bool cacheEnabled = false, // Optional flag to enable caching
+    Duration?
+        cacheLifetimeDuration, // Lifetime of cached data, defaults to CacheOptions.cacheLifetimeDuration
   });
 
   /// Gets a cached response from a POST request to the specified [path].
@@ -66,6 +83,8 @@ abstract class RestApiClient {
     FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
     RestApiClientRequestOptions? options, // Request options
+    Duration?
+        cacheLifetimeDuration, // Lifetime of cached data, defaults to CacheOptions.cacheLifetimeDuration
   });
 
   /// Sends a PUT request to the specified [path].
