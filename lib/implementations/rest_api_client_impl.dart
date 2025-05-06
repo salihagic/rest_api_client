@@ -123,7 +123,7 @@ class RestApiClientImpl implements RestApiClient {
   Future<Result<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T?> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
     Duration? cacheLifetimeDuration,
@@ -171,7 +171,7 @@ class RestApiClientImpl implements RestApiClient {
   Future<Result<T>> getCached<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T?> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
   }) async {
     final requestOptions = RequestOptions(
@@ -200,7 +200,7 @@ class RestApiClientImpl implements RestApiClient {
   Future<Result<T>> getCachedOrNetwork<T>(
     String path, {
     Map<String, dynamic>? queryParameters, // Optional query parameters
-    FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
+    FutureOr<T?> Function(dynamic data)? onSuccess, // Callback on success
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
     RestApiClientRequestOptions? options, // Request options
     Duration?
@@ -233,7 +233,7 @@ class RestApiClientImpl implements RestApiClient {
   Stream<Result<T>> getStreamed<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T?> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
     Duration?
@@ -267,7 +267,7 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T?> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
     bool cacheEnabled = false,
@@ -315,7 +315,7 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T?> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
   }) async {
     final requestOptions = RequestOptions(
@@ -339,7 +339,7 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T?> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
     Duration? cacheLifetimeDuration,
@@ -374,7 +374,7 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T?> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   }) async {
@@ -415,7 +415,7 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T?> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   }) async {
@@ -456,7 +456,7 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T?> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   }) async {
@@ -497,7 +497,7 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T?> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   }) async {
@@ -544,7 +544,7 @@ class RestApiClientImpl implements RestApiClient {
     CancelToken? cancelToken,
     bool deleteOnError = true,
     String lengthHeader = Headers.contentLengthHeader,
-    FutureOr<T> Function(dynamic data)? onSuccess,
+    FutureOr<T?> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
   }) async {
     try {
@@ -676,7 +676,9 @@ class RestApiClientImpl implements RestApiClient {
   FutureOr<T?> _resolveResult<T>(dynamic data,
       [FutureOr<T?> Function(dynamic data)? callback]) async {
     if (data != null && callback != null) {
-      return await callback(data); // Call success callback
+      return await callback((data is String && data.isEmpty)
+          ? null
+          : data); // Call success callback
     } else {
       return null; // Return null if no data
     }

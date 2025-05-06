@@ -1,3 +1,7 @@
+## 2.3.13
+
+* Result data parsing updated
+
 ## 2.3.12
 
 * Result data parsing updated

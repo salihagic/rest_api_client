@@ -16,7 +16,7 @@ abstract class RestApiClient {
   Future<Result<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters, // Optional query parameters
-    FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
+    FutureOr<T?> Function(dynamic data)? onSuccess, // Callback on success
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
     RestApiClientRequestOptions? options, // Request options
     Duration?
@@ -27,7 +27,7 @@ abstract class RestApiClient {
   Future<Result<T>> getCached<T>(
     String path, {
     Map<String, dynamic>? queryParameters, // Optional query parameters
-    FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
+    FutureOr<T?> Function(dynamic data)? onSuccess, // Callback on success
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
   });
 
@@ -35,7 +35,7 @@ abstract class RestApiClient {
   Future<Result<T>> getCachedOrNetwork<T>(
     String path, {
     Map<String, dynamic>? queryParameters, // Optional query parameters
-    FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
+    FutureOr<T?> Function(dynamic data)? onSuccess, // Callback on success
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
     RestApiClientRequestOptions? options, // Request options
     Duration?
@@ -46,7 +46,7 @@ abstract class RestApiClient {
   Stream<Result<T>> getStreamed<T>(
     String path, {
     Map<String, dynamic>? queryParameters, // Optional query parameters
-    FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
+    FutureOr<T?> Function(dynamic data)? onSuccess, // Callback on success
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
     RestApiClientRequestOptions? options, // Request options
     Duration?
@@ -58,7 +58,7 @@ abstract class RestApiClient {
     String path, {
     data, // The data to be sent in the body of the request
     Map<String, dynamic>? queryParameters, // Optional query parameters
-    FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
+    FutureOr<T?> Function(dynamic data)? onSuccess, // Callback on success
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
     RestApiClientRequestOptions? options, // Request options
     bool cacheEnabled = false, // Optional flag to enable caching
@@ -71,7 +71,7 @@ abstract class RestApiClient {
     String path, {
     data, // The data to be sent in the body of the request
     Map<String, dynamic>? queryParameters, // Optional query parameters
-    FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
+    FutureOr<T?> Function(dynamic data)? onSuccess, // Callback on success
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
   });
 
@@ -80,7 +80,7 @@ abstract class RestApiClient {
     String path, {
     data, // The data to be sent in the body of the request
     Map<String, dynamic>? queryParameters, // Optional query parameters
-    FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
+    FutureOr<T?> Function(dynamic data)? onSuccess, // Callback on success
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
     RestApiClientRequestOptions? options, // Request options
     Duration?
@@ -92,7 +92,7 @@ abstract class RestApiClient {
     String path, {
     data, // The data to be updated
     Map<String, dynamic>? queryParameters, // Optional query parameters
-    FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
+    FutureOr<T?> Function(dynamic data)? onSuccess, // Callback on success
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
     RestApiClientRequestOptions? options, // Request options
   });
@@ -102,7 +102,7 @@ abstract class RestApiClient {
     String path, {
     data, // Optional data to send with the request
     Map<String, dynamic>? queryParameters, // Optional query parameters
-    FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
+    FutureOr<T?> Function(dynamic data)? onSuccess, // Callback on success
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
     RestApiClientRequestOptions? options, // Request options
   });
@@ -112,7 +112,7 @@ abstract class RestApiClient {
     String path, {
     data, // Optional data to send with the request
     Map<String, dynamic>? queryParameters, // Optional query parameters
-    FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
+    FutureOr<T?> Function(dynamic data)? onSuccess, // Callback on success
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
     RestApiClientRequestOptions? options, // Request options
   });
@@ -122,7 +122,7 @@ abstract class RestApiClient {
     String path, {
     data, // The data to be updated
     Map<String, dynamic>? queryParameters, // Optional query parameters
-    FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
+    FutureOr<T?> Function(dynamic data)? onSuccess, // Callback on success
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
     RestApiClientRequestOptions? options, // Request options
   });
@@ -139,7 +139,7 @@ abstract class RestApiClient {
     bool deleteOnError = true, // Deletes the file if an error occurs
     String lengthHeader =
         Headers.contentLengthHeader, // Length header for the request
-    FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
+    FutureOr<T?> Function(dynamic data)? onSuccess, // Callback on success
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
   });
 
