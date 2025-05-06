@@ -674,7 +674,7 @@ class RestApiClientImpl implements RestApiClient {
 
   /// Resolves a result based on the data and optional success callback.
   FutureOr<T?> _resolveResult<T>(dynamic data,
-      [FutureOr<T> Function(dynamic data)? callback]) async {
+      [FutureOr<T?> Function(dynamic data)? callback]) async {
     if (data != null && callback != null) {
       return await callback(data); // Call success callback
     } else {
