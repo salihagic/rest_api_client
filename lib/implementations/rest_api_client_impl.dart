@@ -44,17 +44,14 @@ class RestApiClientImpl implements RestApiClient {
   late CacheOptions _cacheOptions;
 
   @override
-
   /// Handler for managing authentication
   late AuthHandler authHandler;
 
   @override
-
   /// Handler for managing cache
   late CacheHandler cacheHandler;
 
   @override
-
   /// Handler for exceptions
   late ExceptionHandler exceptionHandler;
 
@@ -75,9 +72,11 @@ class RestApiClientImpl implements RestApiClient {
     _options = options; // Set client options
     _exceptionOptions =
         exceptionOptions ?? ExceptionOptions(); // Set exception options
-    _loggingOptions = loggingOptions ?? LoggingOptions(); // Set logging options
-    _authOptions = authOptions ?? AuthOptions(); // Set authentication options
-    _cacheOptions = cacheOptions ?? CacheOptions(); // Set cache options
+    _loggingOptions =
+        loggingOptions ?? const LoggingOptions(); // Set logging options
+    _authOptions =
+        authOptions ?? const AuthOptions(); // Set authentication options
+    _cacheOptions = cacheOptions ?? const CacheOptions(); // Set cache options
 
     /// Initialize Dio with base URL
     _dio = Dio(BaseOptions(baseUrl: _options.baseUrl));
@@ -123,7 +122,7 @@ class RestApiClientImpl implements RestApiClient {
   Future<Result<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    FutureOr<T?> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
     Duration? cacheLifetimeDuration,
@@ -144,16 +143,22 @@ class RestApiClientImpl implements RestApiClient {
       return NetworkResult(
         response: response,
         data: await _resolveResult(
-            response.data, onSuccess), // Resolve result data
+          response.data,
+          onSuccess,
+        ), // Resolve result data
       );
     } on DioException catch (e) {
-      await exceptionHandler.handle(e,
-          silent: options?.silentException); // Handle Dio exceptions
+      await exceptionHandler.handle(
+        e,
+        silent: options?.silentException,
+      ); // Handle Dio exceptions
 
       return NetworkResult(
         response: e.response, // Return error response
         errorData: await _resolveResult(
-            e.response?.data, onError), // Resolve error data
+          e.response?.data,
+          onError,
+        ), // Resolve error data
         exception: e, // Return the exception
         statusCode: e.response?.statusCode, // HTTP status code
         statusMessage: e.response?.statusMessage, // HTTP status message
@@ -162,7 +167,8 @@ class RestApiClientImpl implements RestApiClient {
       debugPrint(e.toString()); // Print any other exceptions
 
       return Result.error(
-          exception: Exception(e.toString())); // Return a generic error
+        exception: Exception(e.toString()),
+      ); // Return a generic error
     }
   }
 
@@ -171,7 +177,7 @@ class RestApiClientImpl implements RestApiClient {
   Future<Result<T>> getCached<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    FutureOr<T?> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
   }) async {
     final requestOptions = RequestOptions(
@@ -191,7 +197,8 @@ class RestApiClientImpl implements RestApiClient {
       debugPrint(e.toString()); // Print any exceptions
 
       return Result.error(
-          exception: Exception(e.toString())); // Return an error result
+        exception: Exception(e.toString()),
+      ); // Return an error result
     }
   }
 
@@ -200,11 +207,11 @@ class RestApiClientImpl implements RestApiClient {
   Future<Result<T>> getCachedOrNetwork<T>(
     String path, {
     Map<String, dynamic>? queryParameters, // Optional query parameters
-    FutureOr<T?> Function(dynamic data)? onSuccess, // Callback on success
+    FutureOr<T> Function(dynamic data)? onSuccess, // Callback on success
     FutureOr<T> Function(dynamic data)? onError, // Callback on error
     RestApiClientRequestOptions? options, // Request options
     Duration?
-        cacheLifetimeDuration, // Lifetime of cached data, defaults to CacheOptions.cacheLifetimeDuration
+    cacheLifetimeDuration, // Lifetime of cached data, defaults to CacheOptions.cacheLifetimeDuration
   }) async {
     // Check for cached result
     if (_options.cacheEnabled) {
@@ -233,11 +240,11 @@ class RestApiClientImpl implements RestApiClient {
   Stream<Result<T>> getStreamed<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    FutureOr<T?> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
     Duration?
-        cacheLifetimeDuration, // Lifetime of cached data, defaults to CacheOptions.cacheLifetimeDuration
+    cacheLifetimeDuration, // Lifetime of cached data, defaults to CacheOptions.cacheLifetimeDuration
   }) async* {
     // Check for cached result if caching is enabled.
     if (_options.cacheEnabled) {
@@ -267,7 +274,7 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T?> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
     bool cacheEnabled = false,
@@ -289,11 +296,15 @@ class RestApiClientImpl implements RestApiClient {
       return NetworkResult(
         response: response,
         data: await _resolveResult(
-            response.data, onSuccess), // Resolve result data
+          response.data,
+          onSuccess,
+        ), // Resolve result data
       );
     } on DioException catch (e) {
-      await exceptionHandler.handle(e,
-          silent: options?.silentException); // Handle Dio exceptions
+      await exceptionHandler.handle(
+        e,
+        silent: options?.silentException,
+      ); // Handle Dio exceptions
 
       return NetworkResult(
         response: e.response, // Return error response
@@ -305,7 +316,8 @@ class RestApiClientImpl implements RestApiClient {
       debugPrint(e.toString()); // Print any exceptions
 
       return Result.error(
-          exception: Exception(e.toString())); // Return a generic error
+        exception: Exception(e.toString()),
+      ); // Return a generic error
     }
   }
 
@@ -315,7 +327,7 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T?> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
   }) async {
     final requestOptions = RequestOptions(
@@ -339,7 +351,7 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T?> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
     Duration? cacheLifetimeDuration,
@@ -374,7 +386,7 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T?> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   }) async {
@@ -389,11 +401,15 @@ class RestApiClientImpl implements RestApiClient {
       return NetworkResult(
         response: response,
         data: await _resolveResult(
-            response.data, onSuccess), // Resolve result data
+          response.data,
+          onSuccess,
+        ), // Resolve result data
       );
     } on DioException catch (e) {
-      await exceptionHandler.handle(e,
-          silent: options?.silentException); // Handle Dio exceptions
+      await exceptionHandler.handle(
+        e,
+        silent: options?.silentException,
+      ); // Handle Dio exceptions
 
       return NetworkResult(
         response: e.response, // Return error response
@@ -405,7 +421,8 @@ class RestApiClientImpl implements RestApiClient {
       debugPrint(e.toString()); // Print any exceptions
 
       return Result.error(
-          exception: Exception(e.toString())); // Return a generic error
+        exception: Exception(e.toString()),
+      ); // Return a generic error
     }
   }
 
@@ -415,7 +432,7 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T?> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   }) async {
@@ -430,11 +447,15 @@ class RestApiClientImpl implements RestApiClient {
       return NetworkResult(
         response: response,
         data: await _resolveResult(
-            response.data, onSuccess), // Resolve result data
+          response.data,
+          onSuccess,
+        ), // Resolve result data
       );
     } on DioException catch (e) {
-      await exceptionHandler.handle(e,
-          silent: options?.silentException); // Handle Dio exceptions
+      await exceptionHandler.handle(
+        e,
+        silent: options?.silentException,
+      ); // Handle Dio exceptions
 
       return NetworkResult(
         response: e.response, // Return error response
@@ -446,7 +467,8 @@ class RestApiClientImpl implements RestApiClient {
       debugPrint(e.toString()); // Print any exceptions
 
       return Result.error(
-          exception: Exception(e.toString())); // Return a generic error
+        exception: Exception(e.toString()),
+      ); // Return a generic error
     }
   }
 
@@ -456,7 +478,7 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T?> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   }) async {
@@ -471,11 +493,15 @@ class RestApiClientImpl implements RestApiClient {
       return NetworkResult(
         response: response,
         data: await _resolveResult(
-            response.data, onSuccess), // Resolve result data
+          response.data,
+          onSuccess,
+        ), // Resolve result data
       );
     } on DioException catch (e) {
-      await exceptionHandler.handle(e,
-          silent: options?.silentException); // Handle Dio exceptions
+      await exceptionHandler.handle(
+        e,
+        silent: options?.silentException,
+      ); // Handle Dio exceptions
 
       return NetworkResult(
         response: e.response, // Return error response
@@ -487,7 +513,8 @@ class RestApiClientImpl implements RestApiClient {
       debugPrint(e.toString()); // Print any exceptions
 
       return Result.error(
-          exception: Exception(e.toString())); // Return a generic error
+        exception: Exception(e.toString()),
+      ); // Return a generic error
     }
   }
 
@@ -497,7 +524,7 @@ class RestApiClientImpl implements RestApiClient {
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
-    FutureOr<T?> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
     RestApiClientRequestOptions? options,
   }) async {
@@ -512,11 +539,15 @@ class RestApiClientImpl implements RestApiClient {
       return NetworkResult(
         response: response,
         data: await _resolveResult(
-            response.data, onSuccess), // Resolve result data
+          response.data,
+          onSuccess,
+        ), // Resolve result data
       );
     } on DioException catch (e) {
-      await exceptionHandler.handle(e,
-          silent: options?.silentException); // Handle Dio exceptions
+      await exceptionHandler.handle(
+        e,
+        silent: options?.silentException,
+      ); // Handle Dio exceptions
 
       return NetworkResult(
         response: e.response, // Return error response
@@ -528,7 +559,8 @@ class RestApiClientImpl implements RestApiClient {
       debugPrint(e.toString()); // Print any exceptions
 
       return Result.error(
-          exception: Exception(e.toString())); // Return a generic error
+        exception: Exception(e.toString()),
+      ); // Return a generic error
     }
   }
 
@@ -544,7 +576,7 @@ class RestApiClientImpl implements RestApiClient {
     CancelToken? cancelToken,
     bool deleteOnError = true,
     String lengthHeader = Headers.contentLengthHeader,
-    FutureOr<T?> Function(dynamic data)? onSuccess,
+    FutureOr<T> Function(dynamic data)? onSuccess,
     FutureOr<T> Function(dynamic data)? onError,
   }) async {
     try {
@@ -563,11 +595,15 @@ class RestApiClientImpl implements RestApiClient {
       return NetworkResult(
         response: response,
         data: await _resolveResult(
-            response.data, onSuccess), // Resolve result data
+          response.data,
+          onSuccess,
+        ), // Resolve result data
       );
     } on DioException catch (e) {
-      await exceptionHandler.handle(e,
-          silent: options?.silentException); // Handle Dio exceptions
+      await exceptionHandler.handle(
+        e,
+        silent: options?.silentException,
+      ); // Handle Dio exceptions
 
       return NetworkResult(
         response: e.response, // Return error response
@@ -579,7 +615,8 @@ class RestApiClientImpl implements RestApiClient {
       debugPrint(e.toString()); // Print any exceptions
 
       return Result.error(
-          exception: Exception(e.toString())); // Return a generic error
+        exception: Exception(e.toString()),
+      ); // Return a generic error
     }
   }
 
@@ -618,12 +655,14 @@ class RestApiClientImpl implements RestApiClient {
   void _addInterceptors(List<Interceptor> interceptors) {
     _dio.interceptors.addAll(interceptors); // Add custom interceptors
 
-    _dio.interceptors.add(RefreshTokenInterceptor(
-      authHandler: authHandler, // Add refresh token interceptor
-      exceptionHandler: exceptionHandler,
-      exceptionOptions: _exceptionOptions,
-      authOptions: _authOptions,
-    ));
+    _dio.interceptors.add(
+      RefreshTokenInterceptor(
+        authHandler: authHandler, // Add refresh token interceptor
+        exceptionHandler: exceptionHandler,
+        exceptionOptions: _exceptionOptions,
+        authOptions: _authOptions,
+      ),
+    );
   }
 
   /// Configures certificate overriding for development.
@@ -644,12 +683,16 @@ class RestApiClientImpl implements RestApiClient {
   /// Sets the Accept-Language header in the request.
   @override
   void setAcceptLanguageHeader(String languageCode) => addOrUpdateHeader(
-      key: RestApiClientKeys.acceptLanguage, value: languageCode);
+    key: RestApiClientKeys.acceptLanguage,
+    value: languageCode,
+  );
 
   /// Authorizes the user with JWT and refresh token.
   @override
-  Future<bool> authorize(
-      {required String jwt, required String refreshToken}) async {
+  Future<bool> authorize({
+    required String jwt,
+    required String refreshToken,
+  }) async {
     return await authHandler.authorize(jwt: jwt, refreshToken: refreshToken);
   }
 
@@ -669,16 +712,16 @@ class RestApiClientImpl implements RestApiClient {
   @override
   void addOrUpdateHeader({required String key, required String value}) =>
       _dio.options.headers.containsKey(key)
-          ? _dio.options.headers.update(key, (v) => value)
-          : _dio.options.headers.addAll({key: value});
+      ? _dio.options.headers.update(key, (v) => value)
+      : _dio.options.headers.addAll({key: value});
 
   /// Resolves a result based on the data and optional success callback.
-  FutureOr<T?> _resolveResult<T>(dynamic data,
-      [FutureOr<T?> Function(dynamic data)? callback]) async {
+  FutureOr<T?> _resolveResult<T>(
+    dynamic data, [
+    FutureOr<T> Function(dynamic data)? callback,
+  ]) async {
     if (data != null && callback != null) {
-      return await callback((data is String && data.isEmpty)
-          ? null
-          : data); // Call success callback
+      return await callback(data); // Call success callback
     } else {
       return null; // Return null if no data
     }

@@ -7,11 +7,7 @@ class ValidationException extends BaseException {
   Map<String, List<String>>? validationMessages;
 
   /// Creates a new instance of [ValidationException].
-  ValidationException({
-    super.silent,
-    super.messages,
-    super.exception,
-  });
+  ValidationException({super.silent, super.messages, super.exception});
 
   /// Constructor for creating validation messages list separated by property.
   ///
@@ -22,17 +18,15 @@ class ValidationException extends BaseException {
     this.validationMessages = const {},
     required DioException exception,
   }) : super(
-          messages: validationMessages != null
-              ? validationMessages.entries
-                  .map<List<String>>(
-                    (mapEntry) => mapEntry.value,
-                  )
-                  .toList()
-                  .expand<String>((list) => list)
-                  .toList()
-              : [],
-          exception: exception,
-        );
+         messages: validationMessages != null
+             ? validationMessages.entries
+                   .map<List<String>>((mapEntry) => mapEntry.value)
+                   .toList()
+                   .expand<String>((list) => list)
+                   .toList()
+             : [],
+         exception: exception,
+       );
 
   /// Returns a string representation of the ValidationException for debugging purposes.
   @override

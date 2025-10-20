@@ -13,11 +13,7 @@ class UnauthorizedException extends BaseException {
   /// silent, a list of messages explaining the reason for the unauthorized
   /// access, and any underlying DioException that provides further details
   /// regarding the authorization failure.
-  UnauthorizedException({
-    super.silent,
-    super.messages,
-    super.exception,
-  });
+  UnauthorizedException({super.silent, super.messages, super.exception});
 
   /// Returns a string representation of the UnauthorizedException for debugging purposes.
   ///

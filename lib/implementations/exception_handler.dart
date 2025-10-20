@@ -19,15 +19,10 @@ class ExceptionHandler {
   final ExceptionOptions exceptionOptions;
 
   /// Constructor for ExceptionHandler
-  ExceptionHandler({
-    required this.exceptionOptions,
-  });
+  ExceptionHandler({required this.exceptionOptions});
 
   /// Handles Dio exceptions and adds them to the exceptions stream.
-  Future<void> handle(
-    DioException e, {
-    bool? silent,
-  }) async {
+  Future<void> handle(DioException e, {bool? silent}) async {
     final exception = _getExceptionFromDioError(e, silent ?? false);
 
     exceptions.add(exception);
@@ -44,19 +39,22 @@ class ExceptionHandler {
           return ServerErrorException(silent: silent, exception: e);
         case HttpStatus.notFound:
           return ValidationException.multipleFields(
-              silent: silent,
-              validationMessages: _getValidationMessages(e),
-              exception: e);
+            silent: silent,
+            validationMessages: _getValidationMessages(e),
+            exception: e,
+          );
         case HttpStatus.unprocessableEntity:
           return ValidationException.multipleFields(
-              silent: silent,
-              validationMessages: _getValidationMessages(e),
-              exception: e);
+            silent: silent,
+            validationMessages: _getValidationMessages(e),
+            exception: e,
+          );
         case HttpStatus.badRequest:
           return ValidationException.multipleFields(
-              silent: silent,
-              validationMessages: _getValidationMessages(e),
-              exception: e);
+            silent: silent,
+            validationMessages: _getValidationMessages(e),
+            exception: e,
+          );
         case HttpStatus.unauthorized:
           return UnauthorizedException(silent: silent, exception: e);
         case HttpStatus.forbidden:
@@ -76,19 +74,23 @@ class ExceptionHandler {
         Map<String, List<String>> errorsMap = {};
 
         if (exceptionOptions.resolveValidationErrorsMap != null) {
-          errorsMap =
-              exceptionOptions.resolveValidationErrorsMap!(error.response);
+          errorsMap = exceptionOptions.resolveValidationErrorsMap!(
+            error.response,
+          );
         } else {
-          error.response!.data['validationErrors']?.forEach((key, value) =>
-              errorsMap[key] =
-                  value?.map<String>((x) => x as String)?.toList());
+          error.response!.data['validationErrors']?.forEach(
+            (key, value) => errorsMap[key] = value
+                ?.map<String>((x) => x as String)
+                ?.toList(),
+          );
           if (error.response!.data['errors'] != null) {
             final errors = MapEntry<String, List<String>>(
-                '',
-                error.response!.data['errors']
-                        ?.map<String>((error) => error as String)
-                        ?.toList() ??
-                    ['']);
+              '',
+              error.response!.data['errors']
+                      ?.map<String>((error) => error as String)
+                      ?.toList() ??
+                  [''],
+            );
             errorsMap.addAll(Map.fromEntries([errors]));
           }
         }

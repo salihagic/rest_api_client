@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 /// A model representing cached data along with its expiration time.
 class CacheModel {
   final DateTime?
-      expirationDateTime; // The expiration date and time of the cached data
+  expirationDateTime; // The expiration date and time of the cached data
   final dynamic value; // The cached value
 
   /// Determines if the cached value has expired.
@@ -12,10 +12,7 @@ class CacheModel {
   /// Constructor for CacheModel.
   /// [expirationDateTime] is the time when the cached data expires,
   /// and [value] is the actual cached data.
-  CacheModel({
-    required this.expirationDateTime,
-    required this.value,
-  });
+  CacheModel({required this.expirationDateTime, required this.value});
 
   /// Converts the CacheModel instance to a map for easy serialization.
   /// The map can be used for storage or network transmission.
@@ -35,8 +32,9 @@ class CacheModel {
       if (data is Map<String, dynamic> &&
           (data['expirationDateTime'] != null || data['value'] != null)) {
         return CacheModel(
-          expirationDateTime: dateTimeFromJson(data[
-              'expirationDateTime']), // Converts the expiration time from string to DateTime
+          expirationDateTime: dateTimeFromJson(
+            data['expirationDateTime'],
+          ), // Converts the expiration time from string to DateTime
           value: data['value'], // Retrieved cached value
         );
       }
@@ -107,14 +105,7 @@ DateTime? dateTimeFromJson(String? json) {
     final seconds = int.parse(parts[5]); // Parse second
 
     // Create and return a DateTime object
-    return DateTime(
-      years,
-      months,
-      days,
-      hours,
-      minutes,
-      seconds,
-    );
+    return DateTime(years, months, days, hours, minutes, seconds);
   } catch (e) {
     debugPrint(e.toString()); // Log any errors during parsing
     return null; // Return null if an error occurs

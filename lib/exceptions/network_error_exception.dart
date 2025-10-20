@@ -12,11 +12,7 @@ class NetworkErrorException extends BaseException {
   /// Optionally accepts parameters to specify if the exception should be
   /// silent, a list of messages explaining the error, and any underlying
   /// DioException that provides further details about the network error.
-  NetworkErrorException({
-    super.silent,
-    super.messages,
-    super.exception,
-  });
+  NetworkErrorException({super.silent, super.messages, super.exception});
 
   /// Returns a string representation of the NetworkErrorException for debugging purposes.
   ///

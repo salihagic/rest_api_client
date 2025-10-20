@@ -38,9 +38,6 @@ class RestApiClientRequestOptions {
   /// This method is useful for transforming the RestApiClientRequestOptions
   /// into a format that can be utilized by Dio when making HTTP requests.
   Options toOptions() {
-    return Options(
-      headers: headers,
-      contentType: contentType,
-    );
+    return Options(headers: headers, contentType: contentType);
   }
 }

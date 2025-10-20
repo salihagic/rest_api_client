@@ -60,57 +60,32 @@ class Result<T> {
     Exception? exception,
     int? statusCode,
     String? statusMessage,
-  }) =>
-      NetworkResult(
-        data: data,
-        errorData: errorData,
-        response: response,
-        exception: exception,
-        statusCode: statusCode,
-        statusMessage: statusMessage,
-      );
+  }) => NetworkResult(
+    data: data,
+    errorData: errorData,
+    response: response,
+    exception: exception,
+    statusCode: statusCode,
+    statusMessage: statusMessage,
+  );
 
   /// Factory method to create a cache result.
-  factory Result.cache({
-    T? data,
-    Exception? exception,
-  }) =>
-      CacheResult(
-        data: data,
-        exception: exception,
-      );
+  factory Result.cache({T? data, Exception? exception}) =>
+      CacheResult(data: data, exception: exception);
 
   /// Factory method to create a success result.
-  factory Result.success({
-    T? data,
-  }) =>
-      SuccessResult(
-        data: data,
-      );
+  factory Result.success({T? data}) => SuccessResult(data: data);
 
   /// Factory method to create a local success result.
-  factory Result.localSuccess({
-    T? data,
-  }) =>
-      LocalSuccessResult(
-        data: data,
-      );
+  factory Result.localSuccess({T? data}) => LocalSuccessResult(data: data);
 
   /// Factory method to create an error result.
-  factory Result.error({
-    Exception? exception,
-  }) =>
-      ErrorResult(
-        exception: exception,
-      );
+  factory Result.error({Exception? exception}) =>
+      ErrorResult(exception: exception);
 
   /// Factory method to create a local error result.
-  factory Result.localError({
-    Exception? exception,
-  }) =>
-      LocalErrorResult(
-        exception: exception,
-      );
+  factory Result.localError({Exception? exception}) =>
+      LocalErrorResult(exception: exception);
 }
 
 /// Represents a successful result.
@@ -128,19 +103,13 @@ class LocalSuccessResult<T> extends Result<T> {
 /// Represents an error result.
 class ErrorResult<T> extends Result<T> {
   /// Constructor for an error result.
-  ErrorResult({
-    super.exception,
-    super.errorData,
-  });
+  ErrorResult({super.exception, super.errorData});
 }
 
 /// Represents a local error result (e.g., a caching error).
 class LocalErrorResult<T> extends Result<T> {
   /// Constructor for a local error result.
-  LocalErrorResult({
-    super.exception,
-    super.errorData,
-  });
+  LocalErrorResult({super.exception, super.errorData});
 }
 
 /// Represents a network result that includes the response.

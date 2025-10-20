@@ -12,11 +12,7 @@ class ServerErrorException extends BaseException {
   /// Optionally accepts parameters to specify if the exception should be
   /// silent, a list of messages explaining the server error, and any
   /// underlying DioException for further details about the server failure.
-  ServerErrorException({
-    super.silent,
-    super.messages,
-    super.exception,
-  });
+  ServerErrorException({super.silent, super.messages, super.exception});
 
   /// Returns a string representation of the ServerErrorException for debugging purposes.
   ///

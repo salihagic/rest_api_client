@@ -10,11 +10,7 @@ class ForbiddenException extends BaseException {
   ///
   /// Optionally accepts parameters to control whether the exception is silent,
   /// a list of error messages, and an underlying DioException for further details.
-  ForbiddenException({
-    super.silent,
-    super.messages,
-    super.exception,
-  });
+  ForbiddenException({super.silent, super.messages, super.exception});
 
   /// Returns a string representation of the ForbiddenException for debugging purposes.
   ///

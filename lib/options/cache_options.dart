@@ -31,7 +31,8 @@ class CacheOptions {
         false, // Default is false; responses are not stored securely by default.
     this.resetOnRestart =
         false, // Default is false; cache won't reset on restart.
-    this.cacheLifetimeDuration =
-        const Duration(days: 10), // Default cache lifetime is 10 days.
+    this.cacheLifetimeDuration = const Duration(
+      days: 10,
+    ), // Default cache lifetime is 10 days.
   });
 }

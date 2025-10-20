@@ -10,10 +10,7 @@ class CacheHandler {
 
   late StorageRepository _storage;
 
-  CacheHandler({
-    required this.loggingOptions,
-    required this.cacheOptions,
-  }) {
+  CacheHandler({required this.loggingOptions, required this.cacheOptions}) {
     _storage = cacheOptions.useSecureStorage
         ? SecureStorageRepositoryImpl(
             key: RestApiClientKeys.cachedStorageKey,
@@ -65,8 +62,9 @@ class CacheHandler {
     final cacheKey = _generateCacheKey(response.requestOptions);
 
     final cacheModel = CacheModel(
-      expirationDateTime: DateTime.now()
-          .add(cacheLifetimeDuration ?? cacheOptions.cacheLifetimeDuration),
+      expirationDateTime: DateTime.now().add(
+        cacheLifetimeDuration ?? cacheOptions.cacheLifetimeDuration,
+      ),
       value: response.data,
     );
 
@@ -88,14 +86,16 @@ class CacheHandler {
         : '';
     final String authorization = cacheOptions.useAuthorization
         ? options.headers.containsKey(RestApiClientKeys.authorization)
-            ? options.headers[RestApiClientKeys.authorization]
-            : ''
+              ? options.headers[RestApiClientKeys.authorization]
+              : ''
         : '';
 
-    final combinedKey =
-        _encode('$queryParametersSerialized$dataSerialized$authorization');
+    final combinedKey = _encode(
+      '$queryParametersSerialized$dataSerialized$authorization',
+    );
 
-    final keyBase = cacheOptions.generateCacheKey?.call(options, combinedKey) ??
+    final keyBase =
+        cacheOptions.generateCacheKey?.call(options, combinedKey) ??
         combinedKey;
 
     final key = '${options.path} - ${_encode(keyBase)}';

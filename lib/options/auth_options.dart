@@ -23,11 +23,11 @@ class AuthOptions {
 
   /// Function to build the body for the refresh token request.
   final dynamic Function(String jwt, String refreshToken)?
-      refreshTokenBodyBuilder;
+  refreshTokenBodyBuilder;
 
   /// Function to build headers for the refresh token request.
   final Map<String, dynamic>? Function(String jwt, String refreshToken)?
-      refreshTokenHeadersBuilder;
+  refreshTokenHeadersBuilder;
 
   /// Constructor to initialize the AuthOptions class with default values.
   const AuthOptions({

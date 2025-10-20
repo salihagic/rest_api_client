@@ -62,10 +62,14 @@ class AuthHandler {
     }
   }
 
-  Future<bool> authorize(
-      {required String jwt, required String refreshToken}) async {
+  Future<bool> authorize({
+    required String jwt,
+    required String refreshToken,
+  }) async {
     _addOrUpdateHeader(
-        key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
+      key: RestApiClientKeys.authorization,
+      value: 'Bearer $jwt',
+    );
 
     return await _storage.set(RestApiClientKeys.jwt, jwt) &&
         await _storage.set(RestApiClientKeys.refreshToken, refreshToken);
@@ -73,16 +77,19 @@ class AuthHandler {
 
   Future<bool> unAuthorize() async {
     final deleteJwtResult = await _storage.delete(RestApiClientKeys.jwt);
-    final deleteRefreshTokenResult =
-        await _storage.delete(RestApiClientKeys.refreshToken);
+    final deleteRefreshTokenResult = await _storage.delete(
+      RestApiClientKeys.refreshToken,
+    );
 
     dio.options.headers.remove(RestApiClientKeys.authorization);
 
     return deleteJwtResult && deleteRefreshTokenResult;
   }
 
-  Future<Response<T>?> refreshTokenCallback<T>(RequestOptions requestOptions,
-      [RequestInterceptorHandler? handler]) async {
+  Future<Response<T>?> refreshTokenCallback<T>(
+    RequestOptions requestOptions, [
+    RequestInterceptorHandler? handler,
+  ]) async {
     if (authOptions.resolveJwt != null &&
         authOptions.resolveRefreshToken != null) {
       await executeTokenRefresh(handler);
@@ -91,10 +98,13 @@ class AuthHandler {
 
       if (requestOptions.headers.containsKey(RestApiClientKeys.authorization)) {
         requestOptions.headers.update(
-            RestApiClientKeys.authorization, (v) => 'Bearer $currentJwt');
+          RestApiClientKeys.authorization,
+          (v) => 'Bearer $currentJwt',
+        );
       } else {
-        requestOptions.headers
-            .addAll({RestApiClientKeys.authorization: 'Bearer $currentJwt'});
+        requestOptions.headers.addAll({
+          RestApiClientKeys.authorization: 'Bearer $currentJwt',
+        });
       }
 
       if (handler != null) {
@@ -132,9 +142,11 @@ class AuthHandler {
   }
 
   Future<void> executeTokenRefresh([RequestInterceptorHandler? handler]) async {
-    final newDioClient = Dio(BaseOptions()
-      ..baseUrl = options.baseUrl
-      ..contentType = Headers.jsonContentType);
+    final newDioClient = Dio(
+      BaseOptions()
+        ..baseUrl = options.baseUrl
+        ..contentType = Headers.jsonContentType,
+    );
 
     if (loggingOptions.logNetworkTraffic) {
       newDioClient.interceptors.add(
@@ -168,17 +180,19 @@ class AuthHandler {
       final response = await newDioClient.post(
         authOptions.refreshTokenEndpoint,
         options: Options(
-          headers: authOptions.refreshTokenHeadersBuilder
-                  ?.call(currentJwt ?? '', currentRefreshToken ?? '') ??
-              {
-                RestApiClientKeys.authorization: 'Bearer $currentJwt',
-              },
+          headers:
+              authOptions.refreshTokenHeadersBuilder?.call(
+                currentJwt ?? '',
+                currentRefreshToken ?? '',
+              ) ??
+              {RestApiClientKeys.authorization: 'Bearer $currentJwt'},
         ),
-        data: authOptions.refreshTokenBodyBuilder
-                ?.call(currentJwt ?? '', currentRefreshToken ?? '') ??
-            {
-              authOptions.refreshTokenParameterName: currentRefreshToken,
-            },
+        data:
+            authOptions.refreshTokenBodyBuilder?.call(
+              currentJwt ?? '',
+              currentRefreshToken ?? '',
+            ) ??
+            {authOptions.refreshTokenParameterName: currentRefreshToken},
       );
 
       final resolvedJwt = authOptions.resolveJwt!(response);
@@ -197,10 +211,12 @@ class AuthHandler {
   }
 
   void _setJwtToHeader(String jwt) => _addOrUpdateHeader(
-      key: RestApiClientKeys.authorization, value: 'Bearer $jwt');
+    key: RestApiClientKeys.authorization,
+    value: 'Bearer $jwt',
+  );
 
   void _addOrUpdateHeader({required String key, required String value}) =>
       dio.options.headers.containsKey(key)
-          ? dio.options.headers.update(key, (v) => value)
-          : dio.options.headers.addAll({key: value});
+      ? dio.options.headers.update(key, (v) => value)
+      : dio.options.headers.addAll({key: value});
 }
