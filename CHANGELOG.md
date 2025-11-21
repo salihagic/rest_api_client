@@ -1,3 +1,7 @@
+## 2.3.15
+
+* Added skipWidgetsFlutterBindingInitialization flag
+
 ## 2.3.14
 
 * Formatting

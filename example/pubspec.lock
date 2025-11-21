@@ -368,10 +368,10 @@ packages:
     dependency: transitive
     description:
       name: storage_repository
-      sha256: "1289b6820d8ebc8cfd2aff7b8a8ca904b8bbbe2d683c2a424c70a7837d7abe5d"
+      sha256: bc16c97a6fd692ef74a804026ea0440f8f2eaee8292b85ad1ec077b59718d336
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.19"
+    version: "1.1.20"
   stream_channel:
     dependency: transitive
     description:
