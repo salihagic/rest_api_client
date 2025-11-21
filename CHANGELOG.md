@@ -1,3 +1,7 @@
+## 2.3.16
+
+* Updated dependencies
+
 ## 2.3.15
 
 * Added skipWidgetsFlutterBindingInitialization flag

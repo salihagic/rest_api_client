@@ -40,7 +40,12 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
     if (isPreemptivelyRefreshBeforeExpiry &&
         !authOptions.ignoreAuthForPaths.contains(options.path)) {
       try {
-        final isExpired = JwtDecoder.isExpired(authHandler.jwt ?? '');
+        final bearer = options.headers[RestApiClientKeys.jwt];
+        final jwt = bearer != null
+            ? (bearer as String).replaceAll('Bearer ', '')
+            : '';
+
+        final isExpired = JwtDecoder.isExpired(jwt);
 
         if (isExpired) {
           authHandler.refreshTokenCallback(options, handler);

@@ -25,11 +25,11 @@ class AuthHandler {
   }) {
     _storage = authOptions.useSecureStorage
         ? SecureStorageRepositoryImpl(
-            key: RestApiClientKeys.storageKey,
+            keyPrefix: RestApiClientKeys.storageKey,
             logPrefix: RestApiClientKeys.storageLogPrefix,
           )
         : StorageRepositoryImpl(
-            key: RestApiClientKeys.storageKey,
+            keyPrefix: RestApiClientKeys.storageKey,
             logPrefix: RestApiClientKeys.storageLogPrefix,
           );
   }
@@ -44,8 +44,9 @@ class AuthHandler {
       await containsAuthorizationHeader &&
       await containsJwtInStorage &&
       await containsRefreshTokenInStorage;
-  String? get jwt => _storage.get(RestApiClientKeys.jwt);
-  String? get refreshToken => _storage.get(RestApiClientKeys.refreshToken);
+  Future<String?> get jwt async => await _storage.get(RestApiClientKeys.jwt);
+  Future<String?> get refreshToken async =>
+      await _storage.get(RestApiClientKeys.refreshToken);
   bool get usesAuth =>
       dio.options.headers.containsKey(RestApiClientKeys.authorization);
 
@@ -56,7 +57,7 @@ class AuthHandler {
       await _storage.log();
     }
 
-    final currentJwt = jwt;
+    final currentJwt = await jwt;
     if (currentJwt != null && currentJwt.isNotEmpty) {
       _setJwtToHeader(currentJwt);
     }
@@ -182,15 +183,15 @@ class AuthHandler {
         options: Options(
           headers:
               authOptions.refreshTokenHeadersBuilder?.call(
-                currentJwt ?? '',
-                currentRefreshToken ?? '',
+                await currentJwt ?? '',
+                await currentRefreshToken ?? '',
               ) ??
               {RestApiClientKeys.authorization: 'Bearer $currentJwt'},
         ),
         data:
             authOptions.refreshTokenBodyBuilder?.call(
-              currentJwt ?? '',
-              currentRefreshToken ?? '',
+              await currentJwt ?? '',
+              await currentRefreshToken ?? '',
             ) ??
             {authOptions.refreshTokenParameterName: currentRefreshToken},
       );

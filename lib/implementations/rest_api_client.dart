@@ -167,7 +167,5 @@ abstract class RestApiClient {
   /// Initializes the Flutter storage repository.
   static Future<void> initFlutter([
     bool skipWidgetsFlutterBindingInitialization = false,
-  ]) async => await StorageRepository.initFlutter(
-    skipWidgetsFlutterBindingInitialization,
-  );
+  ]) async => await StorageRepository.initFlutter();
 }

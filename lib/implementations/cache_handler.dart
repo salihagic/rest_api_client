@@ -13,11 +13,11 @@ class CacheHandler {
   CacheHandler({required this.loggingOptions, required this.cacheOptions}) {
     _storage = cacheOptions.useSecureStorage
         ? SecureStorageRepositoryImpl(
-            key: RestApiClientKeys.cachedStorageKey,
+            keyPrefix: RestApiClientKeys.cachedStorageKey,
             logPrefix: RestApiClientKeys.cachedStorageLogPrefix,
           )
         : StorageRepositoryImpl(
-            key: RestApiClientKeys.cachedStorageKey,
+            keyPrefix: RestApiClientKeys.cachedStorageKey,
             logPrefix: RestApiClientKeys.cachedStorageLogPrefix,
           );
   }
