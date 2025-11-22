@@ -431,9 +431,10 @@ packages:
   storage_repository:
     dependency: transitive
     description:
-      path: "D:/Development/Projects/storage_repository"
-      relative: false
-    source: path
+      name: storage_repository
+      sha256: "5ec0eb6d111d82fe80caac873b04eb0bfe7c493cdbff527f85da4c6283d91429"
+      url: "https://pub.dev"
+    source: hosted
     version: "2.0.1"
   stream_channel:
     dependency: transitive
