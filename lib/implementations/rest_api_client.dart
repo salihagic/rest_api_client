@@ -10,7 +10,7 @@ abstract class RestApiClient {
   Map<String, String> get headers; // Gets the current request headers
 
   /// Initializes the client and its handlers.
-  Future<RestApiClient> init();
+  Future<RestApiClient> init([bool migrateFromHive = true]);
 
   /// Sends a GET request to the specified [path].
   Future<Result<T>> get<T>(
@@ -165,7 +165,8 @@ abstract class RestApiClient {
   Future clearStorage();
 
   /// Initializes the Flutter storage repository.
-  static Future<void> initFlutter([
-    bool skipWidgetsFlutterBindingInitialization = false,
-  ]) async => await StorageRepository.initFlutter();
+  /// **This method is deprecated and will be removed once all app data is migrated from Hive.**
+  @Deprecated("Method will be removed once all apps data is migrated from Hive")
+  static Future<void> initFlutter() async =>
+      await StorageRepository.initFlutter();
 }

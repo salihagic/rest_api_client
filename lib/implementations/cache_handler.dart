@@ -14,11 +14,11 @@ class CacheHandler {
     _storage = cacheOptions.useSecureStorage
         ? SecureStorageRepositoryImpl(
             keyPrefix: RestApiClientKeys.cachedStorageKey,
-            logPrefix: RestApiClientKeys.cachedStorageLogPrefix,
+            migrationBoxKey: RestApiClientKeys.migration_cachedStorageKey,
           )
         : StorageRepositoryImpl(
             keyPrefix: RestApiClientKeys.cachedStorageKey,
-            logPrefix: RestApiClientKeys.cachedStorageLogPrefix,
+            migrationBoxKey: RestApiClientKeys.migration_cachedStorageKey,
           );
   }
 

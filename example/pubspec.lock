@@ -350,7 +350,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "2.3.16"
+    version: "2.3.17"
   shared_preferences:
     dependency: transitive
     description:
@@ -431,11 +431,10 @@ packages:
   storage_repository:
     dependency: transitive
     description:
-      name: storage_repository
-      sha256: fbef360dfef1b412bc7743821846666745592ef204ba06798b6608e49bb501d2
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
+      path: "D:/Development/Projects/storage_repository"
+      relative: false
+    source: path
+    version: "2.0.1"
   stream_channel:
     dependency: transitive
     description:

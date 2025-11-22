@@ -26,11 +26,11 @@ class AuthHandler {
     _storage = authOptions.useSecureStorage
         ? SecureStorageRepositoryImpl(
             keyPrefix: RestApiClientKeys.storageKey,
-            logPrefix: RestApiClientKeys.storageLogPrefix,
+            migrationBoxKey: RestApiClientKeys.migration_storageKey,
           )
         : StorageRepositoryImpl(
             keyPrefix: RestApiClientKeys.storageKey,
-            logPrefix: RestApiClientKeys.storageLogPrefix,
+            migrationBoxKey: RestApiClientKeys.migration_storageKey,
           );
   }
 
@@ -50,8 +50,12 @@ class AuthHandler {
   bool get usesAuth =>
       dio.options.headers.containsKey(RestApiClientKeys.authorization);
 
-  Future init() async {
-    await _storage.init();
+  Future init([bool migrateFromHive = true]) async {
+    await _storage.init(migrateFromHive);
+
+    if (migrateFromHive) {
+      await _migrateTokens();
+    }
 
     if (loggingOptions.logStorage) {
       await _storage.log();
@@ -60,6 +64,22 @@ class AuthHandler {
     final currentJwt = await jwt;
     if (currentJwt != null && currentJwt.isNotEmpty) {
       _setJwtToHeader(currentJwt);
+    }
+  }
+
+  Future<void> _migrateTokens() async {
+    final oldJwt = await _storage.get(RestApiClientKeys.migration_jwt);
+    final oldRefreshToken = await _storage.get(
+      RestApiClientKeys.migration_refreshToken,
+    );
+
+    if (!await _storage.contains(RestApiClientKeys.jwt)) {
+      await _storage.set(RestApiClientKeys.jwt, oldJwt);
+      // await _storage.delete(RestApiClientKeys.migration_jwt);
+    }
+    if (!await _storage.contains(RestApiClientKeys.refreshToken)) {
+      await _storage.set(RestApiClientKeys.refreshToken, oldRefreshToken);
+      // await _storage.delete(RestApiClientKeys.migration_refreshToken);
     }
   }
 

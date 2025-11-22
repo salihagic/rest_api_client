@@ -1,3 +1,7 @@
+## 2.3.17
+
+* Migration from Hive
+
 ## 2.3.16
 
 * Updated dependencies

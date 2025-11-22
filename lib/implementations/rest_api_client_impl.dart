@@ -107,8 +107,10 @@ class RestApiClientImpl implements RestApiClient {
 
   /// Initializes the client by preparing auth and cache handlers.
   @override
-  Future<RestApiClient> init() async {
-    await authHandler.init(); // Initialize authentication handler
+  Future<RestApiClient> init([bool migrateFromHive = true]) async {
+    await authHandler.init(
+      migrateFromHive,
+    ); // Initialize authentication handler
     if (_options.cacheEnabled) {
       await cacheHandler
           .init(); // Initialize cache handler if caching is enabled

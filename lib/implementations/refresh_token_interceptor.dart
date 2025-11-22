@@ -40,20 +40,28 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
     if (isPreemptivelyRefreshBeforeExpiry &&
         !authOptions.ignoreAuthForPaths.contains(options.path)) {
       try {
-        final bearer = options.headers[RestApiClientKeys.jwt];
+        final bearer = options.headers[RestApiClientKeys.authorization];
         final jwt = bearer != null
             ? (bearer as String).replaceAll('Bearer ', '')
             : '';
 
-        final isExpired = JwtDecoder.isExpired(jwt);
-
-        if (isExpired) {
-          authHandler.refreshTokenCallback(options, handler);
-        } else {
+        if (jwt.isEmpty) {
           handler.next(options);
+        } else {
+          final isExpired = JwtDecoder.isExpired(jwt);
+
+          if (isExpired) {
+            authHandler.refreshTokenCallback(options, handler);
+          } else {
+            handler.next(options);
+          }
         }
       } catch (e) {
-        debugPrint(e.toString());
+        debugPrint(
+          'Rest API client - Refresh token interceptor - exception: $e',
+        );
+
+        handler.next(options);
       }
     } else {
       handler.next(options);
