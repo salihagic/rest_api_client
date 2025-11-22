@@ -1,3 +1,7 @@
+## 2.3.18
+
+* Migration logic updated
+
 ## 2.3.17
 
 * Migration from Hive

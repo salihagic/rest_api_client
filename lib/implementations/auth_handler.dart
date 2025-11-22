@@ -73,11 +73,15 @@ class AuthHandler {
       RestApiClientKeys.migration_refreshToken,
     );
 
-    if (!await _storage.contains(RestApiClientKeys.jwt)) {
+    if (!await _storage.contains(RestApiClientKeys.jwt) &&
+        oldJwt != null &&
+        oldJwt.isNotEmpty) {
       await _storage.set(RestApiClientKeys.jwt, oldJwt);
       // await _storage.delete(RestApiClientKeys.migration_jwt);
     }
-    if (!await _storage.contains(RestApiClientKeys.refreshToken)) {
+    if (!await _storage.contains(RestApiClientKeys.refreshToken) &&
+        oldRefreshToken != null &&
+        oldRefreshToken.isNotEmpty) {
       await _storage.set(RestApiClientKeys.refreshToken, oldRefreshToken);
       // await _storage.delete(RestApiClientKeys.migration_refreshToken);
     }
