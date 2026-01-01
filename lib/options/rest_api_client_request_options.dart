@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+import 'package:rest_api_client/rest_api_client.dart';
 
 /// Options for configuring HTTP requests in the RestApiClient.
 class RestApiClientRequestOptions {
@@ -22,15 +22,23 @@ class RestApiClientRequestOptions {
   /// the application to continue running without interruptions.
   bool silentException;
 
+  /// Whether authentication is required for this request.
+  ///
+  /// When null, uses the global [AuthOptions.requiresAuth] setting.
+  /// When true, the request will fail if token refresh fails.
+  /// When false, the request will continue without authorization if token refresh fails.
+  bool? requiresAuth;
+
   /// Constructor for creating an instance of RestApiClientRequestOptions.
   ///
-  /// The [headers] and [contentType] parameters are optional, while
+  /// The [headers], [contentType], and [requiresAuth] parameters are optional, while
   /// the [silentException] defaults to false, meaning exceptions
   /// will be thrown unless specified.
   RestApiClientRequestOptions({
     this.headers,
     this.contentType,
     this.silentException = false,
+    this.requiresAuth,
   });
 
   /// Converts the current request options to Dio's [Options] format.
@@ -38,6 +46,10 @@ class RestApiClientRequestOptions {
   /// This method is useful for transforming the RestApiClientRequestOptions
   /// into a format that can be utilized by Dio when making HTTP requests.
   Options toOptions() {
-    return Options(headers: headers, contentType: contentType);
+    return Options(
+      headers: headers,
+      contentType: contentType,
+      extra: requiresAuth != null ? {'requiresAuth': requiresAuth} : null,
+    );
   }
 }

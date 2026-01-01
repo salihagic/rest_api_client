@@ -81,9 +81,7 @@ class CacheHandler {
     final queryParametersSerialized = options.queryParameters.isNotEmpty
         ? json.encode(options.queryParameters)
         : '';
-    final dataSerialized = (options.data != null && options.data.isNotEmpty)
-        ? json.encode(options.data)
-        : '';
+    final dataSerialized = _serializeData(options.data);
     final String authorization = cacheOptions.useAuthorization
         ? options.headers.containsKey(RestApiClientKeys.authorization)
               ? options.headers[RestApiClientKeys.authorization]
@@ -105,6 +103,20 @@ class CacheHandler {
 
   /// Encodes a string using MD5 hashing.
   String _encode(String value) => md5.convert(utf8.encode(value)).toString();
+
+  /// Serializes data for cache key generation.
+  /// Handles Map, List, String (which have isNotEmpty), and other types safely.
+  String _serializeData(dynamic data) {
+    if (data == null) return '';
+    if (data is Map || data is List || data is String) {
+      if ((data as dynamic).isNotEmpty) {
+        return json.encode(data);
+      }
+      return '';
+    }
+    // For scalar types (int, bool, double, etc.), just encode directly
+    return json.encode(data);
+  }
 
   /// Removes expired cached data.
   Future<void> _clearExpiredCacheData() async {

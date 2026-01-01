@@ -339,12 +339,20 @@ class RestApiClientImpl implements RestApiClient {
       headers: _dio.options.headers, // Request headers
     );
 
-    return CacheResult(
-      data: await _resolveResult(
-        (await cacheHandler.get(requestOptions)), // Retrieve cached response
-        onSuccess, // Success callback
-      ),
-    );
+    try {
+      return CacheResult(
+        data: await _resolveResult(
+          (await cacheHandler.get(requestOptions)), // Retrieve cached response
+          onSuccess, // Success callback
+        ),
+      );
+    } catch (e) {
+      debugPrint(e.toString()); // Print any exceptions
+
+      return Result.error(
+        exception: Exception(e.toString()),
+      ); // Return an error result
+    }
   }
 
   /// Performs a streamed POST request to the specified path, optionally using cached data.

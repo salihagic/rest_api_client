@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:rest_api_client/rest_api_client.dart';
 
@@ -34,9 +33,19 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
       authOptions.refreshTokenExecutionType ==
           RefreshTokenStrategy.responseAndRetry;
 
+  /// Checks if auth is required for the given request.
+  /// Per-request override takes precedence over global setting.
+  bool _isAuthRequired(RequestOptions options) {
+    final perRequestOverride = options.extra['requiresAuth'];
+    if (perRequestOverride is bool) {
+      return perRequestOverride;
+    }
+    return authOptions.requiresAuth;
+  }
+
   /// Called before a request is sent.
   @override
-  void onRequest(RequestOptions options, handler) {
+  void onRequest(RequestOptions options, handler) async {
     if (isPreemptivelyRefreshBeforeExpiry &&
         !authOptions.ignoreAuthForPaths.contains(options.path)) {
       try {
@@ -51,17 +60,19 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
           final isExpired = JwtDecoder.isExpired(jwt);
 
           if (isExpired) {
-            authHandler.refreshTokenCallback(options, handler);
+            await authHandler.refreshTokenCallback(options, handler);
           } else {
             handler.next(options);
           }
         }
       } catch (e) {
-        debugPrint(
-          'Rest API client - Refresh token interceptor - exception: $e',
-        );
-
-        handler.next(options);
+        if (_isAuthRequired(options)) {
+          handler.reject(DioException(requestOptions: options, error: e));
+        } else {
+          // Auth not required - remove invalid token and continue without auth
+          options.headers.remove(RestApiClientKeys.authorization);
+          handler.next(options);
+        }
       }
     } else {
       handler.next(options);
@@ -90,7 +101,12 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
           handler.next(error);
         }
       } catch (e) {
-        debugPrint(e.toString());
+        if (_isAuthRequired(error.requestOptions)) {
+          handler.reject(error);
+        } else {
+          // Auth not required - continue with the original error
+          handler.next(error);
+        }
       }
     } else {
       handler.next(error);

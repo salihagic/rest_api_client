@@ -15,6 +15,12 @@ class AuthOptions {
   /// List of paths that do not require authentication.
   final List<String> ignoreAuthForPaths;
 
+  /// Whether authentication is required for requests.
+  /// When true (default), requests will fail if token refresh fails.
+  /// When false, requests will continue without authorization if token refresh fails.
+  /// Can be overridden per-request using Options(extra: {'requiresAuth': true/false}).
+  final bool requiresAuth;
+
   /// Function to extract the JWT from the response.
   final String Function(dynamic response)? resolveJwt;
 
@@ -40,6 +46,7 @@ class AuthOptions {
     this.refreshTokenExecutionType =
         RefreshTokenStrategy.responseAndRetry, // Default strategy.
     this.ignoreAuthForPaths = const [], // Default to an empty list.
+    this.requiresAuth = true, // Default is true; requests fail if auth fails.
     this.resolveJwt, // Optional function for JWT extraction.
     this.resolveRefreshToken, // Optional function for refresh token extraction.
     this.refreshTokenBodyBuilder, // Optional function to build request body for the refresh token request.

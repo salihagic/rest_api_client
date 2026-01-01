@@ -117,9 +117,9 @@ class AuthHandler {
   ]) async {
     if (authOptions.resolveJwt != null &&
         authOptions.resolveRefreshToken != null) {
-      await executeTokenRefresh(handler);
+      await executeTokenRefresh();
 
-      final currentJwt = jwt;
+      final currentJwt = await jwt;
 
       if (requestOptions.headers.containsKey(RestApiClientKeys.authorization)) {
         requestOptions.headers.update(
@@ -166,7 +166,7 @@ class AuthHandler {
     return null;
   }
 
-  Future<void> executeTokenRefresh([RequestInterceptorHandler? handler]) async {
+  Future<void> executeTokenRefresh() async {
     final newDioClient = Dio(
       BaseOptions()
         ..baseUrl = options.baseUrl
@@ -198,8 +198,8 @@ class AuthHandler {
       };
     }
 
-    final currentJwt = jwt;
-    final currentRefreshToken = refreshToken;
+    final currentJwt = await jwt;
+    final currentRefreshToken = await refreshToken;
 
     try {
       final response = await newDioClient.post(
@@ -207,15 +207,15 @@ class AuthHandler {
         options: Options(
           headers:
               authOptions.refreshTokenHeadersBuilder?.call(
-                await currentJwt ?? '',
-                await currentRefreshToken ?? '',
+                currentJwt ?? '',
+                currentRefreshToken ?? '',
               ) ??
               {RestApiClientKeys.authorization: 'Bearer $currentJwt'},
         ),
         data:
             authOptions.refreshTokenBodyBuilder?.call(
-              await currentJwt ?? '',
-              await currentRefreshToken ?? '',
+              currentJwt ?? '',
+              currentRefreshToken ?? '',
             ) ??
             {authOptions.refreshTokenParameterName: currentRefreshToken},
       );
@@ -227,7 +227,7 @@ class AuthHandler {
     } on DioException catch (error) {
       await exceptionHandler.handle(error);
 
-      handler?.next(error.requestOptions);
+      rethrow;
     }
   }
 
