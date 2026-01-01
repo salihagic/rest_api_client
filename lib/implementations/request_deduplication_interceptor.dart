@@ -121,10 +121,11 @@ class RequestDeduplicationInterceptor extends Interceptor {
   String _generateRequestKey(RequestOptions options) {
     final method = options.method;
     final path = options.path;
-    final queryParams = options.queryParameters.entries
-        .map((e) => '${e.key}=${e.value}')
-        .toList()
-      ..sort();
+    final queryParams =
+        options.queryParameters.entries
+            .map((e) => '${e.key}=${e.value}')
+            .toList()
+          ..sort();
     final authHeader = options.headers[RestApiClientKeys.authorization] ?? '';
 
     return '$method:$path:${queryParams.join('&')}:$authHeader';

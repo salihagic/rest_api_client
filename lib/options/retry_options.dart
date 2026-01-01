@@ -78,7 +78,8 @@ class RetryOptions {
   /// The [attempt] is 0-indexed (first retry is attempt 0).
   /// The returned duration is capped at [maxDelay].
   Duration getDelayForAttempt(int attempt) {
-    final delayMs = initialDelay.inMilliseconds * _pow(backoffMultiplier, attempt);
+    final delayMs =
+        initialDelay.inMilliseconds * _pow(backoffMultiplier, attempt);
     final cappedDelayMs = delayMs.clamp(0, maxDelay.inMilliseconds);
     return Duration(milliseconds: cappedDelayMs.toInt());
   }

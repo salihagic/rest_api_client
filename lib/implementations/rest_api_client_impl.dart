@@ -85,17 +85,14 @@ class RestApiClientImpl implements RestApiClient {
   late bool _deduplicationEnabled;
 
   @override
-
   /// Handler for authentication operations (login, logout, token management).
   late AuthHandler authHandler;
 
   @override
-
   /// Handler for caching responses and retrieving cached data.
   late CacheHandler cacheHandler;
 
   @override
-
   /// Handler for processing and broadcasting exceptions.
   late ExceptionHandler exceptionHandler;
 
@@ -769,10 +766,7 @@ class RestApiClientImpl implements RestApiClient {
 
     if (_retryOptions.enabled) {
       _dio.interceptors.add(
-        RetryInterceptor(
-          dio: _dio,
-          retryOptions: _retryOptions,
-        ),
+        RetryInterceptor(dio: _dio, retryOptions: _retryOptions),
       );
     }
   }

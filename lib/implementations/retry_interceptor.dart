@@ -34,10 +34,7 @@ class RetryInterceptor extends Interceptor {
   final RetryOptions retryOptions;
 
   /// Creates a new [RetryInterceptor].
-  RetryInterceptor({
-    required this.dio,
-    required this.retryOptions,
-  });
+  RetryInterceptor({required this.dio, required this.retryOptions});
 
   /// Handles errors and retries the request if appropriate.
   ///
@@ -124,7 +121,8 @@ class RetryInterceptor extends Interceptor {
     }
 
     final statusCode = error.response?.statusCode;
-    if (statusCode != null && retryOptions.retryableStatusCodes.contains(statusCode)) {
+    if (statusCode != null &&
+        retryOptions.retryableStatusCodes.contains(statusCode)) {
       return true;
     }
 
