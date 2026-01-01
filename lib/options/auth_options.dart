@@ -1,61 +1,128 @@
-/// Configuration options for authentication handling.
+/// Configuration options for JWT authentication and automatic token refresh.
+///
+/// Example usage:
+/// ```dart
+/// AuthOptions(
+///   refreshTokenEndpoint: '/auth/refresh',
+///   refreshTokenExecutionType: RefreshTokenStrategy.preemptivelyRefreshBeforeExpiry,
+///   resolveJwt: (response) => response.data['access_token'],
+///   resolveRefreshToken: (response) => response.data['refresh_token'],
+/// )
+/// ```
 class AuthOptions {
-  /// Indicates whether to use secure storage for sensitive tokens.
+  /// Whether to use secure (encrypted) storage for tokens.
+  ///
+  /// When `true` (default), tokens are stored using platform-specific secure storage
+  /// (Keychain on iOS, EncryptedSharedPreferences on Android).
+  /// When `false`, tokens are stored in regular SharedPreferences.
   final bool useSecureStorage;
 
-  /// The endpoint for refreshing tokens.
+  /// The API endpoint for refreshing tokens (e.g., `/auth/refresh`).
+  ///
+  /// This endpoint is called when the JWT expires and needs to be refreshed.
   final String refreshTokenEndpoint;
 
-  /// Parameter name used for the refresh token in requests.
+  /// The parameter name for the refresh token in the request body.
+  ///
+  /// Only used if [refreshTokenBodyBuilder] is not provided.
+  /// The default request body will be: `{refreshTokenParameterName: refreshToken}`.
   final String refreshTokenParameterName;
 
-  /// Strategy for handling refresh token requests.
+  /// The strategy for handling token refresh.
+  ///
+  /// See [RefreshTokenStrategy] for available options.
   final RefreshTokenStrategy refreshTokenExecutionType;
 
-  /// List of paths that do not require authentication.
+  /// API paths that should skip authentication checks.
+  ///
+  /// Requests to these paths will not trigger token refresh even if the JWT is expired.
+  /// Useful for public endpoints like login, registration, or health checks.
   final List<String> ignoreAuthForPaths;
 
-  /// Whether authentication is required for requests.
-  /// When true (default), requests will fail if token refresh fails.
-  /// When false, requests will continue without authorization if token refresh fails.
-  /// Can be overridden per-request using Options(extra: {'requiresAuth': true/false}).
+  /// Whether authentication is required for requests by default.
+  ///
+  /// When `true` (default), requests will fail if token refresh fails.
+  /// When `false`, requests will continue without authorization if token refresh fails,
+  /// allowing the app to work in a "logged-out" state.
+  ///
+  /// Can be overridden per-request using [RestApiClientRequestOptions.requiresAuth].
   final bool requiresAuth;
 
-  /// Function to extract the JWT from the response.
+  /// Callback to extract the new JWT from the refresh token response.
+  ///
+  /// Required for automatic token refresh to work.
+  ///
+  /// Example:
+  /// ```dart
+  /// resolveJwt: (response) => response.data['access_token']
+  /// ```
   final String Function(dynamic response)? resolveJwt;
 
-  /// Function to extract the refresh token from the response.
+  /// Callback to extract the new refresh token from the refresh token response.
+  ///
+  /// Required for automatic token refresh to work.
+  ///
+  /// Example:
+  /// ```dart
+  /// resolveRefreshToken: (response) => response.data['refresh_token']
+  /// ```
   final String Function(dynamic response)? resolveRefreshToken;
 
-  /// Function to build the body for the refresh token request.
+  /// Custom builder for the refresh token request body.
+  ///
+  /// If not provided, the default body is: `{refreshTokenParameterName: refreshToken}`.
+  ///
+  /// Example:
+  /// ```dart
+  /// refreshTokenBodyBuilder: (jwt, refreshToken) => {
+  ///   'grant_type': 'refresh_token',
+  ///   'refresh_token': refreshToken,
+  /// }
+  /// ```
   final dynamic Function(String jwt, String refreshToken)?
   refreshTokenBodyBuilder;
 
-  /// Function to build headers for the refresh token request.
+  /// Custom builder for the refresh token request headers.
+  ///
+  /// If not provided, the default header is: `{Authorization: 'Bearer $jwt'}`.
+  ///
+  /// Example:
+  /// ```dart
+  /// refreshTokenHeadersBuilder: (jwt, refreshToken) => {
+  ///   'Authorization': 'Bearer $jwt',
+  ///   'X-Refresh-Token': refreshToken,
+  /// }
+  /// ```
   final Map<String, dynamic>? Function(String jwt, String refreshToken)?
   refreshTokenHeadersBuilder;
 
-  /// Constructor to initialize the AuthOptions class with default values.
+  /// Creates authentication options with the specified configuration.
   const AuthOptions({
-    this.useSecureStorage =
-        true, // Default is true; tokens will be stored securely.
-    this.refreshTokenEndpoint =
-        '', // Default empty string; should be set to actual endpoint.
-    this.refreshTokenParameterName =
-        '', // Default empty; should be set to actual parameter name.
-    this.refreshTokenExecutionType =
-        RefreshTokenStrategy.responseAndRetry, // Default strategy.
-    this.ignoreAuthForPaths = const [], // Default to an empty list.
-    this.requiresAuth = true, // Default is true; requests fail if auth fails.
-    this.resolveJwt, // Optional function for JWT extraction.
-    this.resolveRefreshToken, // Optional function for refresh token extraction.
-    this.refreshTokenBodyBuilder, // Optional function to build request body for the refresh token request.
-    this.refreshTokenHeadersBuilder, // Optional function to build request headers for the refresh token request.
+    this.useSecureStorage = true,
+    this.refreshTokenEndpoint = '',
+    this.refreshTokenParameterName = '',
+    this.refreshTokenExecutionType = RefreshTokenStrategy.responseAndRetry,
+    this.ignoreAuthForPaths = const [],
+    this.requiresAuth = true,
+    this.resolveJwt,
+    this.resolveRefreshToken,
+    this.refreshTokenBodyBuilder,
+    this.refreshTokenHeadersBuilder,
   });
 }
 
-/// Enumeration for defining strategies for handling refresh tokens.
+/// Strategy for handling JWT token refresh.
 enum RefreshTokenStrategy {
-  responseAndRetry, // Refresh token is processed as part of the response and retried if needed.
-  preemptivelyRefreshBeforeExpiry, // Refresh token is fetched before the JWT expiry.
+  /// Refresh the token after receiving a 401 Unauthorized response, then retry the request.
+  ///
+  /// This is the default strategy. The original request is made, and if it returns 401,
+  /// the token is refreshed and the request is automatically retried with the new token.
+  responseAndRetry,
+
+  /// Check token expiry before each request and refresh proactively if expired.
+  ///
+  /// This strategy prevents 401 errors by checking the JWT expiry time locally
+  /// and refreshing before the request is made. Requires the JWT to contain
+  /// a valid `exp` claim.
+  preemptivelyRefreshBeforeExpiry,
 }

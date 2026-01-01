@@ -5,16 +5,50 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:rest_api_client/rest_api_client.dart';
 import 'package:storage_repository/storage_repository.dart';
 
+/// Handles JWT authentication, token storage, and automatic token refresh.
+///
+/// This class manages the complete authentication lifecycle including:
+/// - Storing and retrieving JWT and refresh tokens securely
+/// - Adding authorization headers to requests
+/// - Refreshing expired tokens automatically
+///
+/// Example usage:
+/// ```dart
+/// // Authorize a user after login
+/// await authHandler.authorize(jwt: accessToken, refreshToken: refreshToken);
+///
+/// // Check if user is authorized
+/// if (await authHandler.isAuthorized) {
+///   // User has valid tokens stored
+/// }
+///
+/// // Logout - clear all tokens
+/// await authHandler.unAuthorize();
+/// ```
 class AuthHandler {
+  /// The Dio instance used for making HTTP requests.
   final Dio dio;
+
+  /// General REST API client options (baseUrl, etc.).
   final RestApiClientOptions options;
+
+  /// Authentication-specific options (refresh endpoint, token resolvers, etc.).
   final AuthOptions authOptions;
+
+  /// Exception handling options.
   final ExceptionOptions exceptionOptions;
+
+  /// Logging configuration options.
   final LoggingOptions loggingOptions;
+
+  /// Handler for processing exceptions.
   final ExceptionHandler exceptionHandler;
 
   late StorageRepository _storage;
 
+  /// Creates an AuthHandler instance.
+  ///
+  /// Automatically selects secure or regular storage based on [authOptions.useSecureStorage].
   AuthHandler({
     required this.dio,
     required this.options,
@@ -34,22 +68,47 @@ class AuthHandler {
           );
   }
 
+  /// Whether the Authorization header is currently set in Dio.
   Future<bool> get containsAuthorizationHeader async =>
       dio.options.headers.containsKey(RestApiClientKeys.authorization);
+
+  /// Whether a JWT token exists in storage.
   Future<bool> get containsJwtInStorage async =>
       await _storage.contains(RestApiClientKeys.jwt);
+
+  /// Whether a refresh token exists in storage.
   Future<bool> get containsRefreshTokenInStorage async =>
       await _storage.contains(RestApiClientKeys.refreshToken);
+
+  /// Whether the user is fully authorized (has header, JWT, and refresh token).
+  ///
+  /// Returns `true` only if all three conditions are met:
+  /// - Authorization header is set
+  /// - JWT exists in storage
+  /// - Refresh token exists in storage
   Future<bool> get isAuthorized async =>
       await containsAuthorizationHeader &&
       await containsJwtInStorage &&
       await containsRefreshTokenInStorage;
+
+  /// Retrieves the stored JWT token, or `null` if not present.
   Future<String?> get jwt async => await _storage.get(RestApiClientKeys.jwt);
+
+  /// Retrieves the stored refresh token, or `null` if not present.
   Future<String?> get refreshToken async =>
       await _storage.get(RestApiClientKeys.refreshToken);
+
+  /// Whether the Dio instance currently has an Authorization header set.
+  ///
+  /// This is a synchronous check of the current header state.
   bool get usesAuth =>
       dio.options.headers.containsKey(RestApiClientKeys.authorization);
 
+  /// Initializes the auth handler and restores any previously stored tokens.
+  ///
+  /// If [migrateFromHive] is `true`, attempts to migrate tokens from legacy Hive storage.
+  /// After initialization, if a valid JWT exists in storage, it will be set to the
+  /// Authorization header automatically.
   Future init([bool migrateFromHive = true]) async {
     await _storage.init(migrateFromHive);
 
@@ -67,6 +126,7 @@ class AuthHandler {
     }
   }
 
+  /// Migrates tokens from legacy Hive storage keys to new storage keys.
   Future<void> _migrateTokens() async {
     final oldJwt = await _storage.get(RestApiClientKeys.migration_jwt);
     final oldRefreshToken = await _storage.get(
@@ -77,16 +137,28 @@ class AuthHandler {
         oldJwt != null &&
         oldJwt.isNotEmpty) {
       await _storage.set(RestApiClientKeys.jwt, oldJwt);
-      // await _storage.delete(RestApiClientKeys.migration_jwt);
     }
     if (!await _storage.contains(RestApiClientKeys.refreshToken) &&
         oldRefreshToken != null &&
         oldRefreshToken.isNotEmpty) {
       await _storage.set(RestApiClientKeys.refreshToken, oldRefreshToken);
-      // await _storage.delete(RestApiClientKeys.migration_refreshToken);
     }
   }
 
+  /// Stores the JWT and refresh token, and sets the Authorization header.
+  ///
+  /// Call this after a successful login to persist the user's session.
+  ///
+  /// Returns `true` if both tokens were stored successfully.
+  ///
+  /// Example:
+  /// ```dart
+  /// final loginResponse = await api.login(email, password);
+  /// await authHandler.authorize(
+  ///   jwt: loginResponse.accessToken,
+  ///   refreshToken: loginResponse.refreshToken,
+  /// );
+  /// ```
   Future<bool> authorize({
     required String jwt,
     required String refreshToken,
@@ -100,6 +172,11 @@ class AuthHandler {
         await _storage.set(RestApiClientKeys.refreshToken, refreshToken);
   }
 
+  /// Clears all stored tokens and removes the Authorization header.
+  ///
+  /// Call this when the user logs out to clear their session.
+  ///
+  /// Returns `true` if both tokens were deleted successfully.
   Future<bool> unAuthorize() async {
     final deleteJwtResult = await _storage.delete(RestApiClientKeys.jwt);
     final deleteRefreshTokenResult = await _storage.delete(
@@ -111,6 +188,15 @@ class AuthHandler {
     return deleteJwtResult && deleteRefreshTokenResult;
   }
 
+  /// Refreshes the token and retries the request with the new token.
+  ///
+  /// This is called by [RefreshTokenInterceptor] when a token refresh is needed.
+  ///
+  /// If [handler] is provided (from interceptor), it will call `handler.next()`
+  /// to continue the interceptor chain. Otherwise, it executes the request
+  /// directly and returns the response.
+  ///
+  /// Returns `null` if token resolvers are not configured.
   Future<Response<T>?> refreshTokenCallback<T>(
     RequestOptions requestOptions, [
     RequestInterceptorHandler? handler,
@@ -166,6 +252,13 @@ class AuthHandler {
     return null;
   }
 
+  /// Executes the token refresh request to the configured endpoint.
+  ///
+  /// Uses a separate Dio instance to avoid interceptor loops.
+  /// On success, stores the new tokens via [authorize].
+  /// On failure, handles the exception and rethrows.
+  ///
+  /// Throws [DioException] if the refresh request fails.
   Future<void> executeTokenRefresh() async {
     final newDioClient = Dio(
       BaseOptions()
@@ -231,15 +324,21 @@ class AuthHandler {
     }
   }
 
+  /// Clears all data from the auth storage.
+  ///
+  /// This removes all stored tokens. Use [unAuthorize] instead if you also
+  /// want to remove the Authorization header.
   Future clear() async {
     await _storage.clear();
   }
 
+  /// Sets the JWT to the Authorization header.
   void _setJwtToHeader(String jwt) => _addOrUpdateHeader(
     key: RestApiClientKeys.authorization,
     value: 'Bearer $jwt',
   );
 
+  /// Adds or updates a header in the Dio instance.
   void _addOrUpdateHeader({required String key, required String value}) =>
       dio.options.headers.containsKey(key)
       ? dio.options.headers.update(key, (v) => value)
