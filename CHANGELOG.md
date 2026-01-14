@@ -1,3 +1,7 @@
+## 2.4.1
+
+* Dependencies upgraded and docs updated
+
 ## 2.3.18
 
 * Migration logic updated
