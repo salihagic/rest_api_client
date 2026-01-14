@@ -31,10 +31,7 @@ Future<void> main() async {
       cacheLifetimeDuration: const Duration(minutes: 5),
       useAuthorization: false, // Public API, no auth needed
     ),
-    retryOptions: RetryOptions(
-      enabled: true,
-      maxRetries: 3,
-    ),
+    retryOptions: RetryOptions(enabled: true, maxRetries: 3),
   );
 
   // Initialize the client
@@ -79,42 +76,47 @@ class HomeScreen extends StatelessWidget {
           _ExampleTile(
             title: 'GET Request',
             subtitle: 'Fetch a list of posts',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const GetExampleScreen()),
-            ),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const GetExampleScreen()),
+                ),
           ),
           _ExampleTile(
             title: 'POST Request',
             subtitle: 'Create a new post',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const PostExampleScreen()),
-            ),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PostExampleScreen()),
+                ),
           ),
           _ExampleTile(
             title: 'Caching',
             subtitle: 'Cache-first and streamed requests',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const CacheExampleScreen()),
-            ),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CacheExampleScreen()),
+                ),
           ),
           _ExampleTile(
             title: 'Error Handling',
             subtitle: 'Handle different error types',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ErrorExampleScreen()),
-            ),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ErrorExampleScreen()),
+                ),
           ),
           _ExampleTile(
             title: 'Type Conversion',
             subtitle: 'Parse responses into typed objects',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const TypedExampleScreen()),
-            ),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const TypedExampleScreen()),
+                ),
           ),
         ],
       ),
@@ -215,8 +217,16 @@ class _GetExampleScreenState extends State<GetExampleScreen> {
         final post = posts[index];
         return ListTile(
           leading: CircleAvatar(child: Text('${post['id']}')),
-          title: Text(post['title'], maxLines: 1, overflow: TextOverflow.ellipsis),
-          subtitle: Text(post['body'], maxLines: 2, overflow: TextOverflow.ellipsis),
+          title: Text(
+            post['title'],
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Text(
+            post['body'],
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
         );
       },
     );
@@ -236,7 +246,9 @@ class PostExampleScreen extends StatefulWidget {
 
 class _PostExampleScreenState extends State<PostExampleScreen> {
   final titleController = TextEditingController(text: 'My New Post');
-  final bodyController = TextEditingController(text: 'This is the post content.');
+  final bodyController = TextEditingController(
+    text: 'This is the post content.',
+  );
   bool isLoading = false;
   Map<String, dynamic>? createdPost;
 
@@ -298,17 +310,21 @@ class _PostExampleScreenState extends State<PostExampleScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: isLoading ? null : createPost,
-              child: isLoading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Create Post'),
+              child:
+                  isLoading
+                      ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                      : const Text('Create Post'),
             ),
             if (createdPost != null) ...[
               const SizedBox(height: 24),
-              const Text('Created Post:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'Created Post:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               Card(
                 child: Padding(
@@ -541,9 +557,10 @@ class _ErrorExampleScreenState extends State<ErrorExampleScreen> {
 
     setState(() {
       isLoading = false;
-      resultText = result.isError
-          ? 'Silent error (not broadcast globally): ${result.exception}'
-          : 'Success: ${result.data}';
+      resultText =
+          result.isError
+              ? 'Silent error (not broadcast globally): ${result.exception}'
+              : 'Success: ${result.data}';
     });
   }
 
@@ -713,12 +730,19 @@ class _TypedExampleScreenState extends State<TypedExampleScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Post (typed)', style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        'Post (typed)',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                       const SizedBox(height: 8),
                       Text('ID: ${post!.id}'),
                       Text('User ID: ${post!.userId}'),
                       Text('Title: ${post!.title}'),
-                      Text('Body: ${post!.body}', maxLines: 3, overflow: TextOverflow.ellipsis),
+                      Text(
+                        'Body: ${post!.body}',
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ],
                   ),
                 ),
@@ -732,7 +756,11 @@ class _TypedExampleScreenState extends State<TypedExampleScreen> {
                     return Card(
                       child: ListTile(
                         leading: CircleAvatar(child: Text('${p.id}')),
-                        title: Text(p.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        title: Text(
+                          p.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         subtitle: Text('User: ${p.userId}'),
                       ),
                     );
