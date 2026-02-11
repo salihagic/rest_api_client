@@ -29,6 +29,20 @@ class RestApiClientRequestOptions {
   /// When false, the request will continue without authorization if token refresh fails.
   bool? requiresAuth;
 
+  /// Timeout for sending the request data to the server.
+  ///
+  /// If the request is not sent within this duration, a [DioException]
+  /// with type [DioExceptionType.sendTimeout] will be thrown.
+  /// When null, uses the global Dio default.
+  Duration? sendTimeout;
+
+  /// Timeout for receiving the response from the server.
+  ///
+  /// If the response is not received within this duration, a [DioException]
+  /// with type [DioExceptionType.receiveTimeout] will be thrown.
+  /// When null, uses the global Dio default.
+  Duration? receiveTimeout;
+
   /// Constructor for creating an instance of RestApiClientRequestOptions.
   ///
   /// The [headers], [contentType], and [requiresAuth] parameters are optional, while
@@ -39,6 +53,8 @@ class RestApiClientRequestOptions {
     this.contentType,
     this.silentException = false,
     this.requiresAuth,
+    this.sendTimeout,
+    this.receiveTimeout,
   });
 
   /// Converts the current request options to Dio's [Options] format.
@@ -49,6 +65,8 @@ class RestApiClientRequestOptions {
     return Options(
       headers: headers,
       contentType: contentType,
+      sendTimeout: sendTimeout,
+      receiveTimeout: receiveTimeout,
       extra: requiresAuth != null ? {'requiresAuth': requiresAuth} : null,
     );
   }

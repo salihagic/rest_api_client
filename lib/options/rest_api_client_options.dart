@@ -24,6 +24,27 @@ class RestApiClientOptions {
   /// to the API server.
   final bool cacheEnabled;
 
+  /// Timeout for establishing a connection to the server.
+  ///
+  /// If a connection is not established within this duration,
+  /// a [DioException] with type [DioExceptionType.connectionTimeout] will be thrown.
+  /// When null, no timeout is applied.
+  final Duration? connectTimeout;
+
+  /// Default timeout for sending request data to the server.
+  ///
+  /// Applies to all requests unless overridden per-request via
+  /// [RestApiClientRequestOptions.sendTimeout].
+  /// When null, no timeout is applied.
+  final Duration? sendTimeout;
+
+  /// Default timeout for receiving response data from the server.
+  ///
+  /// Applies to all requests unless overridden per-request via
+  /// [RestApiClientRequestOptions.receiveTimeout].
+  /// When null, no timeout is applied.
+  final Duration? receiveTimeout;
+
   /// Constructor for creating an instance of RestApiClientOptions.
   ///
   /// The [baseUrl] parameter must be provided to specify the
@@ -32,5 +53,8 @@ class RestApiClientOptions {
     this.baseUrl = '',
     this.overrideBadCertificate = true,
     this.cacheEnabled = false,
+    this.connectTimeout,
+    this.sendTimeout,
+    this.receiveTimeout,
   });
 }

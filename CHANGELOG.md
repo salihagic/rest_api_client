@@ -1,3 +1,7 @@
+## 2.4.2
+
+* Timeout parameter added globally and per-request
+
 ## 2.4.1
 
 * Dependencies upgraded and docs updated

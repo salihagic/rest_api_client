@@ -133,7 +133,14 @@ class RestApiClientImpl implements RestApiClient {
     _deduplicationEnabled = enableDeduplication; // Set deduplication flag
 
     /// Initialize Dio with base URL
-    _dio = Dio(BaseOptions(baseUrl: _options.baseUrl));
+    _dio = Dio(
+      BaseOptions(
+        baseUrl: _options.baseUrl,
+        connectTimeout: _options.connectTimeout,
+        sendTimeout: _options.sendTimeout,
+        receiveTimeout: _options.receiveTimeout,
+      ),
+    );
 
     /// Set the appropriate HTTP client adapter depending on the platform
     _dio.httpClientAdapter = getAdapter();
