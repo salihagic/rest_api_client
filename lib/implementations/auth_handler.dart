@@ -58,14 +58,8 @@ class AuthHandler {
     required this.exceptionHandler,
   }) {
     _storage = authOptions.useSecureStorage
-        ? SecureStorageRepositoryImpl(
-            keyPrefix: RestApiClientKeys.storageKey,
-            migrationBoxKey: RestApiClientKeys.migration_storageKey,
-          )
-        : StorageRepositoryImpl(
-            keyPrefix: RestApiClientKeys.storageKey,
-            migrationBoxKey: RestApiClientKeys.migration_storageKey,
-          );
+        ? SecureStorageRepositoryImpl(keyPrefix: RestApiClientKeys.storageKey)
+        : StorageRepositoryImpl(keyPrefix: RestApiClientKeys.storageKey);
   }
 
   /// Whether the Authorization header is currently set in Dio.
@@ -106,15 +100,10 @@ class AuthHandler {
 
   /// Initializes the auth handler and restores any previously stored tokens.
   ///
-  /// If [migrateFromHive] is `true`, attempts to migrate tokens from legacy Hive storage.
   /// After initialization, if a valid JWT exists in storage, it will be set to the
   /// Authorization header automatically.
-  Future init([bool migrateFromHive = true]) async {
-    await _storage.init(migrateFromHive);
-
-    if (migrateFromHive) {
-      await _migrateTokens();
-    }
+  Future init() async {
+    await _storage.init();
 
     if (loggingOptions.logStorage) {
       await _storage.log();
@@ -123,25 +112,6 @@ class AuthHandler {
     final currentJwt = await jwt;
     if (currentJwt != null && currentJwt.isNotEmpty) {
       _setJwtToHeader(currentJwt);
-    }
-  }
-
-  /// Migrates tokens from legacy Hive storage keys to new storage keys.
-  Future<void> _migrateTokens() async {
-    final oldJwt = await _storage.get(RestApiClientKeys.migration_jwt);
-    final oldRefreshToken = await _storage.get(
-      RestApiClientKeys.migration_refreshToken,
-    );
-
-    if (!await _storage.contains(RestApiClientKeys.jwt) &&
-        oldJwt != null &&
-        oldJwt.isNotEmpty) {
-      await _storage.set(RestApiClientKeys.jwt, oldJwt);
-    }
-    if (!await _storage.contains(RestApiClientKeys.refreshToken) &&
-        oldRefreshToken != null &&
-        oldRefreshToken.isNotEmpty) {
-      await _storage.set(RestApiClientKeys.refreshToken, oldRefreshToken);
     }
   }
 

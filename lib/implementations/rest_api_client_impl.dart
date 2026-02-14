@@ -172,18 +172,13 @@ class RestApiClientImpl implements RestApiClient {
   /// - The authentication handler (restores stored tokens)
   /// - The cache handler (if caching is enabled)
   ///
-  /// If [migrateFromHive] is `true` (default), attempts to migrate tokens
-  /// from legacy Hive storage to the new storage format.
-  ///
-  /// Returns `this` for method chaining.
-  ///
   /// Example:
   /// ```dart
   /// final client = await RestApiClientImpl(options: options).init();
   /// ```
   @override
-  Future<RestApiClient> init([bool migrateFromHive = true]) async {
-    await authHandler.init(migrateFromHive);
+  Future<RestApiClient> init() async {
+    await authHandler.init();
     if (_options.cacheEnabled) {
       await cacheHandler.init();
     }

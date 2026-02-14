@@ -7,9 +7,6 @@ late RestApiClient apiClient;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize storage (required once per app lifetime)
-  await RestApiClient.initFlutter();
-
   // Create and configure the API client
   apiClient = RestApiClientImpl(
     options: RestApiClientOptions(

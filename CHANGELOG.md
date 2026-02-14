@@ -1,3 +1,7 @@
+## 3.0.0
+
+* Removed Hive migration logic
+
 ## 2.4.2
 
 * Timeout parameter added globally and per-request

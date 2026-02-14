@@ -14,12 +14,8 @@ class CacheHandler {
     _storage = cacheOptions.useSecureStorage
         ? SecureStorageRepositoryImpl(
             keyPrefix: RestApiClientKeys.cachedStorageKey,
-            migrationBoxKey: RestApiClientKeys.migration_cachedStorageKey,
           )
-        : StorageRepositoryImpl(
-            keyPrefix: RestApiClientKeys.cachedStorageKey,
-            migrationBoxKey: RestApiClientKeys.migration_cachedStorageKey,
-          );
+        : StorageRepositoryImpl(keyPrefix: RestApiClientKeys.cachedStorageKey);
   }
 
   /// Initializes the cache handler, clearing the storage if configured to do so.

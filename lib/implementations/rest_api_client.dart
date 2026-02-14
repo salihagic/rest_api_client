@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:rest_api_client/rest_api_client.dart';
-import 'package:storage_repository/storage_repository.dart';
 
 /// An abstract class representing a REST API client.
 abstract class RestApiClient {
@@ -10,7 +9,7 @@ abstract class RestApiClient {
   Map<String, String> get headers; // Gets the current request headers
 
   /// Initializes the client and its handlers.
-  Future<RestApiClient> init([bool migrateFromHive = true]);
+  Future<RestApiClient> init();
 
   /// Sends a GET request to the specified [path].
   Future<Result<T>> get<T>(
@@ -163,10 +162,4 @@ abstract class RestApiClient {
 
   /// Clears stored credentials and cached data.
   Future clearStorage();
-
-  /// Initializes the Flutter storage repository.
-  /// **This method is deprecated and will be removed once all app data is migrated from Hive.**
-  @Deprecated("Method will be removed once all apps data is migrated from Hive")
-  static Future<void> initFlutter() async =>
-      await StorageRepository.initFlutter();
 }
