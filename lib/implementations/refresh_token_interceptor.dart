@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:rest_api_client/rest_api_client.dart';
 
@@ -152,8 +151,7 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
   /// Non-401 errors are passed through to the next error handler.
   @override
   void onError(DioException error, handler) async {
-    if (isResponseAndRetry &&
-        error.response?.statusCode == HttpStatus.unauthorized) {
+    if (isResponseAndRetry && error.response?.statusCode == 401) {
       try {
         final response = await authHandler.refreshTokenCallback(
           error.requestOptions,

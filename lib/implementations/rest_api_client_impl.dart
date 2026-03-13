@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:dio/io.dart';
 import 'package:rest_api_client/implementations/refresh_token_interceptor.dart';
 import 'package:rest_api_client/implementations/request_deduplication_interceptor.dart';
 import 'package:rest_api_client/implementations/retry_interceptor.dart';
@@ -11,7 +9,10 @@ import 'package:rest_api_client/options/retry_options.dart';
 
 import 'dio_adapter_stub.dart'
     if (dart.library.io) 'dio_adapter_mobile.dart'
-    if (dart.library.js) 'dio_adapter_web.dart';
+    if (dart.library.js_interop) 'dio_adapter_web.dart';
+
+import 'certificate_override_stub.dart'
+    if (dart.library.io) 'certificate_override_mobile.dart';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -779,12 +780,7 @@ class RestApiClientImpl implements RestApiClient {
   /// and the platform is not web. Use with caution in production.
   void _configureCertificateOverride() {
     if (_options.overrideBadCertificate && !kIsWeb) {
-      (_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
-        final client = HttpClient();
-        client.badCertificateCallback =
-            (X509Certificate cert, String host, int port) => true;
-        return client;
-      };
+      configureCertificateOverride(_dio.httpClientAdapter);
     }
   }
 

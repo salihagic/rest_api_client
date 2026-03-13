@@ -1,6 +1,7 @@
-import 'dart:io';
-import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
+
+import 'certificate_override_stub.dart'
+    if (dart.library.io) 'certificate_override_mobile.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:rest_api_client/rest_api_client.dart';
 import 'package:storage_repository/storage_repository.dart';
@@ -251,14 +252,7 @@ class AuthHandler {
     }
 
     if (options.overrideBadCertificate && !kIsWeb) {
-      (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
-        final client = HttpClient();
-
-        client.badCertificateCallback =
-            (X509Certificate cert, String host, int port) => true;
-
-        return client;
-      };
+      configureCertificateOverride(dio.httpClientAdapter);
     }
 
     final currentJwt = await jwt;

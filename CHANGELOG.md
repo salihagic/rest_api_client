@@ -1,3 +1,7 @@
+## 3.0.1
+
+* WASM support
+
 ## 3.0.0
 
 * Removed Hive migration logic

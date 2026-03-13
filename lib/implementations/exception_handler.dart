@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -33,31 +32,31 @@ class ExceptionHandler {
   BaseException _getExceptionFromDioError(DioException e, bool silent) {
     if (e.type == DioExceptionType.badResponse) {
       switch (e.response?.statusCode) {
-        case HttpStatus.internalServerError:
+        case 500:
           return ServerErrorException(silent: silent, exception: e);
-        case HttpStatus.badGateway:
+        case 502:
           return ServerErrorException(silent: silent, exception: e);
-        case HttpStatus.notFound:
+        case 404:
           return ValidationException.multipleFields(
             silent: silent,
             validationMessages: _getValidationMessages(e),
             exception: e,
           );
-        case HttpStatus.unprocessableEntity:
+        case 422:
           return ValidationException.multipleFields(
             silent: silent,
             validationMessages: _getValidationMessages(e),
             exception: e,
           );
-        case HttpStatus.badRequest:
+        case 400:
           return ValidationException.multipleFields(
             silent: silent,
             validationMessages: _getValidationMessages(e),
             exception: e,
           );
-        case HttpStatus.unauthorized:
+        case 401:
           return UnauthorizedException(silent: silent, exception: e);
-        case HttpStatus.forbidden:
+        case 403:
           return ForbiddenException(silent: silent, exception: e);
         default:
           return BaseException(silent: silent, exception: e);

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:rest_api_client/rest_api_client.dart';
 
@@ -115,7 +114,7 @@ class RetryInterceptor extends Interceptor {
         return true;
       }
 
-      if (error.error is SocketException) {
+      if (error.error.toString().contains('SocketException')) {
         return true;
       }
     }
